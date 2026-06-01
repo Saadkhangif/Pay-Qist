@@ -1,4 +1,5 @@
-import { Link, NavLink } from 'react-router-dom';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
 
@@ -10,21 +11,115 @@ const navLinkClass = ({ isActive }) =>
 
 export default function Layout({ children }) {
   const { user, logout, isAdmin } = useAuth();
-  const { cart } = useStore();
+  const { cart, products = [] } = useStore();
+  const navigate = useNavigate();
+
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchRef = useRef(null);
+
+  // Filter products based on the search query
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
+    return products
+      .filter(
+        (p) =>
+          p.title.toLowerCase().includes(query) ||
+          p.description.toLowerCase().includes(query)
+      )
+      .slice(0, 5); // Limit the dropdown to 5 results to keep it clean
+  }, [searchQuery, products]);
+
+  // Close the search bar if the user clicks anywhere outside of it
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsSearchExpanded(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 border-b border-white/10 bg-earth-dark/75 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-earth-gold to-earth-sage text-sm font-black text-earth-dark">
-              PQ
+          <div className="flex items-center gap-2 sm:gap-6">
+            <Link to="/" className="flex items-center gap-3">
+              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-earth-gold to-earth-sage text-sm font-black text-earth-dark">
+                PQ
+              </div>
+              {/* Hide the logo text on small screens so the expanded search bar has room to breathe */}
+              <div className="hidden sm:block">
+                <div className="text-sm font-semibold tracking-[0.24em] text-earth-gold">PAY QIST</div>
+                <div className="text-xs text-earth-cream/70">Installments made simple</div>
+              </div>
+            </Link>
+
+            {/* Expandable Search Component */}
+            <div ref={searchRef} className="relative flex items-center">
+              <button
+                type="button"
+                className="rounded-full p-2 text-earth-cream hover:bg-earth-gold/10 hover:text-earth-gold focus:outline-none focus:ring-2 focus:ring-earth-gold transition"
+                onClick={() => {
+                  setIsSearchExpanded(!isSearchExpanded);
+                  if (isSearchExpanded) setSearchQuery(''); // Clear input if closing
+                }}
+                aria-label="Search products"
+              >
+                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+              </button>
+
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  isSearchExpanded ? 'w-32 opacity-100 sm:w-56 lg:w-64' : 'w-0 opacity-0'
+                }`}
+              >
+                <input
+                  type="text"
+                  className="w-full rounded-full border border-white/10 bg-earth-dark/50 px-4 py-1.5 text-sm text-white placeholder-earth-cream/50 focus:border-earth-gold/50 focus:outline-none focus:ring-1 focus:ring-earth-gold/50"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+
+              {/* Search Results Dropdown */}
+              {isSearchExpanded && searchQuery.trim() && (
+                <div className="absolute top-full left-0 mt-4 w-[280px] sm:w-[320px] overflow-hidden rounded-2xl border border-white/10 bg-earth-dark/95 shadow-xl backdrop-blur-xl">
+                  {searchResults.length > 0 ? (
+                    <div className="flex max-h-[300px] flex-col overflow-y-auto p-2">
+                      {searchResults.map((product) => (
+                        <button
+                          key={product.id}
+                          className="flex items-center gap-3 rounded-xl p-2 text-left hover:bg-white/10 transition"
+                          onClick={() => {
+                            navigate(`/product/${product.id}`);
+                            setIsSearchExpanded(false);
+                            setSearchQuery('');
+                          }}
+                        >
+                          <img src={product.imageUrl} alt={product.title} className="h-10 w-10 shrink-0 rounded-lg object-cover border border-white/10" />
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-sm font-medium text-white">{product.title}</div>
+                            <div className="truncate text-xs text-earth-cream/70">{product.category || 'General'}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center text-sm text-earth-cream/70">
+                      No products found.
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            <div>
-              <div className="text-sm font-semibold tracking-[0.24em] text-earth-gold">PAY QIST</div>
-              <div className="text-xs text-earth-cream/70">Installments made simple</div>
-            </div>
-          </Link>
+          </div>
 
           <nav className="hidden items-center gap-2 md:flex">
             <NavLink to="/" className={navLinkClass} end>
