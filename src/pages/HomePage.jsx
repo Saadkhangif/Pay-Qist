@@ -10,7 +10,7 @@ import Faq from '../components/Faq';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-[#0F9D58] selection:text-white pb-20">
+    <div className="pb-20">
       <Hero />
       <TrustStatistics />
       <Categories />

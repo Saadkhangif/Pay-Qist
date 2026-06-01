@@ -7,7 +7,7 @@ import Footer from './Footer';
 const navLinkClass = ({ isActive }) =>
   [
     'rounded-full px-4 py-2 text-sm font-medium transition',
-    isActive ? 'text-earth-deep bg-earth-deep/10 border border-earth-deep/20 shadow-sm' : 'border border-transparent text-earth-dark/70 hover:bg-white/40 hover:text-earth-dark',
+    isActive ? 'text-[#0F9D58] bg-[#0F9D58]/10 border border-[#0F9D58]/20 shadow-sm' : 'border border-transparent text-slate-600 hover:bg-slate-100 hover:text-[#0F9D58]',
   ].join(' ');
 
 export default function Layout({ children }) {
@@ -64,18 +64,18 @@ export default function Layout({ children }) {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-40 border-b border-earth-dark/10 bg-white/60 backdrop-blur-xl shadow-sm">
+    <div className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 selection:bg-[#0F9D58] selection:text-white">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-xl shadow-sm transform-gpu">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 sm:gap-6">
             <Link to="/" className="flex items-center gap-3">
-              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-earth-deep to-earth-sage text-sm font-black text-white">
-                PQ
+              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#0F9D58] to-emerald-400 text-xl font-bold text-white shadow-md">
+                Q
               </div>
               {/* Hide the logo text on small screens so the expanded search bar has room to breathe */}
               <div className="hidden sm:block">
-                <div className="text-sm font-semibold tracking-[0.24em] text-earth-deep">PAY QIST</div>
-                <div className="text-xs text-earth-dark/70">Installments made simple</div>
+                <div className="text-xl font-bold tracking-tight text-slate-900">Pay <span className="text-[#0F9D58]">Qist</span></div>
+                <div className="text-xs font-medium tracking-wide text-slate-500">Installments made simple</div>
               </div>
             </Link>
 
@@ -83,7 +83,7 @@ export default function Layout({ children }) {
             <div ref={searchRef} className="relative flex items-center">
               <button
                 type="button"
-                className="rounded-full p-2 text-earth-dark/70 hover:bg-earth-deep/10 hover:text-earth-deep focus:outline-none focus:ring-2 focus:ring-earth-deep transition"
+                className="rounded-full p-2 text-slate-500 hover:bg-[#0F9D58]/10 hover:text-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58] transition"
                 onClick={() => {
                   setIsSearchExpanded(!isSearchExpanded);
                   if (isSearchExpanded) setSearchQuery(''); // Clear input if closing
@@ -102,7 +102,7 @@ export default function Layout({ children }) {
               >
                 <input
                   type="text"
-                  className="w-full rounded-full border border-earth-dark/10 bg-white/50 px-4 py-1.5 text-sm text-earth-dark placeholder-earth-dark/50 focus:border-earth-deep/50 focus:outline-none focus:ring-1 focus:ring-earth-deep/50"
+                  className="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20 transition-all"
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -111,13 +111,13 @@ export default function Layout({ children }) {
 
               {/* Search Results Dropdown */}
               {isSearchExpanded && searchQuery.trim() && (
-                <div className="absolute top-full left-0 mt-4 w-[280px] sm:w-[320px] overflow-hidden rounded-2xl border border-earth-dark/10 bg-white/90 shadow-xl backdrop-blur-xl">
+                <div className="absolute top-full left-0 mt-4 w-[280px] sm:w-[320px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
                   {searchResults.length > 0 ? (
                     <div className="flex max-h-[300px] flex-col overflow-y-auto p-2">
                       {searchResults.map((result) => (
                         <button
                           key={result.id}
-                          className="flex items-center gap-3 rounded-xl p-2 text-left hover:bg-black/5 transition"
+                          className="flex items-center gap-3 rounded-xl p-2 text-left hover:bg-slate-50 transition"
                           onClick={() => {
                             navigate(result.url);
                             setIsSearchExpanded(false);
@@ -125,23 +125,23 @@ export default function Layout({ children }) {
                           }}
                         >
                           {result.imageUrl ? (
-                            <img src={result.imageUrl} alt={result.title} className="h-10 w-10 shrink-0 rounded-lg object-cover border border-earth-dark/10" />
+                            <img src={result.imageUrl} alt={result.title} className="h-10 w-10 shrink-0 rounded-lg object-cover border border-slate-100" />
                           ) : (
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-earth-dark/10 bg-white/50 text-earth-deep">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-100 bg-slate-50 text-[#0F9D58]">
                               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                               </svg>
                             </div>
                           )}
                           <div className="min-w-0 flex-1">
-                            <div className="truncate text-sm font-medium text-earth-dark">{result.title}</div>
-                            <div className="truncate text-xs text-earth-dark/70">{result.category || 'General'}</div>
+                            <div className="truncate text-sm font-bold text-slate-900">{result.title}</div>
+                            <div className="truncate text-xs text-slate-500">{result.category || 'General'}</div>
                           </div>
                         </button>
                       ))}
                     </div>
                   ) : (
-                    <div className="p-4 text-center text-sm text-earth-dark/70">
+                    <div className="p-4 text-center text-sm text-slate-500">
                       No results found.
                     </div>
                   )}
@@ -174,19 +174,19 @@ export default function Layout({ children }) {
             {user ? (
               <>
                 <div className="hidden text-right sm:block">
-                  <div className="text-sm font-semibold text-earth-dark">{user.name}</div>
-                  <div className="text-xs text-earth-dark/70">{user.role}</div>
+                  <div className="text-sm font-bold text-slate-900">{user.name}</div>
+                  <div className="text-xs text-slate-500 capitalize">{user.role}</div>
                 </div>
-                <button className="button-secondary px-4 py-2" onClick={logout} type="button">
+                <button className="rounded-xl px-5 py-2 text-sm font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition-all duration-200" onClick={logout} type="button">
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link className="button-secondary px-4 py-2" to="/login">
+                <Link className="rounded-xl px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 hidden sm:block" to="/login">
                   Login
                 </Link>
-                <Link className="button-primary px-4 py-2" to="/signup">
+                <Link className="rounded-xl px-5 py-2.5 text-sm font-semibold bg-[#0F9D58] text-white shadow-md shadow-[#0F9D58]/20 hover:-translate-y-0.5 hover:bg-emerald-600 transition-all duration-200" to="/signup">
                   Sign Up
                 </Link>
               </>
@@ -195,7 +195,7 @@ export default function Layout({ children }) {
             <div ref={menuRef} className="relative inline-block">
               <button 
                 type="button" 
-                className="ml-2 inline-flex items-center justify-center rounded-lg p-2 text-earth-dark/70 hover:bg-earth-deep/10 hover:text-earth-deep focus:outline-none focus:ring-2 focus:ring-earth-deep transition" 
+                className="ml-2 inline-flex items-center justify-center rounded-xl p-2 text-slate-500 hover:bg-[#0F9D58]/10 hover:text-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58] transition" 
                 aria-label="Open main menu"
                 onClick={() => setIsMenuExpanded(!isMenuExpanded)}
               >
@@ -205,7 +205,7 @@ export default function Layout({ children }) {
               </button>
 
               {isMenuExpanded && (
-                <div className="absolute right-0 top-full mt-4 w-48 overflow-hidden rounded-2xl border border-earth-dark/10 bg-white/90 p-2 shadow-xl backdrop-blur-xl">
+                <div className="absolute right-0 top-full mt-4 w-48 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
                   <nav className="flex flex-col gap-1">
                     <NavLink to="/" className={navLinkClass} onClick={() => setIsMenuExpanded(false)} end>Home</NavLink>
                     <NavLink to="/products" className={navLinkClass} onClick={() => setIsMenuExpanded(false)}>Products</NavLink>

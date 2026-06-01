@@ -45,14 +45,14 @@ export default function CartPage() {
   if (!cart.length) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center sm:px-6 lg:px-8">
-        <div className="glass flex h-32 w-32 items-center justify-center rounded-full border border-white/40 bg-white/60 shadow-sm text-earth-dark/20 mb-8">
+        <div className="flex h-32 w-32 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm text-slate-300 mb-8">
            <svg className="h-16 w-16" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
            </svg>
          </div>
-         <h1 className="text-4xl font-bold tracking-tight text-earth-dark mb-4">Your cart is empty</h1>
-         <p className="max-w-md text-lg text-earth-dark/70 mb-10">You haven't added any products to your cart yet. Explore our storefront to find items you can buy on easy installments.</p>
-         <Link className="button-primary px-8 py-3 text-lg" to="/">
+         <h1 className="text-4xl font-bold tracking-tight text-slate-900 mb-4">Your cart is empty</h1>
+         <p className="max-w-md text-lg text-slate-500 mb-10">You haven't added any products to your cart yet. Explore our storefront to find items you can buy on easy installments.</p>
+         <Link className="rounded-xl px-8 py-3 text-lg font-bold bg-[#0F9D58] text-white shadow-lg shadow-[#0F9D58]/20 hover:-translate-y-0.5 hover:bg-emerald-600 transition-all duration-200 inline-block" to="/">
            Explore Products
          </Link>
       </div>
@@ -65,8 +65,8 @@ export default function CartPage() {
       {/* Page Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-earth-dark">Checkout</h1>
-          <p className="mt-1 text-sm text-earth-dark/70">Review your items and complete your purchase.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Checkout</h1>
+          <p className="mt-1 text-sm text-slate-500">Review your items and complete your purchase.</p>
         </div>
         <div className="self-start sm:self-auto">
           <StatusPill tone="success">Secure Checkout</StatusPill>
@@ -77,24 +77,24 @@ export default function CartPage() {
         <div className="space-y-6">
           {/* Loop over every cart item and display a card for it */}
           {cart.map((item) => (
-            <article key={item.id} className="glass bg-white/60 border border-white/40 shadow-sm rounded-3xl p-5 sm:p-6 transition hover:shadow-md">
+            <article key={item.id} className="bg-white border border-slate-200 shadow-sm rounded-3xl p-5 sm:p-6 transition hover:shadow-md">
               <div className="flex flex-col gap-6 sm:flex-row">
                 <div className="shrink-0">
-                  <img src={item.imageUrl} alt={item.title} loading="lazy" decoding="async" className="h-40 w-full rounded-2xl object-cover sm:w-40 border border-earth-dark/5" />
+                  <img src={item.imageUrl} alt={item.title} loading="lazy" decoding="async" className="h-40 w-full rounded-2xl object-cover sm:w-40 border border-slate-100" />
                 </div>
                 
                 <div className="flex flex-1 flex-col">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h2 className="text-xl font-bold text-earth-dark">{item.title}</h2>
+                      <h2 className="text-xl font-bold text-slate-900">{item.title}</h2>
                       <div className="mt-1 flex items-center gap-2">
-                        <span className="text-sm font-medium text-earth-dark/70">Qty: {item.quantity}</span>
-                        <span className="text-earth-dark/30">•</span>
-                        <span className="text-sm font-medium text-earth-dark/70">{formatCurrency(item.price)} each</span>
+                        <span className="text-sm font-medium text-slate-600">Qty: {item.quantity}</span>
+                        <span className="text-slate-300">•</span>
+                        <span className="text-sm font-medium text-slate-600">{formatCurrency(item.price)} each</span>
                       </div>
                     </div>
                     <button 
-                      className="rounded-full p-2 text-earth-dark/40 hover:bg-rose-50 hover:text-rose-600 transition" 
+                      className="rounded-full p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition" 
                       type="button" 
                       onClick={() => removeFromCart(item.id)}
                       title="Remove item"
@@ -105,13 +105,13 @@ export default function CartPage() {
 
                   {/* Dynamic buttons to update the installment duration for this specific item */}
                   <div className="mt-4 flex-1">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-earth-dark/50 mb-2">Installment Plan</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Installment Plan</p>
                     <div className="flex flex-wrap items-center gap-2">
                       {[3, 6, 12].map((months) => (
                         <button
                           key={months}
                           type="button"
-                          className={`rounded-xl px-4 py-2 text-sm font-medium transition ${months === item.installmentMonths ? 'bg-earth-deep text-white shadow-md' : 'bg-white/50 text-earth-dark/70 hover:bg-white hover:text-earth-dark border border-earth-dark/10'}`}
+                          className={`rounded-xl px-4 py-2 text-sm font-bold transition-all duration-200 ${months === item.installmentMonths ? 'bg-[#0F9D58] text-white shadow-md shadow-[#0F9D58]/20 border border-[#0F9D58]' : 'bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900 border border-slate-200'}`}
                           onClick={() => updateCartMonths(item.id, months)}
                         >
                           {months} Mo
@@ -120,18 +120,18 @@ export default function CartPage() {
                     </div>
                   </div>
 
-                  <div className="mt-6 grid grid-cols-2 gap-4 rounded-2xl bg-white/40 p-4 border border-earth-dark/5 sm:grid-cols-3 items-center">
+                  <div className="mt-6 grid grid-cols-2 gap-4 rounded-2xl bg-slate-50 p-4 border border-slate-100 sm:grid-cols-3 items-center">
                     <div>
-                      <div className="text-xs text-earth-dark/60">Total Item Price</div>
-                      <div className="mt-1 font-semibold text-earth-dark">{formatCurrency(item.price * item.quantity)}</div>
+                      <div className="text-xs font-semibold text-slate-500">Total Item Price</div>
+                      <div className="mt-1 font-bold text-slate-900">{formatCurrency(item.price * item.quantity)}</div>
                     </div>
                     <div>
-                      <div className="text-xs text-earth-dark/60">Down Payment</div>
-                      <div className="mt-1 font-semibold text-earth-dark">{formatCurrency(getDownPayment(item.price) * item.quantity)}</div>
+                      <div className="text-xs font-semibold text-slate-500">Down Payment</div>
+                      <div className="mt-1 font-bold text-slate-900">{formatCurrency(getDownPayment(item.price) * item.quantity)}</div>
                     </div>
-                    <div className="col-span-2 sm:col-span-1 border-t border-earth-dark/5 pt-3 sm:border-t-0 sm:pt-0 sm:border-l sm:pl-4">
-                      <div className="text-xs font-semibold text-earth-deep">Monthly Pay</div>
-                      <div className="mt-1 text-lg font-bold text-earth-deep">
+                    <div className="col-span-2 sm:col-span-1 border-t border-slate-200 pt-3 sm:border-t-0 sm:pt-0 sm:border-l sm:pl-4">
+                      <div className="text-xs font-bold text-[#0F9D58] uppercase tracking-wide">Monthly Pay</div>
+                      <div className="mt-1 text-lg font-black text-[#0F9D58]">
                         {formatCurrency(getMonthlyInstallment(item.price, item.installmentMonths) * item.quantity)}
                       </div>
                     </div>
@@ -155,36 +155,36 @@ export default function CartPage() {
 
         {/* Checkout & Summary Sidebar */}
         <aside className="sticky top-24 h-fit space-y-6">
-          <div className="glass bg-white/60 border border-white/40 shadow-sm rounded-3xl p-6 sm:p-8">
-            <h2 className="text-2xl font-bold text-earth-dark">Order Summary</h2>
+          <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 sm:p-8">
+            <h2 className="text-2xl font-bold text-slate-900">Order Summary</h2>
             
-            <div className="mt-6 space-y-4 text-earth-dark/80">
+            <div className="mt-6 space-y-4 text-slate-600">
               <div className="flex items-center justify-between">
                 <span>Subtotal ({cart.length} items)</span>
-                <span className="font-medium">{formatCurrency(subtotal)}</span>
+                <span className="font-bold text-slate-900">{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Processing Fee</span>
-                <span className="font-medium">Free</span>
+                <span className="font-bold text-slate-900">Free</span>
               </div>
-              <div className="my-4 border-t border-earth-dark/10"></div>
+              <div className="my-4 border-t border-slate-100"></div>
               <div className="flex items-center justify-between">
-                <span className="text-lg font-bold text-earth-dark">Total Down Payment</span>
-                <span className="text-xl font-black text-earth-deep">{formatCurrency(downPayment)}</span>
+                <span className="text-lg font-bold text-slate-900">Total Down Payment</span>
+                <span className="text-xl font-black text-[#0F9D58]">{formatCurrency(downPayment)}</span>
               </div>
-              <p className="text-xs text-earth-dark/60 text-right">Due today to process order</p>
+              <p className="text-xs text-slate-400 font-medium text-right">Due today to process order</p>
             </div>
           </div>
 
-          <div className="glass bg-white/60 border border-white/40 shadow-sm rounded-3xl p-6 sm:p-8">
-            <h3 className="text-lg font-bold text-earth-dark mb-4">Payment Details</h3>
+          <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">Payment Details</h3>
             
             <div className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-earth-dark/80 mb-2">Select Method</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Select Method</label>
                 <div className="relative">
                   <select 
-                    className="w-full appearance-none rounded-2xl border border-earth-dark/20 bg-white/80 px-4 py-3 text-earth-dark focus:border-earth-deep focus:outline-none focus:ring-2 focus:ring-earth-deep/20 transition" 
+                    className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20 transition-all shadow-sm font-medium" 
                     value={paymentMethod} 
                     onChange={(event) => setPaymentMethod(event.target.value)}
                   >
@@ -193,7 +193,7 @@ export default function CartPage() {
                     <option>JazzCash</option>
                     <option>EasyPaisa</option>
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-earth-dark/50">
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
                   </div>
                 </div>
@@ -223,7 +223,7 @@ export default function CartPage() {
               )}
 
               <button 
-                className="button-primary w-full py-3.5 text-base shadow-lg shadow-earth-deep/20 flex items-center justify-center gap-2" 
+                className="rounded-xl bg-[#0F9D58] text-white font-bold w-full py-3.5 text-base shadow-lg shadow-[#0F9D58]/20 flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-xl hover:shadow-[#0F9D58]/30 active:translate-y-0 disabled:opacity-70 disabled:hover:translate-y-0" 
                 type="button" 
                 onClick={handleCheckout} 
                 disabled={processing}
