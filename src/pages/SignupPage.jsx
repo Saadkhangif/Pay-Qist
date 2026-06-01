@@ -47,7 +47,7 @@ export default function SignupPage() {
               id="name"
               type="text"
               required
-              className="w-full rounded-2xl border border-earth-dark/20 bg-white/80 px-4 py-3.5 text-earth-dark placeholder-earth-dark/40 shadow-sm transition focus:border-earth-deep focus:outline-none focus:ring-2 focus:ring-earth-deep/20"
+            className="w-full rounded-2xl border border-earth-dark/20 bg-white/80 px-4 py-3.5 text-earth-dark placeholder-earth-dark/40 shadow-sm transition duration-200 hover:border-earth-dark/40 hover:bg-white hover:shadow-md focus:border-earth-deep focus:bg-white focus:outline-none focus:ring-2 focus:ring-earth-deep/20"
               placeholder="John Doe"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -60,7 +60,7 @@ export default function SignupPage() {
               id="email"
               type="email"
               required
-              className="w-full rounded-2xl border border-earth-dark/20 bg-white/80 px-4 py-3.5 text-earth-dark placeholder-earth-dark/40 shadow-sm transition focus:border-earth-deep focus:outline-none focus:ring-2 focus:ring-earth-deep/20"
+            className="w-full rounded-2xl border border-earth-dark/20 bg-white/80 px-4 py-3.5 text-earth-dark placeholder-earth-dark/40 shadow-sm transition duration-200 hover:border-earth-dark/40 hover:bg-white hover:shadow-md focus:border-earth-deep focus:bg-white focus:outline-none focus:ring-2 focus:ring-earth-deep/20"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -73,14 +73,14 @@ export default function SignupPage() {
               id="password"
               type="password"
               required
-              className="w-full rounded-2xl border border-earth-dark/20 bg-white/80 px-4 py-3.5 text-earth-dark placeholder-earth-dark/40 shadow-sm transition focus:border-earth-deep focus:outline-none focus:ring-2 focus:ring-earth-deep/20"
+            className="w-full rounded-2xl border border-earth-dark/20 bg-white/80 px-4 py-3.5 text-earth-dark placeholder-earth-dark/40 shadow-sm transition duration-200 hover:border-earth-dark/40 hover:bg-white hover:shadow-md focus:border-earth-deep focus:bg-white focus:outline-none focus:ring-2 focus:ring-earth-deep/20"
               placeholder="Create a strong password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
-          <button type="submit" disabled={loading} className="button-primary flex w-full items-center justify-center gap-2 py-4 text-base shadow-lg shadow-earth-deep/20 mt-4">
+          <button type="submit" disabled={loading} className="button-primary flex w-full items-center justify-center gap-2 py-4 text-base shadow-lg shadow-earth-deep/20 mt-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-earth-deep/40 active:translate-y-0">
             {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
