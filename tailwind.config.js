@@ -3,6 +3,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        'golden-green': '#e6eece', // Light golden green background
         earth: {
           deep: '#1e4632',   // Deep Forest Green
           sage: '#337357',   // Muted Sage Green

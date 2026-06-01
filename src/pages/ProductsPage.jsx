@@ -34,8 +34,11 @@ export default function ProductsPage() {
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <SectionHeading eyebrow="Catalog" title="All Products" description="Browse our complete collection of products available for installment plans." />
 
-          <div className="w-full md:max-w-xs">
-            <input type="text" className="input w-full" placeholder="Search products..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+          <div className="w-full md:max-w-xs relative">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-earth-dark/50">
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+            </div>
+            <input type="text" className="input w-full pl-10" placeholder="Search products..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
         </div>
 
@@ -61,9 +64,10 @@ export default function ProductsPage() {
             ))}
           </div>
         ) : (
-          <div className="glass rounded-[32px] p-16 text-center">
-            <h3 className="text-xl font-semibold text-white">No products found</h3>
-            <p className="mt-2 text-earth-cream/70">Try adjusting your search query or category filter.</p>
+          <div className="glass bg-white/60 border border-white/40 shadow-sm rounded-[32px] p-16 text-center flex flex-col items-center">
+            <svg className="h-12 w-12 text-earth-dark/30 mb-4" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+            <h3 className="text-xl font-semibold text-earth-dark">No products found</h3>
+            <p className="mt-2 text-earth-dark/70">Try adjusting your search query or category filter.</p>
             <button className="button-secondary mt-6" onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }}>
               Clear filters
             </button>

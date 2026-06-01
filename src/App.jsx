@@ -22,7 +22,7 @@ const RefundAndReturnPolicyPage = lazy(() => import('./pages/RefundAndReturnPoli
 
 // A fallback UI to display while a lazy-loaded route is being fetched
 function RouteFallback() {
-  return <div className="glass rounded-[32px] p-8 text-center text-sm text-earth-cream">Loading...</div>;
+  return <div className="glass bg-white/60 border border-white/40 shadow-sm rounded-[32px] p-8 text-center text-sm text-earth-dark/80">Loading...</div>;
 }
 
 export default function App() {
