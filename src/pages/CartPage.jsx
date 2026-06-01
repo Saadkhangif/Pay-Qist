@@ -12,6 +12,7 @@ export default function CartPage() {
   const [paymentMethod, setPaymentMethod] = useState('Credit Card');
   const [processing, setProcessing] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const downPayment = cart.reduce((sum, item) => sum + getDownPayment(item.price) * item.quantity, 0);
@@ -19,10 +20,13 @@ export default function CartPage() {
   async function handleCheckout() {
     setProcessing(true);
     setSuccessMessage('');
+    setErrorMessage('');
     try {
-      createOrderFromCart(user, paymentMethod);
+      await createOrderFromCart(user, paymentMethod);
       setSuccessMessage('Payment approved and installment request submitted.');
       setTimeout(() => navigate('/admin'), 700);
+    } catch (err) {
+      setErrorMessage(err.message || 'Payment failed. Please try again.');
     } finally {
       setProcessing(false);
     }
@@ -134,6 +138,7 @@ export default function CartPage() {
               This is a dummy payment gateway integration that simulates a successful authorization.
             </div>
 
+            {errorMessage ? <div className="rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">{errorMessage}</div> : null}
             {successMessage ? <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">{successMessage}</div> : null}
 
             <button className="button-primary w-full" type="button" onClick={handleCheckout} disabled={processing}>

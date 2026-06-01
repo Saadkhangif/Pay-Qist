@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import InstallmentBadge from '../components/InstallmentBadge';
 import StatusPill from '../components/StatusPill';
@@ -13,6 +13,12 @@ export default function ProductDetailPage() {
   const [selectedMonths, setSelectedMonths] = useState(product?.allowedInstallmentMonths?.[0] || 3);
 
   const planPrice = useMemo(() => getMonthlyInstallment(product?.price || 0, selectedMonths), [product?.price, selectedMonths]);
+
+  useEffect(() => {
+    if (product?.allowedInstallmentMonths && !product.allowedInstallmentMonths.includes(selectedMonths)) {
+      setSelectedMonths(product.allowedInstallmentMonths[0]);
+    }
+  }, [product, selectedMonths]);
 
   if (!product) {
     return (
