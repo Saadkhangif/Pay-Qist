@@ -46,7 +46,7 @@ export default function CartPage() {
     return (
       <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:px-8">
         <h1 className="text-3xl font-semibold text-white">Your cart is empty</h1>
-        <p className="mt-3 text-slate-300">Add a product from the storefront to start an installment application.</p>
+        <p className="mt-3 text-earth-cream">Add a product from the storefront to start an installment application.</p>
         <Link className="button-primary mt-8" to="/">
           Shop products
         </Link>
@@ -63,7 +63,7 @@ export default function CartPage() {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h1 className="text-3xl font-semibold text-white">Cart & Checkout</h1>
-                <p className="mt-2 text-sm text-slate-300">Review your items, adjust installment months, and complete the mock payment gateway.</p>
+                <p className="mt-2 text-sm text-earth-cream">Review your items, adjust installment months, and complete the mock payment gateway.</p>
               </div>
               <StatusPill tone="success">Secure route</StatusPill>
             </div>
@@ -78,7 +78,7 @@ export default function CartPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <h2 className="text-xl font-semibold text-white">{item.title}</h2>
-                      <p className="mt-2 text-sm text-slate-300">{formatCurrency(item.price)} total</p>
+                      <p className="mt-2 text-sm text-earth-cream">{formatCurrency(item.price)} total</p>
                     </div>
                     <button className="button-secondary px-4 py-2" type="button" onClick={() => removeFromCart(item.id)}>
                       Remove
@@ -100,17 +100,17 @@ export default function CartPage() {
                   </div>
 
                   <div className="grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4 text-sm text-slate-300">
+                    <div className="rounded-2xl border border-white/10 bg-earth-dark/70 p-4 text-sm text-earth-cream">
                       Monthly payment
                       <div className="mt-1 text-lg font-semibold text-white">
                         {formatCurrency(getMonthlyInstallment(item.price, item.installmentMonths))}
                       </div>
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4 text-sm text-slate-300">
+                    <div className="rounded-2xl border border-white/10 bg-earth-dark/70 p-4 text-sm text-earth-cream">
                       Down payment
                       <div className="mt-1 text-lg font-semibold text-white">{formatCurrency(getDownPayment(item.price))}</div>
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4 text-sm text-slate-300">
+                    <div className="rounded-2xl border border-white/10 bg-earth-dark/70 p-4 text-sm text-earth-cream">
                       Quantity
                       <div className="mt-1 text-lg font-semibold text-white">{item.quantity}</div>
                     </div>
@@ -124,7 +124,7 @@ export default function CartPage() {
         {/* Checkout & Summary Sidebar */}
         <aside className="glass h-fit rounded-[32px] p-6">
           <h2 className="text-2xl font-semibold text-white">Payment summary</h2>
-          <div className="mt-6 space-y-4 text-sm text-slate-300">
+          <div className="mt-6 space-y-4 text-sm text-earth-cream">
             <div className="flex items-center justify-between">
               <span>Subtotal</span>
               <span className="font-semibold text-white">{formatCurrency(subtotal)}</span>
@@ -140,7 +140,7 @@ export default function CartPage() {
           </div>
 
           <div className="mt-8 space-y-4">
-            <label className="block text-sm font-semibold text-slate-200">Choose payment method</label>
+            <label className="block text-sm font-semibold text-earth-cream">Choose payment method</label>
             <select className="input" value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)}>
               <option>Credit Card</option>
               <option>Debit Card</option>
@@ -148,7 +148,7 @@ export default function CartPage() {
               <option>EasyPaisa</option>
             </select>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-4 text-sm text-slate-300">
+            <div className="rounded-3xl border border-white/10 bg-earth-dark/70 p-4 text-sm text-earth-cream">
               This is a dummy payment gateway integration that simulates a successful authorization.
             </div>
 

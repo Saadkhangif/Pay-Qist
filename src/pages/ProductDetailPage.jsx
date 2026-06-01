@@ -34,7 +34,7 @@ export default function ProductDetailPage() {
     return (
       <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:px-8">
         <h1 className="text-3xl font-semibold text-white">Product not found</h1>
-        <p className="mt-3 text-slate-300">The requested product is no longer available.</p>
+        <p className="mt-3 text-earth-cream">The requested product is no longer available.</p>
         <Link className="button-primary mt-8" to="/">
           Back to home
         </Link>
@@ -55,7 +55,7 @@ export default function ProductDetailPage() {
         <div className="overflow-hidden rounded-[36px] border border-white/10 bg-white/5 shadow-glow">
           <div className="relative aspect-[4/3]">
             <img src={product.imageUrl} alt={product.title} className="h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/10 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-earth-dark via-earth-dark/10 to-transparent" />
           </div>
         </div>
 
@@ -67,22 +67,22 @@ export default function ProductDetailPage() {
 
           <div className="mt-6 space-y-4">
             <h1 className="text-4xl font-semibold tracking-tight text-white">{product.title}</h1>
-            <p className="text-base leading-8 text-slate-300">{product.description}</p>
+            <p className="text-base leading-8 text-earth-cream">{product.description}</p>
           </div>
 
-          <div className="mt-8 grid gap-4 rounded-[28px] border border-white/10 bg-slate-950/70 p-5 sm:grid-cols-2">
+          <div className="mt-8 grid gap-4 rounded-[28px] border border-white/10 bg-earth-dark/70 p-5 sm:grid-cols-2">
             <div>
-              <div className="text-sm text-slate-400">Total price</div>
+              <div className="text-sm text-earth-cream/70">Total price</div>
               <div className="mt-2 text-2xl font-semibold text-white">{formatCurrency(product.price)}</div>
             </div>
             <div>
-              <div className="text-sm text-slate-400">Selected plan</div>
+              <div className="text-sm text-earth-cream/70">Selected plan</div>
               <div className="mt-2 text-2xl font-semibold text-white">{formatCurrency(planPrice)}/month</div>
             </div>
           </div>
 
           <div className="mt-8 space-y-3">
-            <div className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">Choose a plan</div>
+            <div className="text-sm font-semibold uppercase tracking-[0.24em] text-earth-cream/70">Choose a plan</div>
             <div className="flex flex-wrap gap-3">
               {product.allowedInstallmentMonths.map((months) => (
                 <button

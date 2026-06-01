@@ -36,7 +36,7 @@ export default function SignupPage() {
       <div className="mx-auto grid min-h-[calc(100vh-88px)] max-w-7xl place-items-center px-4 py-12 sm:px-6 lg:px-8">
         <div className="glass w-full max-w-md rounded-[32px] p-8 text-center">
           <h1 className="text-3xl font-semibold text-white mb-4">Check your email</h1>
-          <p className="text-sm leading-6 text-slate-300 mb-8">
+          <p className="text-sm leading-6 text-earth-cream mb-8">
             We've sent a verification link to <strong className="text-white">{form.email}</strong>. 
             Please check your inbox and verify your email to continue.
           </p>
@@ -54,7 +54,7 @@ export default function SignupPage() {
       <div className="glass w-full max-w-md rounded-[32px] p-8">
         <div className="mb-8 space-y-3">
           <h1 className="text-3xl font-semibold text-white">Create an account</h1>
-          <p className="text-sm leading-6 text-slate-300">Sign up to buy now and pay in installments.</p>
+          <p className="text-sm leading-6 text-earth-cream">Sign up to buy now and pay in installments.</p>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
@@ -96,9 +96,9 @@ export default function SignupPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-sm text-center text-slate-400">
+        <p className="mt-6 text-sm text-center text-earth-cream/70">
           Already have an account?{' '}
-          <Link className="font-semibold text-cyan-300 hover:text-cyan-200" to="/login">
+          <Link className="font-semibold text-earth-gold hover:text-earth-gold/80" to="/login">
             Sign in
           </Link>
         </p>
