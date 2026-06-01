@@ -33,6 +33,9 @@ export default function Layout({ children }) {
             <NavLink to="/products" className={navLinkClass}>
               Products
             </NavLink>
+            <NavLink to="/about" className={navLinkClass}>
+              About Us
+            </NavLink>
             <NavLink to="/cart" className={navLinkClass}>
               Cart {cart.length > 0 ? `(${cart.length})` : ''}
             </NavLink>

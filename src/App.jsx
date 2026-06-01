@@ -17,6 +17,7 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'));
 const ContactUsPage = lazy(() => import('./pages/ContactUsPage'));
+const AboutUsPage = lazy(() => import('./pages/AboutUsPage'));
 
 // A fallback UI to display while a lazy-loaded route is being fetched
 function RouteFallback() {
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-of-service" element={<TermsOfServicePage />} />
           <Route path="/contact-us" element={<ContactUsPage />} />
+          <Route path="/about" element={<AboutUsPage />} />
           {/* Protected routes requiring a logged-in user */}
           <Route
             path="/product/:productId"
