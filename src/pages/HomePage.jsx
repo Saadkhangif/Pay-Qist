@@ -6,30 +6,11 @@ import { formatCurrency, getDownPayment, getMonthlyInstallment } from '../lib/cu
 import EmiCalculator from '../components/EmiCalculator';
 import Newsletter from '../components/Newsletter';
 import Faq from '../components/Faq';
-
-// --- Static Data ---
-const categories = [
-  { name: 'Smartphones', icon: '📱' },
-  { name: 'Laptops', icon: '💻' },
-  { name: 'Gaming', icon: '🎮' },
-  { name: 'Appliances', icon: '🏠' },
-  { name: 'Electronics', icon: '🔌' },
-  { name: 'Furniture', icon: '🛋️' },
-];
-
-const steps = [
-  { title: 'Select Product', desc: 'Find your favorite item from our huge catalog.', icon: '🛒' },
-  { title: 'Apply Online', desc: 'Choose your installment plan and submit details.', icon: '📝' },
-  { title: 'Get Approved', desc: 'Instant approval process with zero hidden fees.', icon: '✅' },
-  { title: 'Receive Product', desc: 'Get your item delivered right to your doorstep.', icon: '📦' },
-];
-
-const features = [
-  { title: 'Secure Transactions', desc: 'Bank-grade security for all your payments.' },
-  { title: 'Flexible Plans', desc: 'Choose between 3, 6, or 12 months.' },
-  { title: 'Fast Approval', desc: 'Get approved in minutes, not days.' },
-  { title: 'No Hidden Charges', desc: 'What you see is exactly what you pay.' },
-];
+import TrustStatistics from '../components/TrustStatistics';
+import Categories from '../components/Categories';
+import HowItWorks from '../components/HowItWorks';
+import Features from '../components/Features';
+import PartnerBrands from '../components/PartnerBrands';
 
 export default function HomePage() {
   const { products } = useStore();
@@ -111,43 +92,10 @@ export default function HomePage() {
       </section>
 
       {/* 3. TRUST STATISTICS */}
-      <section className="border-y border-slate-200/60 bg-white/50 py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-slate-200/50">
-            <div className="text-center px-4">
-              <div className="text-3xl font-black text-[#0F9D58]">10,000+</div>
-              <div className="mt-1 text-sm font-medium text-slate-500 uppercase tracking-wide">Happy Customers</div>
-            </div>
-            <div className="text-center px-4">
-              <div className="text-3xl font-black text-[#0F9D58]">500+</div>
-              <div className="mt-1 text-sm font-medium text-slate-500 uppercase tracking-wide">Premium Products</div>
-            </div>
-            <div className="text-center px-4">
-              <div className="text-3xl font-black text-[#0F9D58]">98%</div>
-              <div className="mt-1 text-sm font-medium text-slate-500 uppercase tracking-wide">Approval Rate</div>
-            </div>
-            <div className="text-center px-4">
-              <div className="text-3xl font-black text-[#0F9D58]">24/7</div>
-              <div className="mt-1 text-sm font-medium text-slate-500 uppercase tracking-wide">Customer Support</div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <TrustStatistics />
 
       {/* 4. CATEGORIES */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-8">Shop by Category</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-            {categories.map((cat) => (
-              <div key={cat.name} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-3 cursor-pointer group transition hover:shadow-lg hover:-translate-y-1 hover:border-emerald-100">
-                <span className="text-4xl group-hover:scale-110 transition-transform">{cat.icon}</span>
-                <span className="text-sm font-semibold text-slate-700 group-hover:text-[#0F9D58] text-center">{cat.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Categories />
 
       {/* 5. FEATURED PRODUCTS */}
       <section id="products" className="py-16 bg-slate-100/50">
@@ -214,61 +162,13 @@ export default function HomePage() {
       <EmiCalculator />
 
       {/* 7. HOW IT WORKS */}
-      <section id="how-it-works" className="py-20 bg-white border-y border-slate-200/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-slate-900 mb-4">How It Works</h2>
-          <p className="text-slate-500 mb-16 max-w-2xl mx-auto">Get what you need today in four simple, hassle-free steps. No complicated paperwork.</p>
-          
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-12 relative">
-            {/* Connecting line for desktop */}
-            <div className="hidden lg:block absolute top-1/4 left-[10%] right-[10%] h-0.5 bg-slate-100 -z-10"></div>
-            
-            {steps.map((step, idx) => (
-              <div key={idx} className="relative group">
-                <div className="w-20 h-20 mx-auto bg-white border-[4px] border-emerald-50 rounded-2xl flex items-center justify-center text-3xl shadow-xl shadow-slate-200/40 mb-6 transition-transform group-hover:-translate-y-2 group-hover:border-[#0F9D58]/20 group-hover:bg-emerald-50">
-                  {step.icon}
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">{idx + 1}. {step.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed px-4">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <HowItWorks />
 
       {/* 8. WHY CHOOSE PAY QIST */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Choose Pay Qist?</h2>
-            <p className="text-slate-500 max-w-2xl mx-auto">We are rethinking consumer finance to give you the ultimate shopping freedom.</p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((f, idx) => (
-              <div key={idx} className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition duration-300 hover:border-emerald-200">
-                <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center mb-6">
-                  <div className="w-4 h-4 rounded-full bg-[#0F9D58]"></div>
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">{f.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Features />
 
       {/* 9. PARTNER BRANDS */}
-      <section className="py-12 bg-white border-y border-slate-200/50 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm font-semibold text-slate-400 uppercase tracking-widest mb-8">Trusted by top brands</p>
-          <div className="flex flex-wrap justify-center items-center gap-12 sm:gap-20 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-            {['Apple', 'Samsung', 'Sony', 'HP', 'Dell', 'Lenovo'].map((brand) => (
-              <span key={brand} className="text-2xl font-black text-slate-800">{brand}</span>
-            ))}
-          </div>
-        </div>
-      </section>
+      <PartnerBrands />
 
       {/* 10. FAQ SECTION */}
       <Faq />
