@@ -18,6 +18,7 @@ const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'));
 const ContactUsPage = lazy(() => import('./pages/ContactUsPage'));
 const AboutUsPage = lazy(() => import('./pages/AboutUsPage'));
+const RefundAndReturnPolicyPage = lazy(() => import('./pages/RefundAndReturnPolicyPage'));
 
 // A fallback UI to display while a lazy-loaded route is being fetched
 function RouteFallback() {
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="/terms-of-service" element={<TermsOfServicePage />} />
           <Route path="/contact-us" element={<ContactUsPage />} />
           <Route path="/about" element={<AboutUsPage />} />
+          <Route path="/refund-and-return-policy" element={<RefundAndReturnPolicyPage />} />
           {/* Protected routes requiring a logged-in user */}
           <Route
             path="/product/:productId"

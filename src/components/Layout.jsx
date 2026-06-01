@@ -67,6 +67,12 @@ export default function Layout({ children }) {
                 </Link>
               </>
             )}
+            
+            <button type="button" className="ml-2 inline-flex items-center justify-center rounded-lg p-2 text-earth-cream hover:bg-earth-gold/10 hover:text-earth-gold focus:outline-none focus:ring-2 focus:ring-earth-gold transition" aria-label="Open main menu">
+              <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
           </div>
         </div>
       </header>
@@ -103,6 +109,7 @@ export default function Layout({ children }) {
               <ul className="space-y-3">
                 <li><Link to="/privacy-policy" className="hover:text-earth-gold transition">Privacy Policy</Link></li>
                 <li><Link to="/terms-of-service" className="hover:text-earth-gold transition">Terms of Service</Link></li>
+                <li><Link to="/refund-and-return-policy" className="hover:text-earth-gold transition">Refund & Return</Link></li>
                 <li><a href="#" className="hover:text-earth-gold transition">Cookie Policy</a></li>
                 <li><Link to="/contact-us" className="hover:text-earth-gold transition">Contact Us</Link></li>
               </ul>
