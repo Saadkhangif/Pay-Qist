@@ -11,7 +11,7 @@ export default function CartPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   // Destructure required functions and state from the global store
-  const { cart, removeFromCart, updateCartMonths, createOrderFromCart, clearCart } = useStore();
+  const { cart = [], removeFromCart, updateCartMonths, createOrderFromCart, clearCart } = useStore();
   
   // Local state for payment methods and UI processing feedback
   const [paymentMethod, setPaymentMethod] = useState('Credit Card');

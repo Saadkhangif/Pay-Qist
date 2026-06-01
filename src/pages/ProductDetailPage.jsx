@@ -11,7 +11,7 @@ export default function ProductDetailPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
   // Extract global products list and the specific cart action
-  const { products, addToCart } = useStore();
+  const { products = [], addToCart } = useStore();
   
   // Find the specific product being requested based on the URL parameter
   const product = products.find((currentProduct) => currentProduct.id === productId);

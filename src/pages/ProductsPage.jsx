@@ -4,7 +4,7 @@ import SectionHeading from '../components/SectionHeading';
 import { useStore } from '../context/StoreContext';
 
 export default function ProductsPage() {
-  const { products } = useStore();
+  const { products = [] } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
@@ -18,8 +18,8 @@ export default function ProductsPage() {
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesSearch =
-        product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase());
+        product.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchQuery.toLowerCase());
 
       const productCategory = product.category || 'General';
       const matchesCategory = selectedCategory === 'All' || productCategory === selectedCategory;
