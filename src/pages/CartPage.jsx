@@ -1,3 +1,4 @@
+// Import React hooks, routing, and shared context/lib helpers
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import StatusPill from '../components/StatusPill';
@@ -6,24 +7,32 @@ import { useStore } from '../context/StoreContext';
 import { formatCurrency, getDownPayment, getMonthlyInstallment } from '../lib/currency';
 
 export default function CartPage() {
+  // Setup navigation and fetch user context
   const navigate = useNavigate();
   const { user } = useAuth();
+  // Destructure required functions and state from the global store
   const { cart, removeFromCart, updateCartMonths, createOrderFromCart, clearCart } = useStore();
+  
+  // Local state for payment methods and UI processing feedback
   const [paymentMethod, setPaymentMethod] = useState('Credit Card');
   const [processing, setProcessing] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Calculate the total cart values dynamically
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const downPayment = cart.reduce((sum, item) => sum + getDownPayment(item.price) * item.quantity, 0);
 
+  // Handle the checkout flow
   async function handleCheckout() {
     setProcessing(true);
     setSuccessMessage('');
     setErrorMessage('');
     try {
+      // Attempt to generate an order out of the current cart contents
       await createOrderFromCart(user, paymentMethod);
       setSuccessMessage('Payment approved and installment request submitted.');
+      // Wait briefly so the user sees the success message before redirecting
       setTimeout(() => navigate('/admin'), 700);
     } catch (err) {
       setErrorMessage(err.message || 'Payment failed. Please try again.');
@@ -32,6 +41,7 @@ export default function CartPage() {
     }
   }
 
+  // If the cart is empty, prompt the user to shop instead of showing a checkout form
   if (!cart.length) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:px-8">
@@ -44,6 +54,7 @@ export default function CartPage() {
     );
   }
 
+  // Render the cart items and the checkout sidebar
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
@@ -58,6 +69,7 @@ export default function CartPage() {
             </div>
           </div>
 
+          {/* Loop over every cart item and display a card for it */}
           {cart.map((item) => (
             <article key={item.id} className="glass rounded-[32px] p-5">
               <div className="flex flex-col gap-5 sm:flex-row">
@@ -73,6 +85,7 @@ export default function CartPage() {
                     </button>
                   </div>
 
+                  {/* Dynamic buttons to update the installment duration for this specific item */}
                   <div className="flex flex-wrap items-center gap-3">
                     {[3, 6, 12].map((months) => (
                       <button
@@ -108,6 +121,7 @@ export default function CartPage() {
           ))}
         </div>
 
+        {/* Checkout & Summary Sidebar */}
         <aside className="glass h-fit rounded-[32px] p-6">
           <h2 className="text-2xl font-semibold text-white">Payment summary</h2>
           <div className="mt-6 space-y-4 text-sm text-slate-300">

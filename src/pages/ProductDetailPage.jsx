@@ -1,3 +1,4 @@
+// Import necessary hooks, router utilities, components, and helpers
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import InstallmentBadge from '../components/InstallmentBadge';
@@ -6,20 +7,29 @@ import { useStore } from '../context/StoreContext';
 import { formatCurrency, getMonthlyInstallment } from '../lib/currency';
 
 export default function ProductDetailPage() {
+  // Retrieve the productId from the URL parameters
   const { productId } = useParams();
   const navigate = useNavigate();
+  // Extract global products list and the specific cart action
   const { products, addToCart } = useStore();
+  
+  // Find the specific product being requested based on the URL parameter
   const product = products.find((currentProduct) => currentProduct.id === productId);
+  
+  // Initialize local state for the selected installment plan
   const [selectedMonths, setSelectedMonths] = useState(product?.allowedInstallmentMonths?.[0] || 3);
 
+  // Calculate the monthly installment price dynamically to optimize performance
   const planPrice = useMemo(() => getMonthlyInstallment(product?.price || 0, selectedMonths), [product?.price, selectedMonths]);
 
+  // Synchronize selected plan if a product loads and restricts allowed months
   useEffect(() => {
     if (product?.allowedInstallmentMonths && !product.allowedInstallmentMonths.includes(selectedMonths)) {
       setSelectedMonths(product.allowedInstallmentMonths[0]);
     }
   }, [product, selectedMonths]);
 
+  // Render a not found page if the product does not exist
   if (!product) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:px-8">
@@ -32,11 +42,13 @@ export default function ProductDetailPage() {
     );
   }
 
+  // Handle adding the product to the cart and redirecting to checkout
   function handleApply() {
     addToCart(product, selectedMonths);
     navigate('/cart');
   }
 
+  // Render the product details, price, and available installment plans
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="grid gap-8 lg:grid-cols-[1fr_0.9fr] lg:items-start">

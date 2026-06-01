@@ -1,20 +1,26 @@
+// Import necessary hooks and functions for routing and authentication
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function SignupPage() {
+  // Initialize navigation and auth context
   const navigate = useNavigate();
   const { signup } = useAuth(); // Assuming signup logic is in your AuthContext
+
+  // Manage local component state for the signup form and UI feedback
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
 
+  // Handle the form submission process
   async function handleSubmit(event) {
-    event.preventDefault();
+    event.preventDefault(); // Prevent default browser form submission
     setLoading(true);
     setError('');
     try {
+      // Attempt to sign up the user via Firebase/AuthContext
       await signup(form);
       setVerificationSent(true);
     } catch (err) {
@@ -24,6 +30,7 @@ export default function SignupPage() {
     }
   }
 
+  // If verification email is sent, show a success screen instead of the form
   if (verificationSent) {
     return (
       <div className="mx-auto grid min-h-[calc(100vh-88px)] max-w-7xl place-items-center px-4 py-12 sm:px-6 lg:px-8">
@@ -41,6 +48,7 @@ export default function SignupPage() {
     );
   }
 
+  // Render the default signup form
   return (
     <div className="mx-auto grid min-h-[calc(100vh-88px)] max-w-7xl place-items-center px-4 py-12 sm:px-6 lg:px-8">
       <div className="glass w-full max-w-md rounded-[32px] p-8">
