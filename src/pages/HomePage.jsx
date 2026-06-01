@@ -7,7 +7,6 @@ import HowItWorks from '../components/HowItWorks';
 import Features from '../components/Features';
 import PartnerBrands from '../components/PartnerBrands';
 import Faq from '../components/Faq';
-import Newsletter from '../components/Newsletter';
 
 export default function HomePage() {
   return (
@@ -21,7 +20,6 @@ export default function HomePage() {
       <Features />
       <PartnerBrands />
       <Faq />
-      <Newsletter />
     </div>
   );
 }
