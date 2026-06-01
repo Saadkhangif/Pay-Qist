@@ -10,6 +10,7 @@ const emptyForm = {
   description: '',
   price: '',
   imageUrl: '',
+  category: 'Smartphones',
   allowedInstallmentMonths: '3,6,12',
   featured: true,
 };
@@ -18,6 +19,16 @@ const roleOptions = [
   { label: 'Customer', value: 'customer' },
   { label: 'Support', value: 'support' },
   { label: 'Admin', value: 'admin' },
+];
+
+const PRODUCT_CATEGORIES = [
+  'Smartphones',
+  'Laptops',
+  'Gaming',
+  'Appliances',
+  'Electronics',
+  'Furniture',
+  'Uncategorized',
 ];
 
 export default function AdminPage() {
@@ -59,6 +70,7 @@ export default function AdminPage() {
         description: form.description,
         price: Number(form.price),
         imageUrl: form.imageUrl,
+        category: form.category,
         allowedInstallmentMonths: form.allowedInstallmentMonths
           .split(',')
           .map((value) => Number(value.trim()))
@@ -93,6 +105,7 @@ export default function AdminPage() {
       description: product.description,
       price: String(product.price),
       imageUrl: product.imageUrl,
+      category: product.category || 'Smartphones',
       allowedInstallmentMonths: product.allowedInstallmentMonths.join(','),
       featured: product.featured,
     });
@@ -214,6 +227,15 @@ export default function AdminPage() {
                 <input className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20 transition-all font-medium" type="number" placeholder="Price" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} />
                 <input className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20 transition-all font-medium" placeholder="Image URL" value={form.imageUrl} onChange={(event) => setForm({ ...form, imageUrl: event.target.value })} />
                 <input className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20 transition-all font-medium" type="file" accept="image/*" onChange={(event) => setImageFile(event.target.files?.[0] || null)} />
+                <select
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20 transition-all font-medium"
+                  value={form.category}
+                  onChange={(event) => setForm({ ...form, category: event.target.value })}
+                >
+                  {PRODUCT_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
                 <input className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20 transition-all font-medium" placeholder="Allowed installment months e.g. 3,6,12" value={form.allowedInstallmentMonths} onChange={(event) => setForm({ ...form, allowedInstallmentMonths: event.target.value })} />
 
                 <label className="flex items-center gap-3 text-sm font-semibold text-slate-700">
@@ -242,7 +264,11 @@ export default function AdminPage() {
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
                             <h3 className="text-xl font-bold text-slate-900">{product.title}</h3>
-                            <p className="mt-1 font-semibold text-[#0F9D58]">{formatCurrency(product.price)}</p>
+                            <div className="mt-1 flex items-center gap-2">
+                              <span className="font-semibold text-[#0F9D58]">{formatCurrency(product.price)}</span>
+                              <span className="text-slate-300">•</span>
+                              <span className="text-sm font-medium text-slate-500">{product.category || 'Uncategorized'}</span>
+                            </div>
                           </div>
                           <div className="flex gap-2">
                             <button className="rounded-lg border border-slate-200 bg-white text-slate-600 font-semibold px-4 py-1.5 text-sm hover:bg-slate-50 hover:text-slate-900 transition" type="button" onClick={() => beginEdit(product)}>

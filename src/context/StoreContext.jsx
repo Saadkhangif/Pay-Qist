@@ -20,6 +20,7 @@ function normalizeProduct(product) {
     title: product.title,
     description: product.description,
     price: Number(product.price),
+    category: product.category || 'Uncategorized',
     allowedInstallmentMonths: product.allowedInstallmentMonths || [3, 6, 12],
     featured: Boolean(product.featured),
   };
