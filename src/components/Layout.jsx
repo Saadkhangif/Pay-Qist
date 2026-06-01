@@ -30,6 +30,9 @@ export default function Layout({ children }) {
             <NavLink to="/" className={navLinkClass} end>
               Home
             </NavLink>
+            <NavLink to="/products" className={navLinkClass}>
+              Products
+            </NavLink>
             <NavLink to="/cart" className={navLinkClass}>
               Cart {cart.length > 0 ? `(${cart.length})` : ''}
             </NavLink>
@@ -85,7 +88,7 @@ export default function Layout({ children }) {
             <div>
               <h3 className="mb-4 font-semibold text-white">Quick Links</h3>
               <ul className="space-y-3">
-                <li><Link to="/" className="hover:text-earth-gold transition">Shop</Link></li>
+                <li><Link to="/products" className="hover:text-earth-gold transition">Shop</Link></li>
                 <li><Link to="/cart" className="hover:text-earth-gold transition">Cart</Link></li>
                 <li><Link to="/login" className="hover:text-earth-gold transition">Sign In</Link></li>
                 <li><Link to="/signup" className="hover:text-earth-gold transition">Create Account</Link></li>
