@@ -27,7 +27,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-[75vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-      <div className="glass w-full max-w-md rounded-3xl border border-white/60 bg-white/60 p-8 shadow-xl backdrop-blur-xl sm:p-10">
+      <div className="glass w-full max-w-md rounded-3xl border border-white/60 bg-white/70 p-8 shadow-xl backdrop-blur-md transform-gpu sm:p-10">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-earth-dark">Welcome Back</h1>
           <p className="mt-2 text-sm text-earth-dark/70">Please enter your details to sign in.</p>

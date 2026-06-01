@@ -1,5 +1,5 @@
 // Import React hooks, routing, and shared context/lib helpers
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import StatusPill from '../components/StatusPill';
 import { useAuth } from '../context/AuthContext';
@@ -20,8 +20,8 @@ export default function CartPage() {
   const [errorMessage, setErrorMessage] = useState('');
 
   // Calculate the total cart values dynamically
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const downPayment = cart.reduce((sum, item) => sum + getDownPayment(item.price) * item.quantity, 0);
+  const subtotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
+  const downPayment = useMemo(() => cart.reduce((sum, item) => sum + getDownPayment(item.price) * item.quantity, 0), [cart]);
 
   // Handle the checkout flow
   async function handleCheckout() {
@@ -80,7 +80,7 @@ export default function CartPage() {
             <article key={item.id} className="glass bg-white/60 border border-white/40 shadow-sm rounded-3xl p-5 sm:p-6 transition hover:shadow-md">
               <div className="flex flex-col gap-6 sm:flex-row">
                 <div className="shrink-0">
-                  <img src={item.imageUrl} alt={item.title} className="h-40 w-full rounded-2xl object-cover sm:w-40 border border-earth-dark/5" />
+                  <img src={item.imageUrl} alt={item.title} loading="lazy" decoding="async" className="h-40 w-full rounded-2xl object-cover sm:w-40 border border-earth-dark/5" />
                 </div>
                 
                 <div className="flex flex-1 flex-col">

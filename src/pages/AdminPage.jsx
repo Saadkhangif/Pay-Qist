@@ -237,7 +237,7 @@ export default function AdminPage() {
                 {products.map((product) => (
                   <article key={product.id} className="glass overflow-hidden rounded-[32px] p-5">
                     <div className="flex flex-col gap-5 sm:flex-row">
-                      <img src={product.imageUrl} alt={product.title} className="h-28 w-full rounded-3xl object-cover sm:w-36" />
+                      <img src={product.imageUrl} alt={product.title} loading="lazy" decoding="async" className="h-28 w-full rounded-3xl object-cover sm:w-36" />
                       <div className="flex-1 space-y-3">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
@@ -314,7 +314,7 @@ export default function AdminPage() {
                 sortedOrders.map((order) => (
                   <article key={order.id} className="glass rounded-[32px] p-5">
                     <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-                      <img src={order.productImage} alt={order.productTitle} className="h-28 w-full rounded-3xl object-cover sm:w-36" />
+                      <img src={order.productImage} alt={order.productTitle} loading="lazy" decoding="async" className="h-28 w-full rounded-3xl object-cover sm:w-36" />
                       <div className="flex-1 space-y-3">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
