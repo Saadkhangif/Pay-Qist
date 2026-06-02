@@ -23,7 +23,20 @@ const RefundAndReturnPolicyPage = lazy(() => import('./pages/RefundAndReturnPoli
 
 // A fallback UI to display while a lazy-loaded route is being fetched
 function RouteFallback() {
-  return <div className="glass bg-white/60 border border-white/40 shadow-sm rounded-[32px] p-8 text-center text-sm text-earth-dark/80">Loading...</div>;
+  return (
+    <div className="flex justify-center items-center min-h-[60vh]">
+      <div className="relative w-24 h-24">
+        {/* Outer Gyro Ring */}
+        <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-green-600 shadow-[0_0_15px_rgba(22,163,74,0.6)] animate-spin" style={{ animationDuration: '1.2s' }}></div>
+        {/* Middle Gyro Ring */}
+        <div className="absolute inset-2 rounded-full border-4 border-transparent border-l-green-500 shadow-[0_0_15px_rgba(34,197,94,0.6)] animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}></div>
+        {/* Inner Gyro Ring */}
+        <div className="absolute inset-4 rounded-full border-4 border-transparent border-b-green-400 shadow-[0_0_15px_rgba(74,222,128,0.6)] animate-spin" style={{ animationDuration: '0.8s' }}></div>
+        {/* Center pulsing core */}
+        <div className="absolute inset-8 bg-green-500 rounded-full shadow-[0_0_20px_rgba(34,197,94,0.8)] animate-pulse"></div>
+      </div>
+    </div>
+  );
 }
 
 export default function App() {
