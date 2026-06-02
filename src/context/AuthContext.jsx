@@ -15,7 +15,7 @@ function getInitialUsers(adminEmail) {
     {
       id: 'admin-1',
       name: 'Pay Qist Admin',
-      email: 'admin@payqist.com',
+      email: adminEmail,
       password: 'admin123',
       role: 'admin',
       provider: 'local',
