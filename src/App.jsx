@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
+import AdminRoute from './components/AdminRoute';
 
 // Lazy load the pages to split code, reducing the initial load time
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -27,7 +28,7 @@ function RouteFallback() {
 
 export default function App() {
   // Get the current user from the Auth Context to handle protected/public routing
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
 
   return (
     <Layout>
@@ -61,14 +62,9 @@ export default function App() {
             }
           />
           {/* Admin-only protected route */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute adminOnly>
-                <AdminPage />
-              </ProtectedRoute>
-            }
-          />
+        <Route element={<AdminRoute currentUser={user} isLoading={isLoading} />}>
+          <Route path="/admin" element={<AdminPage />} />
+        </Route>
           {/* Catch-all route for undefined paths */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

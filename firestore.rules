@@ -7,7 +7,7 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && request.auth.token.email == 'admin@payqist.com';
+      return isSignedIn() && request.auth.token.email == 'your_new_admin@example.com';
     }
 
     match /products/{productId} {
