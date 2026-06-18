@@ -72,8 +72,10 @@ export default function AdminPage() {
         imageUrl: form.imageUrl,
         category: form.category,
         allowedInstallmentMonths: form.allowedInstallmentMonths
+        allowedInstallmentMonths: String(form.allowedInstallmentMonths || '')
           .split(',')
           .map((value) => Number(value.trim()))
+          .map((value) => Number(value?.trim()))
           .filter(Boolean),
         featured: form.featured,
       };
@@ -107,6 +109,7 @@ export default function AdminPage() {
       imageUrl: product.imageUrl,
       category: product.category || 'Smartphones',
       allowedInstallmentMonths: product.allowedInstallmentMonths.join(','),
+      allowedInstallmentMonths: Array.isArray(product.allowedInstallmentMonths) ? product.allowedInstallmentMonths.join(',') : '',
       featured: product.featured,
     });
     setImageFile(null);
@@ -282,6 +285,7 @@ export default function AdminPage() {
                         <p className="text-sm leading-6 text-slate-500">{product.description}</p>
                         <div className="flex flex-wrap gap-2">
                           {product.allowedInstallmentMonths.map((months) => (
+                    {Array.isArray(product.allowedInstallmentMonths) && product.allowedInstallmentMonths.map((months) => (
                             <StatusPill key={months}>{months} months</StatusPill>
                           ))}
                         </div>
