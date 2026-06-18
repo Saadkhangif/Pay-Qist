@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useAuthModal } from '../context/AuthModalContext';
 import { useStore } from '../context/StoreContext';
 import Footer from './Footer';
 
@@ -12,6 +13,7 @@ const navLinkClass = ({ isActive }) =>
 
 export default function Layout({ children }) {
   const { user, logout, isAdmin } = useAuth();
+  const { openAuthModal } = useAuthModal();
   const { cart = [], products = [] } = useStore();
   const navigate = useNavigate();
 
@@ -68,7 +70,7 @@ export default function Layout({ children }) {
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-xl shadow-sm transform-gpu">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 sm:gap-6">
-            <Link to="/" className="flex items-center gap-3">
+            <Link to="/home" className="flex items-center gap-3">
               <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#0F9D58] to-emerald-400 text-xl font-bold text-white shadow-md">
                 Q
               </div>
@@ -151,7 +153,7 @@ export default function Layout({ children }) {
           </div>
 
           <nav className="hidden items-center gap-2 md:flex">
-            <NavLink to="/" className={navLinkClass} end>
+            <NavLink to="/home" className={navLinkClass} end>
               Home
             </NavLink>
             <NavLink to="/products" className={navLinkClass}>
@@ -183,12 +185,20 @@ export default function Layout({ children }) {
               </>
             ) : (
               <>
-                <Link className="rounded-xl px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 hidden sm:block" to="/login">
+                <button
+                  type="button"
+                  className="hidden rounded-xl px-5 py-2.5 text-sm font-semibold text-slate-600 transition-all duration-200 hover:bg-slate-100 hover:text-slate-900 sm:block"
+                  onClick={() => openAuthModal('login')}
+                >
                   Login
-                </Link>
-                <Link className="rounded-xl px-5 py-2.5 text-sm font-semibold bg-[#0F9D58] text-white shadow-md shadow-[#0F9D58]/20 hover:-translate-y-0.5 hover:bg-emerald-600 transition-all duration-200" to="/signup">
+                </button>
+                <button
+                  type="button"
+                  className="rounded-xl bg-[#0F9D58] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#0F9D58]/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-600"
+                  onClick={() => openAuthModal('signup')}
+                >
                   Sign Up
-                </Link>
+                </button>
               </>
             )}
             
@@ -207,7 +217,7 @@ export default function Layout({ children }) {
               {isMenuExpanded && (
                 <div className="absolute right-0 top-full mt-4 w-48 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
                   <nav className="flex flex-col gap-1">
-                    <NavLink to="/" className={navLinkClass} onClick={() => setIsMenuExpanded(false)} end>Home</NavLink>
+                    <NavLink to="/home" className={navLinkClass} onClick={() => setIsMenuExpanded(false)} end>Home</NavLink>
                     <NavLink to="/products" className={navLinkClass} onClick={() => setIsMenuExpanded(false)}>Products</NavLink>
                     <NavLink to="/about" className={navLinkClass} onClick={() => setIsMenuExpanded(false)}>About Us</NavLink>
                     <NavLink to="/cart" className={navLinkClass} onClick={() => setIsMenuExpanded(false)}>Cart {cart.length > 0 ? `(${cart.length})` : ''}</NavLink>

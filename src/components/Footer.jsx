@@ -154,7 +154,7 @@ export default function Footer() {
           
           {/* Col 1: Branding */}
           <div className="space-y-6 lg:pr-8">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/home" className="flex items-center gap-2">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0F9D58] to-emerald-400 flex items-center justify-center text-white font-bold text-xl shadow-md">
                 Q
               </div>

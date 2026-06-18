@@ -1,131 +1,177 @@
 import express from 'express';
-import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import admin from 'firebase-admin';
-import { getAuth } from 'firebase-admin/auth';
-import axios from 'axios';
+import { applySecurityMiddleware, authRateLimiter } from './server/middleware/security.js';
+import { csrfProtection, issueCsrfToken } from './server/middleware/csrf.js';
+import { requireAuth, requireAdmin } from './server/middleware/auth.js';
+import {
+  checkoutSchema,
+  loginSchema,
+  productSchema,
+  roleUpdateSchema,
+  signupSchema,
+  validateBody,
+} from './server/validation/schemas.js';
+import {
+  COOKIE_OPTIONS,
+  IS_PRODUCTION,
+  PORT,
+  SESSION_COOKIE,
+  SESSION_MAX_AGE_MS,
+} from './server/config.js';
+import { userFromRecord } from './server/utils/roles.js';
+import { createSessionToken, verifySessionToken } from './server/utils/session.js';
+import {
+  authenticate,
+  createUser,
+  getUserById,
+  listUsers,
+  updateUserRole as setUserRole,
+} from './server/utils/users.js';
 
-dotenv.config(); // Load environment variables from .env file
+dotenv.config();
 
-// Initialize Firebase Admin
-// Note: You must set the GOOGLE_APPLICATION_CREDENTIALS environment variable
-// pointing to your downloaded Firebase Service Account JSON file.
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.applicationDefault()
+const app = express();
+applySecurityMiddleware(app);
+app.use(cookieParser());
+app.use(express.json({ limit: '100kb' }));
+app.use('/api', csrfProtection);
+
+function setSessionCookie(res, user) {
+  res.cookie(SESSION_COOKIE, createSessionToken(user), {
+    ...COOKIE_OPTIONS,
+    maxAge: SESSION_MAX_AGE_MS,
   });
 }
 
-const app = express();
-app.use(cors()); // Allow frontend to talk to backend
-app.use(express.json()); // Parse JSON requests
+function clearSession(res) {
+  res.clearCookie(SESSION_COOKIE, COOKIE_OPTIONS);
+}
 
-// ===============================
-// 1. AUTHENTICATION ROUTES
-// ===============================
-app.post('/api/auth/signup', async (req, res) => {
+app.get('/api/csrf-token', (req, res) => {
+  const csrfToken = issueCsrfToken(res);
+  res.json({ csrfToken });
+});
+
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true });
+});
+
+app.get('/api/auth/me', (req, res) => {
+  const sessionToken = req.cookies?.[SESSION_COOKIE];
+  if (!sessionToken) {
+    return res.status(401).json({ error: 'Not authenticated.' });
+  }
+
   try {
-    const { name, email, password } = req.body;
+    const decoded = verifySessionToken(sessionToken);
+    const user = getUserById(decoded.id);
 
-    // 1. Create the new user in Firebase Auth
-    const userRecord = await getAuth().createUser({
-      email,
-      password,
-      displayName: name,
-    });
+    if (!user) {
+      clearSession(res);
+      return res.status(401).json({ error: 'Session expired.' });
+    }
 
-    // 2. Set custom claims (assign admin role if email matches)
-    const targetRole = email.toLowerCase() === 'admin@payqist.com' ? 'ADMIN' : 'CUSTOMER';
-    await getAuth().setCustomUserClaims(userRecord.uid, { role: targetRole });
-
-    // 3. Respond with the user profile
-    res.json({ user: { id: userRecord.uid, name: userRecord.displayName, email: userRecord.email, role: targetRole } });
-  } catch (error) {
-    res.status(400).json({ error: error.message || 'Internal server error during signup.' });
+    return res.json({ user: userFromRecord(user) });
+  } catch {
+    clearSession(res);
+    return res.status(401).json({ error: 'Session expired.' });
   }
 });
 
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/signup', authRateLimiter, validateBody(signupSchema), (req, res) => {
   try {
-    const { email, password } = req.body;
-
-    const API_KEY = process.env.FIREBASE_API_KEY;
-    if (!API_KEY) throw new Error("FIREBASE_API_KEY is not set in .env");
-
-    // 1. Firebase Admin SDK doesn't natively verify passwords. 
-    // We use the Identity Toolkit REST API to log in and get a Firebase ID Token.
-    const response = await axios.post(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`,
-      { email, password, returnSecureToken: true }
-    );
-
-    const { idToken, localId } = response.data;
-
-    // 2. Fetch user to retrieve role from custom claims
-    const userRecord = await getAuth().getUser(localId);
-    const role = userRecord.customClaims?.role || 'customer';
-
-    // 3. Respond with the token and user profile
-    res.json({
-      token: idToken,
-      user: { id: localId, name: userRecord.displayName, email: userRecord.email, role }
-    });
+    const { name, email, password } = req.body;
+    const user = createUser(name, email, password);
+    setSessionCookie(res, user);
+    return res.json({ user: userFromRecord(user) });
   } catch (error) {
-    res.status(401).json({ error: 'Invalid email or password.' });
+    return res.status(400).json({ error: error.message || 'Unable to create account.' });
   }
+});
+
+app.post('/api/auth/login', authRateLimiter, validateBody(loginSchema), (req, res) => {
+  const { email, password } = req.body;
+  const user = authenticate(email, password);
+
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid email or password.' });
+  }
+
+  setSessionCookie(res, user);
+  return res.json({ user: userFromRecord(user) });
 });
 
 app.post('/api/auth/logout', (req, res) => {
-  res.json({ message: 'Logged out' });
+  clearSession(res);
+  return res.json({ message: 'Logged out.' });
 });
 
-// ===============================
-// 2. PRODUCT ROUTES
-// ===============================
 app.get('/api/products', async (req, res) => {
-  // TODO: Fetch products from MongoDB
   res.json([]);
 });
 
-app.post('/api/products', async (req, res) => {
-  // TODO: Insert product into MongoDB
+app.post('/api/products', requireAuth, requireAdmin, validateBody(productSchema), async (req, res) => {
   const product = { id: Date.now().toString(), ...req.body };
   res.json(product);
 });
 
-app.put('/api/products/:id', async (req, res) => {
-  // TODO: Update product in MongoDB
+app.put('/api/products/:id', requireAuth, requireAdmin, validateBody(productSchema.partial()), async (req, res) => {
+  res.json({ id: req.params.id, ...req.body, success: true });
+});
+
+app.delete('/api/products/:id', requireAuth, requireAdmin, async (req, res) => {
   res.json({ success: true });
 });
 
-app.delete('/api/products/:id', async (req, res) => {
-  // TODO: Delete product from MongoDB
-  res.json({ success: true });
+app.get('/api/orders', requireAuth, async (req, res) => {
+  res.json([]);
 });
 
-// ===============================
-// 3. CHECKOUT & ORDERS ROUTES
-// ===============================
-app.get('/api/orders', async (req, res) => res.json([]));
-app.get('/api/payments', async (req, res) => res.json([]));
-
-app.post('/api/checkout', async (req, res) => {
-  // TODO: Process cart, insert orders/payments into MongoDB
-  const { cart, user, paymentMethod } = req.body;
-  res.json({ createdOrders: [], createdPayments: [] });
+app.get('/api/payments', requireAuth, async (req, res) => {
+  res.json([]);
 });
 
-// ===============================
-// 4. USER MANAGEMENT ROUTES
-// ===============================
-app.get('/api/users', async (req, res) => res.json([]));
-app.put('/api/users/:id/role', async (req, res) => res.json({ success: true }));
+app.post('/api/checkout', requireAuth, validateBody(checkoutSchema), async (req, res) => {
+  const { cart, paymentMethod } = req.body;
+  res.json({
+    createdOrders: [],
+    createdPayments: [],
+    userId: req.auth.id,
+    paymentMethod: paymentMethod || 'card',
+    itemCount: cart.length,
+  });
+});
 
-// ===============================
-// START SERVER
-// ===============================
-const PORT = process.env.PORT || 8787;
+app.get('/api/users', requireAuth, requireAdmin, (req, res) => {
+  res.json(listUsers());
+});
+
+app.put(
+  '/api/users/:id/role',
+  requireAuth,
+  requireAdmin,
+  validateBody(roleUpdateSchema),
+  (req, res) => {
+    try {
+      const user = setUserRole(req.params.id, req.body.role);
+      res.json({ success: true, role: user.role });
+    } catch (error) {
+      res.status(404).json({ error: error.message || 'User not found.' });
+    }
+  },
+);
+
+app.use((err, req, res, next) => {
+  if (err?.message === 'Not allowed by CORS') {
+    return res.status(403).json({ error: 'Origin not allowed.' });
+  }
+  if (IS_PRODUCTION) {
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+  return res.status(500).json({ error: err.message || 'Internal server error.' });
+});
 
 app.listen(PORT, () => {
-  console.log(`🚀 Node backend running on http://localhost:${PORT} (Firebase Auth Enabled)`);
+  console.log(`Secure API running on http://localhost:${PORT}`);
 });

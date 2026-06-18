@@ -33,7 +33,7 @@ const PRODUCT_CATEGORIES = [
 
 export default function AdminPage() {
   const { user, users, updateUserRole, removeUserRole } = useAuth();
-  const { products, orders, payments, addProduct, updateProduct, removeProduct, stats, uploadProductImage, storeMode } = useStore();
+  const { products, orders, payments, addProduct, updateProduct, removeProduct, stats, uploadProductImage } = useStore();
   const [tab, setTab] = useState('overview');
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState('');
@@ -71,11 +71,9 @@ export default function AdminPage() {
         price: Number(form.price),
         imageUrl: form.imageUrl,
         category: form.category,
-        allowedInstallmentMonths: form.allowedInstallmentMonths
         allowedInstallmentMonths: String(form.allowedInstallmentMonths || '')
           .split(',')
           .map((value) => Number(value.trim()))
-          .map((value) => Number(value?.trim()))
           .filter(Boolean),
         featured: form.featured,
       };
@@ -108,7 +106,6 @@ export default function AdminPage() {
       price: String(product.price),
       imageUrl: product.imageUrl,
       category: product.category || 'Smartphones',
-      allowedInstallmentMonths: product.allowedInstallmentMonths.join(','),
       allowedInstallmentMonths: Array.isArray(product.allowedInstallmentMonths) ? product.allowedInstallmentMonths.join(',') : '',
       featured: product.featured,
     });
@@ -221,9 +218,7 @@ export default function AdminPage() {
               <form className="bg-white border border-slate-200 shadow-sm space-y-4 rounded-3xl p-6 md:p-8" onSubmit={handleSubmit}>
                 <h2 className="text-2xl font-bold text-slate-900">{editingId ? 'Edit Product' : 'Add Product'}</h2>
                 <p className="text-sm text-slate-500 mb-4">
-                  {storeMode === 'firebase'
-                    ? 'Upload an image file to Firebase Storage or paste a hosted URL.'
-                    : 'Demo mode uses local preview URLs and object URLs for file uploads.'}
+                  Paste a hosted image URL or upload a file for a local preview.
                 </p>
                 <input className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20 transition-all font-medium" placeholder="Title" value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} />
                 <textarea className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20 transition-all font-medium min-h-32" placeholder="Description" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
@@ -284,8 +279,7 @@ export default function AdminPage() {
                         </div>
                         <p className="text-sm leading-6 text-slate-500">{product.description}</p>
                         <div className="flex flex-wrap gap-2">
-                          {product.allowedInstallmentMonths.map((months) => (
-                    {Array.isArray(product.allowedInstallmentMonths) && product.allowedInstallmentMonths.map((months) => (
+                          {Array.isArray(product.allowedInstallmentMonths) && product.allowedInstallmentMonths.map((months) => (
                             <StatusPill key={months}>{months} months</StatusPill>
                           ))}
                         </div>

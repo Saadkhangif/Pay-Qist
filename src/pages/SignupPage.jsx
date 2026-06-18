@@ -16,8 +16,8 @@ export default function SignupPage() {
     setError('');
     setLoading(true);
     try {
-      await signup(name, email, password);
-      navigate('/');
+      await signup({ name, email, password });
+      navigate('/home');
     } catch (err) {
       setError(err.message || 'Failed to create an account. Please try again.');
     } finally {

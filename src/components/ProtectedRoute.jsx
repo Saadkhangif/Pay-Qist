@@ -6,11 +6,17 @@ export default function ProtectedRoute({ children, adminOnly = false }) {
   const location = useLocation();
 
   if (!user) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return (
+      <Navigate
+        to="/home"
+        replace
+        state={{ openAuth: 'login', returnTo: location.pathname }}
+      />
+    );
   }
 
   if (adminOnly && !isAdmin) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   return children;

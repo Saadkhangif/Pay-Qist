@@ -73,7 +73,7 @@ export default function EmiCalculator() {
                   <span className="font-semibold text-white">Rs. {Math.max(0, calcPrice - calcDown).toLocaleString()}</span>
                 </div>
               </div>
-              <Link to="/" className="mt-8 block w-full text-center py-4 rounded-xl bg-white text-slate-900 font-bold hover:bg-slate-100 transition shadow-lg">
+              <Link to="/home" className="mt-8 block w-full text-center py-4 rounded-xl bg-white text-slate-900 font-bold hover:bg-slate-100 transition shadow-lg">
                 Browse Products
               </Link>
             </div>

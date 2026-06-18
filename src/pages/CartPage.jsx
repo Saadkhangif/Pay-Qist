@@ -52,7 +52,7 @@ export default function CartPage() {
          </div>
          <h1 className="text-4xl font-bold tracking-tight text-slate-900 mb-4">Your cart is empty</h1>
          <p className="max-w-md text-lg text-slate-500 mb-10">You haven't added any products to your cart yet. Explore our storefront to find items you can buy on easy installments.</p>
-         <Link className="rounded-xl px-8 py-3 text-lg font-bold bg-[#0F9D58] text-white shadow-lg shadow-[#0F9D58]/20 hover:-translate-y-0.5 hover:bg-emerald-600 transition-all duration-200 inline-block" to="/">
+         <Link className="rounded-xl px-8 py-3 text-lg font-bold bg-[#0F9D58] text-white shadow-lg shadow-[#0F9D58]/20 hover:-translate-y-0.5 hover:bg-emerald-600 transition-all duration-200 inline-block" to="/home">
            Explore Products
          </Link>
       </div>

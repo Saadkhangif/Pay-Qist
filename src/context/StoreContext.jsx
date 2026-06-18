@@ -1,10 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { apiFetch, usesSecureApi } from '../lib/api';
 import { getDownPayment, getMonthlyInstallment } from '../lib/currency';
 import { readStorage, writeStorage } from '../lib/storage';
 
 const StoreContext = createContext(null);
 const CART_KEY = 'payqist_cart';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8787';
 
 function normalizeProduct(product) {
   return {
@@ -48,30 +48,29 @@ export function StoreProvider({ children }) {
 
   // Fetch initial data from Node.js API
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/products`).then(r => r.json()).then(setProducts).catch(console.error);
-    fetch(`${API_BASE_URL}/api/orders`).then(r => r.json()).then(setOrders).catch(console.error);
-    fetch(`${API_BASE_URL}/api/payments`).then(r => r.json()).then(setPayments).catch(console.error);
+    if (!usesSecureApi()) return;
+
+    apiFetch('/api/products').then(setProducts).catch(console.error);
+    apiFetch('/api/orders').then(setOrders).catch(console.error);
+    apiFetch('/api/payments').then(setPayments).catch(console.error);
   }, []);
 
   async function addProduct(product) {
     const payload = normalizeProduct(product);
 
-    const res = await fetch(`${API_BASE_URL}/api/products`, {
+    const nextProduct = await apiFetch('/api/products', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
-    const nextProduct = await res.json();
     setProducts((currentProducts) => [nextProduct, ...currentProducts]);
     return nextProduct;
   }
 
   async function updateProduct(productId, updates) {
     const payload = normalizeProduct(updates);
-    await fetch(`${API_BASE_URL}/api/products/${productId}`, {
+    await apiFetch(`/api/products/${productId}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     setProducts((currentProducts) =>
@@ -87,9 +86,7 @@ export function StoreProvider({ children }) {
   }
 
   async function removeProduct(productId) {
-    await fetch(`${API_BASE_URL}/api/products/${productId}`, {
-      method: 'DELETE'
-    });
+    await apiFetch(`/api/products/${productId}`, { method: 'DELETE' });
     setProducts((currentProducts) => currentProducts.filter((product) => product.id !== productId));
   }
 
@@ -139,14 +136,20 @@ export function StoreProvider({ children }) {
     return URL.createObjectURL(file);
   }
 
-  async function createOrderFromCart(user, paymentMethod, paymentReference = '') {
-    const payload = { cart, user, paymentMethod, paymentReference };
-    const res = await fetch(`${API_BASE_URL}/api/checkout`, {
+  async function createOrderFromCart(_user, paymentMethod, paymentReference = '') {
+    const payload = {
+      cart: cart.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        installmentMonths: item.installmentMonths,
+      })),
+      paymentMethod,
+      paymentReference,
+    };
+    const { createdOrders, createdPayments } = await apiFetch('/api/checkout', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
-    const { createdOrders, createdPayments } = await res.json();
 
     setOrders((currentOrders) => [...createdOrders, ...currentOrders]);
     setPayments((currentPayments) => [...createdPayments, ...currentPayments]);
