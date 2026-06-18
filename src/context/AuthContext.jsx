@@ -1,27 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { hasFirebaseConfig, loadFirebaseAuthTools, loadFirebaseStoreTools } from '../lib/firebase';
 import { readStorage, writeStorage } from '../lib/storage';
 
 const AuthContext = createContext(null);
 const USERS_KEY = 'payqist_users';
 const AUTH_KEY = 'payqist_auth_user';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
-
-/**
- * Generates an initial mock admin user when running the app in local demo mode.
- */
-function getInitialUsers(adminEmail) {
-  return [
-    {
-      id: 'admin-1',
-      name: 'Pay Qist Admin',
-      email: adminEmail,
-      password: 'admin123',
-      role: 'admin',
-      provider: 'local',
-    },
-  ];
-}
 
 /**
  * Maps a Firebase user object into the standard profile structure used throughout the app.
@@ -56,14 +39,16 @@ function normalizeUserRecord(user, adminEmail) {
  * @param {object} body - The request payload.
  * @returns {Promise<object>} The JSON response from the server.
  */
-async function requestJson(path, body) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method: 'POST',
+async function requestJson(path, body, method = 'POST') {
+  const options = {
+    method,
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(body),
-  });
+  };
+  if (body) options.body = JSON.stringify(body);
+
+  const response = await fetch(`${API_BASE_URL}${path}`, options);
 
   const payload = await response.json().catch(() => ({}));
 
@@ -76,134 +61,29 @@ async function requestJson(path, body) {
 
 export function AuthProvider({ children }) {
   const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'admin@payqist.com';
-  const [users, setUsers] = useState(() => readStorage(USERS_KEY, null) || getInitialUsers(adminEmail));
+  const [users, setUsers] = useState([]);
   const [user, setUser] = useState(() => readStorage(AUTH_KEY, null));
 
-  // Sync the users list to local storage when running in local demo mode (no Firebase)
+  // Fetch users from backend (e.g. for admin dashboard)
   useEffect(() => {
-    if (!hasFirebaseConfig) {
-      writeStorage(USERS_KEY, users);
-    }
-  }, [users]);
-
-  // Sync the currently authenticated user to local storage in local demo mode
-  useEffect(() => {
-    if (!hasFirebaseConfig) {
-      writeStorage(AUTH_KEY, user);
+    if (user?.role === 'admin') {
+      fetch(`${API_BASE_URL}/api/users`)
+        .then(res => res.json())
+        .then(setUsers)
+        .catch(console.error);
     }
   }, [user]);
 
-  // Initialize and handle Firebase authentication state and real-time database listeners
+  // Sync the currently authenticated user to local storage in local demo mode
   useEffect(() => {
-    if (!hasFirebaseConfig) {
-      return undefined;
-    }
-
-    let unsubscribeAuth = () => undefined;
-    let unsubscribeUsers = () => undefined;
-    let unsubscribeProfile = () => undefined;
-    let mounted = true;
-
-    (async () => {
-      const authTools = await loadFirebaseAuthTools();
-      const storeTools = await loadFirebaseStoreTools();
-
-      if (!mounted || !authTools || !storeTools) {
-        return;
-      }
-
-      await authTools.setPersistence(authTools.auth, authTools.browserLocalPersistence).catch(() => undefined);
-
-      // Listen for changes in the user's authentication state
-      unsubscribeAuth = authTools.onAuthStateChanged(authTools.auth, (firebaseUser) => {
-        unsubscribeProfile();
-
-        if (!firebaseUser) {
-          setUser(null);
-          return;
-        }
-
-        const userRef = authTools.doc(storeTools.db, 'users', firebaseUser.uid);
-
-        // Listen for real-time changes to the authenticated user's profile document
-        unsubscribeProfile = authTools.onSnapshot(userRef, (snapshot) => {
-          const profileData = snapshot.exists() ? snapshot.data() : {};
-          const profile = normalizeUserRecord(
-            {
-              ...firebaseUser,
-              role: profileData.role,
-              provider: profileData.provider || firebaseUser.providerData?.[0]?.providerId,
-            },
-            adminEmail,
-          );
-          setUser(profile);
-
-          authTools.setDoc(
-            userRef,
-            {
-              uid: firebaseUser.uid,
-              name: profile.name,
-              email: profile.email,
-              role: profile.role,
-              provider: profile.provider,
-              updatedAt: authTools.serverTimestamp(),
-            },
-            { merge: true },
-          );
-        });
-
-      });
-
-      // Listen for real-time changes to the entire users collection (for admin view)
-      const usersQuery = storeTools.query(storeTools.collection(storeTools.db, 'users'));
-      unsubscribeUsers = storeTools.onSnapshot(usersQuery, (snapshot) => {
-        const nextUsers = snapshot.docs.map((document) => {
-          const data = document.data();
-          return {
-            id: document.id,
-            name: data.name || 'Customer',
-            email: data.email,
-            role: data.role || (data.email === adminEmail ? 'admin' : 'customer'),
-            provider: data.provider || 'local',
-          };
-        });
-
-        if (nextUsers.length) {
-          setUsers(nextUsers);
-        }
-      });
-    })();
-
-    return () => {
-      mounted = false;
-      unsubscribeProfile();
-      unsubscribeAuth();
-      unsubscribeUsers();
-    };
-  }, [adminEmail]);
+    writeStorage(AUTH_KEY, user);
+  }, [user]);
 
   /**
    * Persists a newly created or updated user record to Firestore.
    */
   async function persistUserRecord(nextRecord) {
-    if (!hasFirebaseConfig) {
-      return;
-    }
-
-    const tools = await loadFirebaseAuthTools();
-    const storeTools = await loadFirebaseStoreTools();
-    await tools.setDoc(
-      tools.doc(storeTools.db, 'users', nextRecord.id),
-      {
-        uid: nextRecord.id,
-        name: nextRecord.name,
-        email: nextRecord.email,
-        role: nextRecord.role,
-        provider: nextRecord.provider,
-        updatedAt: tools.serverTimestamp(),
-      },
-      { merge: true },
-    );
+    // TODO: Make an API call to MongoDB to update/persist the user record
   }
 
   /**
@@ -216,46 +96,9 @@ export function AuthProvider({ children }) {
       throw new Error('Please fill in all fields.');
     }
 
-    if (hasFirebaseConfig) {
-      const tools = await loadFirebaseAuthTools();
-      const credential = await tools.createUserWithEmailAndPassword(tools.auth, normalizedEmail, password);
-      await tools.updateProfile(credential.user, { displayName: name });
-      const profile = buildUserProfile({ ...credential.user, displayName: name }, adminEmail);
-
-      await tools.setDoc(
-        tools.doc((await loadFirebaseStoreTools()).db, 'users', credential.user.uid),
-        {
-          uid: credential.user.uid,
-          name,
-          email: normalizedEmail,
-          role: profile.role,
-          provider: 'password',
-          createdAt: tools.serverTimestamp(),
-          updatedAt: tools.serverTimestamp(),
-        },
-        { merge: true },
-      );
-
-      setUser(profile);
-      return profile;
-    }
-
-    if (users.some((existingUser) => existingUser.email === normalizedEmail)) {
-      throw new Error('An account with this email already exists.');
-    }
-
-    const nextUser = {
-      id: crypto.randomUUID(),
-      name,
-      email: normalizedEmail,
-      password,
-      role: normalizedEmail === adminEmail ? 'admin' : 'customer',
-      provider: 'local',
-    };
-
-    setUsers((currentUsers) => [...currentUsers, nextUser]);
-    setUser(normalizeUserRecord(nextUser, adminEmail));
-    return nextUser;
+    const payload = await requestJson('/api/auth/signup', { name, email: normalizedEmail, password });
+    setUser(payload.user);
+    return payload.user;
   }
 
   /**
@@ -264,77 +107,32 @@ export function AuthProvider({ children }) {
   async function login({ email, password }) {
     const normalizedEmail = email.trim().toLowerCase();
 
-    if (hasFirebaseConfig) {
-      const tools = await loadFirebaseAuthTools();
-      const credential = await tools.signInWithEmailAndPassword(tools.auth, normalizedEmail, password);
-      return buildUserProfile(credential.user, adminEmail);
-    }
-
-    const existingUser = users.find((candidate) => candidate.email === normalizedEmail && candidate.password === password);
-
-    if (!existingUser) {
-      throw new Error('Invalid email or password.');
-    }
-
-    const profile = normalizeUserRecord(existingUser, adminEmail);
-    setUser(profile);
-    return profile;
+    const payload = await requestJson('/api/auth/login', { email: normalizedEmail, password });
+    setUser(payload.user);
+    return payload.user;
   }
 
   /**
    * Handles Google Single Sign-On using a popup window.
    */
   async function signInWithGoogle() {
-    if (hasFirebaseConfig) {
-      const tools = await loadFirebaseAuthTools();
-      const provider = tools.getGoogleProvider();
-      const credential = await tools.signInWithPopup(tools.auth, provider);
-      return buildUserProfile(credential.user, adminEmail);
-    }
-
-    const googleEmail = 'google.user@payqist.com';
-    let googleUser = users.find((candidate) => candidate.email === googleEmail);
-
-    if (!googleUser) {
-      googleUser = {
-        id: crypto.randomUUID(),
-        name: 'Google User',
-        email: googleEmail,
-        password: '',
-        role: 'customer',
-        provider: 'google',
-      };
-      setUsers((currentUsers) => [...currentUsers, googleUser]);
-    }
-
-    const profile = normalizeUserRecord(googleUser, adminEmail);
-    setUser(profile);
-    return profile;
+    // Redirect the user to the Node.js OAuth endpoint
+    window.location.href = `${API_BASE_URL}/api/auth/google`;
   }
 
   /**
    * Logs out the current user and clears the session.
    */
   async function logout() {
-    if (hasFirebaseConfig) {
-      const tools = await loadFirebaseAuthTools();
-      await tools.signOut(tools.auth);
-      return;
-    }
-
     setUser(null);
+    await fetch(`${API_BASE_URL}/api/auth/logout`, { method: 'POST' }).catch(() => {});
   }
 
   /**
    * Sends a password reset email using Firebase Auth.
    */
   async function resetPassword(email) {
-    if (!hasFirebaseConfig) {
-      return;
-    }
-
-    const tools = await loadFirebaseAuthTools();
-    await tools.sendPasswordResetEmail(tools.auth, email.trim().toLowerCase());
+    // TODO: API call to your backend to trigger a password reset email
   }
 
   /**
@@ -375,22 +173,7 @@ export function AuthProvider({ children }) {
   async function updateUserRole(userId, nextRole) {
     const role = nextRole || 'customer';
 
-    if (hasFirebaseConfig) {
-      const tools = await loadFirebaseAuthTools();
-      const storeTools = await loadFirebaseStoreTools();
-      await tools.setDoc(
-        tools.doc(storeTools.db, 'users', userId),
-        { role, updatedAt: tools.serverTimestamp() },
-        { merge: true },
-      );
-
-      if (user?.id === userId) {
-        setUser((currentUser) => (currentUser ? { ...currentUser, role } : currentUser));
-      }
-
-      return;
-    }
-
+    await requestJson(`/api/users/${userId}/role`, { role }, 'PUT');
     setUsers((currentUsers) =>
       currentUsers.map((candidate) =>
         candidate.id === userId
@@ -428,7 +211,7 @@ export function AuthProvider({ children }) {
       verifySignupVerificationCode,
       updateUserRole,
       removeUserRole,
-      authMode: hasFirebaseConfig ? 'firebase' : 'local',
+      authMode: 'node',
     }),
     [user, users],
   );

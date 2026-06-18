@@ -1,18 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { seedProducts } from '../data/seedProducts';
 import { getDownPayment, getMonthlyInstallment } from '../lib/currency';
-import { hasFirebaseConfig, loadFirebaseStoreTools } from '../lib/firebase';
 import { readStorage, writeStorage } from '../lib/storage';
 
 const StoreContext = createContext(null);
-const PRODUCTS_KEY = 'payqist_products';
 const CART_KEY = 'payqist_cart';
-const ORDERS_KEY = 'payqist_orders';
-const PAYMENTS_KEY = 'payqist_payments';
-
-function buildInitialProducts() {
-  return seedProducts;
-}
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8787';
 
 function normalizeProduct(product) {
   return {
@@ -44,128 +36,43 @@ function normalizePayment(payment) {
 }
 
 export function StoreProvider({ children }) {
-  const [products, setProducts] = useState(() => readStorage(PRODUCTS_KEY, buildInitialProducts()));
+  const [products, setProducts] = useState([]);
   const [cart, setCart] = useState(() => readStorage(CART_KEY, []));
-  const [orders, setOrders] = useState(() => readStorage(ORDERS_KEY, []));
-  const [payments, setPayments] = useState(() => readStorage(PAYMENTS_KEY, []));
+  const [orders, setOrders] = useState([]);
+  const [payments, setPayments] = useState([]);
   const seededProductsRef = useRef(false);
-
-  useEffect(() => {
-    if (!hasFirebaseConfig) {
-      writeStorage(PRODUCTS_KEY, products);
-    }
-  }, [products]);
 
   useEffect(() => {
     writeStorage(CART_KEY, cart);
   }, [cart]);
 
+  // Fetch initial data from Node.js API
   useEffect(() => {
-    if (!hasFirebaseConfig) {
-      writeStorage(ORDERS_KEY, orders);
-    }
-  }, [orders]);
-
-  useEffect(() => {
-    if (!hasFirebaseConfig) {
-      writeStorage(PAYMENTS_KEY, payments);
-    }
-  }, [payments]);
-
-  useEffect(() => {
-    if (!hasFirebaseConfig) {
-      return undefined;
-    }
-
-    let unsubscribeProducts = () => undefined;
-    let unsubscribeOrders = () => undefined;
-    let unsubscribePayments = () => undefined;
-    let mounted = true;
-
-    (async () => {
-      const tools = await loadFirebaseStoreTools();
-      if (!mounted || !tools) {
-        return;
-      }
-
-      const productsQuery = tools.query(tools.collection(tools.db, 'products'), tools.orderBy('createdAt', 'desc'));
-      const ordersQuery = tools.query(tools.collection(tools.db, 'orders'), tools.orderBy('createdAt', 'desc'));
-      const paymentsQuery = tools.query(tools.collection(tools.db, 'payments'), tools.orderBy('createdAt', 'desc'));
-
-      unsubscribeProducts = tools.onSnapshot(productsQuery, async (snapshot) => {
-        if (snapshot.empty && !seededProductsRef.current) {
-          seededProductsRef.current = true;
-          const batch = tools.writeBatch(tools.db);
-          seedProducts.forEach((product) => {
-            const productRef = tools.doc(tools.collection(tools.db, 'products'));
-            batch.set(productRef, {
-              ...normalizeProduct(product),
-              id: productRef.id,
-              createdAt: tools.serverTimestamp(),
-              updatedAt: tools.serverTimestamp(),
-            });
-          });
-          await batch.commit();
-          return;
-        }
-
-        const nextProducts = snapshot.docs.map((document) => ({ id: document.id, ...document.data() }));
-        setProducts(nextProducts.length ? nextProducts.map(normalizeProduct) : buildInitialProducts());
-      });
-
-      unsubscribeOrders = tools.onSnapshot(ordersQuery, (snapshot) => {
-        const nextOrders = snapshot.docs.map((document) => ({ id: document.id, ...document.data() }));
-        setOrders(nextOrders.map(normalizeOrder));
-      });
-
-      unsubscribePayments = tools.onSnapshot(paymentsQuery, (snapshot) => {
-        const nextPayments = snapshot.docs.map((document) => ({ id: document.id, ...document.data() }));
-        setPayments(nextPayments.map(normalizePayment));
-      });
-    })();
-
-    return () => {
-      mounted = false;
-      unsubscribeProducts();
-      unsubscribeOrders();
-      unsubscribePayments();
-    };
+    fetch(`${API_BASE_URL}/api/products`).then(r => r.json()).then(setProducts).catch(console.error);
+    fetch(`${API_BASE_URL}/api/orders`).then(r => r.json()).then(setOrders).catch(console.error);
+    fetch(`${API_BASE_URL}/api/payments`).then(r => r.json()).then(setPayments).catch(console.error);
   }, []);
 
   async function addProduct(product) {
     const payload = normalizeProduct(product);
 
-    if (hasFirebaseConfig) {
-      const tools = await loadFirebaseStoreTools();
-      const productRef = await tools.addDoc(tools.collection(tools.db, 'products'), {
-        ...payload,
-        createdAt: tools.serverTimestamp(),
-        updatedAt: tools.serverTimestamp(),
-      });
-
-      return { id: productRef.id, ...payload };
-    }
-
-    const nextProduct = {
-      id: crypto.randomUUID(),
-      ...payload,
-    };
-
+    const res = await fetch(`${API_BASE_URL}/api/products`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const nextProduct = await res.json();
     setProducts((currentProducts) => [nextProduct, ...currentProducts]);
     return nextProduct;
   }
 
   async function updateProduct(productId, updates) {
     const payload = normalizeProduct(updates);
-
-    if (hasFirebaseConfig) {
-      const tools = await loadFirebaseStoreTools();
-      await tools.updateDoc(tools.doc(tools.db, 'products', productId), {
-        ...payload,
-        updatedAt: tools.serverTimestamp(),
-      });
-      return;
-    }
+    await fetch(`${API_BASE_URL}/api/products/${productId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
     setProducts((currentProducts) =>
       currentProducts.map((product) =>
@@ -180,12 +87,9 @@ export function StoreProvider({ children }) {
   }
 
   async function removeProduct(productId) {
-    if (hasFirebaseConfig) {
-      const tools = await loadFirebaseStoreTools();
-      await tools.deleteDoc(tools.doc(tools.db, 'products', productId));
-      return;
-    }
-
+    await fetch(`${API_BASE_URL}/api/products/${productId}`, {
+      method: 'DELETE'
+    });
     setProducts((currentProducts) => currentProducts.filter((product) => product.id !== productId));
   }
 
@@ -232,79 +136,22 @@ export function StoreProvider({ children }) {
       return '';
     }
 
-    if (!hasFirebaseConfig) {
-      return URL.createObjectURL(file);
-    }
-
-    const tools = await loadFirebaseStoreTools();
-    const storageRef = tools.ref(tools.storage, `product-images/${productId}/${crypto.randomUUID()}-${file.name}`);
-    const snapshot = await tools.uploadBytes(storageRef, file);
-    return tools.getDownloadURL(snapshot.ref);
+    return URL.createObjectURL(file);
   }
 
   async function createOrderFromCart(user, paymentMethod, paymentReference = '') {
-    const createdAt = new Date().toISOString();
-    const nextOrders = cart.map((item) => {
-      const monthlyPayment = getMonthlyInstallment(item.price, item.installmentMonths);
-      const downPayment = getDownPayment(item.price);
-
-      return {
-        userId: user?.id || 'guest',
-        userName: user?.name || 'Guest Shopper',
-        userEmail: user?.email || 'guest@payqist.com',
-        productId: item.productId,
-        productTitle: item.title,
-        productImage: item.imageUrl,
-        installmentMonths: item.installmentMonths,
-        quantity: item.quantity,
-        price: item.price,
-        monthlyPayment,
-        downPayment,
-        paymentMethod,
-        paymentReference,
-        paymentStatus: 'Paid',
-        applicationStatus: 'Submitted',
-        createdAt,
-      };
+    const payload = { cart, user, paymentMethod, paymentReference };
+    const res = await fetch(`${API_BASE_URL}/api/checkout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     });
-    const nextPayments = nextOrders.map((order) => ({
-      userId: order.userId,
-      userName: order.userName,
-      userEmail: order.userEmail,
-      orderTitle: order.productTitle,
-      amount: order.downPayment,
-      paymentMethod: order.paymentMethod,
-      paymentReference: order.paymentReference,
-      paymentStatus: order.paymentStatus,
-      createdAt,
-    }));
+    const { createdOrders, createdPayments } = await res.json();
 
-    if (hasFirebaseConfig) {
-      const tools = await loadFirebaseStoreTools();
-      for (const order of nextOrders) {
-        await tools.addDoc(tools.collection(tools.db, 'orders'), {
-          ...order,
-          createdAt: tools.serverTimestamp(),
-          updatedAt: tools.serverTimestamp(),
-        });
-      }
-      for (const payment of nextPayments) {
-        await tools.addDoc(tools.collection(tools.db, 'payments'), {
-          ...payment,
-          createdAt: tools.serverTimestamp(),
-          updatedAt: tools.serverTimestamp(),
-        });
-      }
-      setCart([]);
-      return nextOrders;
-    }
-
-    const storedOrders = nextOrders.map((order) => ({ id: crypto.randomUUID(), ...order }));
-    const storedPayments = nextPayments.map((payment) => ({ id: crypto.randomUUID(), ...payment }));
-    setOrders((currentOrders) => [...storedOrders, ...currentOrders]);
-    setPayments((currentPayments) => [...storedPayments, ...currentPayments]);
+    setOrders((currentOrders) => [...createdOrders, ...currentOrders]);
+    setPayments((currentPayments) => [...createdPayments, ...currentPayments]);
     setCart([]);
-    return storedOrders;
+    return createdOrders;
   }
 
   const stats = useMemo(() => {
@@ -339,7 +186,7 @@ export function StoreProvider({ children }) {
       clearCart,
       createOrderFromCart,
       uploadProductImage,
-      storeMode: hasFirebaseConfig ? 'firebase' : 'local',
+      storeMode: 'node',
     }),
     [cart, orders, payments, products, stats],
   );
