@@ -16,7 +16,7 @@ function Spinner() {
 
 export default function AuthModal() {
   const { isOpen, mode, setMode, closeAuthModal, returnTo } = useAuthModal();
-  const { login, signup } = useAuth();
+  const { login, signup, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
@@ -27,7 +27,7 @@ export default function AuthModal() {
   const [loading, setLoading] = useState(false);
 
   const isSignup = mode === 'signup';
-  const busy = loading;
+  const busy = loading || authLoading;
 
   useEffect(() => {
     if (!isOpen) {

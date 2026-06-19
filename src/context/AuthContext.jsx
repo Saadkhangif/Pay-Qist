@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { apiFetch, initApiSecurity } from '../lib/api';
+import { apiFetch, ensureCsrfToken, initApiSecurity } from '../lib/api';
 
 const AuthContext = createContext(null);
 
@@ -52,6 +52,7 @@ export function AuthProvider({ children }) {
   }, [user]);
 
   async function signup({ name, email, password }) {
+    await ensureCsrfToken();
     const payload = await apiFetch('/api/auth/signup', {
       method: 'POST',
       body: JSON.stringify({
@@ -66,6 +67,7 @@ export function AuthProvider({ children }) {
   }
 
   async function login({ email, password }) {
+    await ensureCsrfToken();
     const payload = await apiFetch('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({
