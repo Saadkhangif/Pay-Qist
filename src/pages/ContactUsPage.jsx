@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiFetch } from '../lib/api';
 
 export default function ContactUsPage() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
@@ -11,13 +12,10 @@ export default function ContactUsPage() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('http://localhost:3000/api/contact', {
+      await apiFetch('/api/contact', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
-
-      if (!response.ok) throw new Error('Failed to send message');
       
       setStatus('success');
       setForm({ name: '', email: '', message: '' });

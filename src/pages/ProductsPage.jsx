@@ -1,11 +1,19 @@
-import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { formatCurrency, getDownPayment, getMonthlyInstallment } from '../lib/currency';
 
 export default function ProductsPage() {
   const { products = [] } = useStore();
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [searchParams] = useSearchParams();
+  const categoryFromUrl = searchParams.get('category');
+  const [activeCategory, setActiveCategory] = useState(categoryFromUrl || 'All');
+
+  useEffect(() => {
+    if (categoryFromUrl) {
+      setActiveCategory(categoryFromUrl);
+    }
+  }, [categoryFromUrl]);
 
   // Dynamically extract unique categories from the products actually stored in your database
   const categories = useMemo(() => {
@@ -23,10 +31,17 @@ export default function ProductsPage() {
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       
       {/* Page Header */}
-      <div className="mb-10 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Our Products</h1>
-          <p className="mt-2 text-lg text-slate-500">Shop top brands with zero hidden fees and easy installments.</p>
+      <div className="mb-10 relative rounded-3xl overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1600&q=80"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-slate-900/60"></div>
+        <div className="relative px-8 py-14 text-center md:text-left">
+          <h1 className="text-4xl font-extrabold text-white tracking-tight">Our Products</h1>
+          <p className="mt-2 text-lg text-slate-200">Shop top brands with zero hidden fees and easy installments.</p>
         </div>
       </div>
 
@@ -62,7 +77,8 @@ export default function ProductsPage() {
                 
                 <div className="p-6 flex-1 flex flex-col">
                   <Link to={`/product/${product.id}`}>
-                    <h3 className="text-lg font-bold text-slate-900 line-clamp-2 hover:text-[#0F9D58] transition-colors">{product.title}</h3>
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#0F9D58]">{product.category || 'Electronics'}</span>
+                    <h3 className="text-lg font-bold text-slate-900 line-clamp-2 hover:text-[#0F9D58] transition-colors mt-1">{product.title}</h3>
                   </Link>
                   <div className="text-sm font-medium text-slate-400 mt-1 line-through decoration-slate-300">Total: {formatCurrency(product.price)}</div>
                   

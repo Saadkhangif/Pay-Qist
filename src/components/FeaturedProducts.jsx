@@ -33,7 +33,8 @@ export default function FeaturedProducts() {
                     <div className="absolute top-4 left-4 bg-rose-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">Hot</div>
                   </div>
                   <div className="p-6 flex-1 flex flex-col">
-                    <h3 className="text-lg font-bold text-slate-900 line-clamp-1">{product.title}</h3>
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#0F9D58] mb-1">{product.category || 'Electronics'}</span>
+                  <h3 className="text-lg font-bold text-slate-900 line-clamp-1">{product.title}</h3>
                     <div className="text-sm text-slate-400 mt-1 line-through decoration-slate-300">Total: {formatCurrency(product.price)}</div>
                     
                     <div className="mt-4 bg-[#0F9D58]/5 rounded-2xl p-4 border border-[#0F9D58]/10">

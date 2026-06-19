@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { validateAuthForm } from '../lib/validation/authSchemas';
 import { useAuthModal } from '../context/AuthModalContext';
+import Logo from './Logo';
 
 function Spinner() {
   return (
@@ -116,12 +117,7 @@ export default function AuthModal() {
         </button>
 
         <div className="mb-5 pr-6">
-          <div className="mb-4 flex items-center gap-2">
-            <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-[#0F9D58] to-emerald-400 text-sm font-bold text-white">
-              Q
-            </div>
-            <span className="text-sm font-semibold text-slate-500">Pay Qist</span>
-          </div>
+          <Logo to={null} size="sm" />
           <h2 id="auth-modal-title" className="text-xl font-bold text-slate-900">
             {isSignup ? 'Create your account' : 'Welcome back'}
           </h2>

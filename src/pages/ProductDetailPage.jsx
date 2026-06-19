@@ -4,7 +4,7 @@ import { useStore } from '../context/StoreContext';
 import { formatCurrency, getDownPayment, getMonthlyInstallment } from '../lib/currency';
 
 export default function ProductDetailPage() {
-  const { id } = useParams();
+  const { productId } = useParams();
   const navigate = useNavigate();
   const { products = [], addToCart } = useStore();
   
@@ -13,7 +13,7 @@ export default function ProductDetailPage() {
   const [adding, setAdding] = useState(false);
 
   // Find the exact product
-  const product = useMemo(() => products.find((p) => p.id === id), [products, id]);
+  const product = useMemo(() => products.find((p) => p.id === productId), [products, productId]);
 
   if (!product) {
     return (
@@ -72,6 +72,7 @@ export default function ProductDetailPage() {
         {/* Right Column: Checkout Widget */}
         <div className="space-y-8 sticky top-24">
           <div>
+            <span className="inline-block text-xs font-bold uppercase tracking-wider text-[#0F9D58] mb-2">{product.category || 'Electronics'}</span>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight mb-3">
               {product.title}
             </h1>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Logo from '../components/Logo';
 
 function Spinner() {
   return (
@@ -53,17 +54,9 @@ export default function LoginPage() {
         <div className="absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-emerald-300/20 blur-3xl" />
 
         <div className="relative z-10 p-10 xl:p-14">
-          <Link to="/" className="inline-flex items-center gap-3">
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/15 text-2xl font-bold text-white shadow-lg backdrop-blur-sm">
-              Q
-            </div>
-            <div>
-              <div className="text-2xl font-bold tracking-tight text-white">
-                Pay <span className="text-emerald-100">Qist</span>
-              </div>
-              <div className="text-sm font-medium text-emerald-100/80">Installments made simple</div>
-            </div>
-          </Link>
+          <div className="inline-flex rounded-xl bg-white px-3 py-2 shadow-lg">
+            <Logo to="/" size="lg" />
+          </div>
         </div>
 
         <div className="relative z-10 flex flex-1 flex-col justify-center px-10 xl:px-14">
@@ -108,14 +101,7 @@ export default function LoginPage() {
       <div className="flex flex-1 flex-col justify-center px-4 py-10 sm:px-8 lg:px-16 xl:px-24">
         <div className="mx-auto w-full max-w-md">
           <div className="mb-8 lg:hidden">
-            <Link to="/" className="inline-flex items-center gap-3">
-              <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-[#0F9D58] to-emerald-400 text-xl font-bold text-white shadow-md">
-                Q
-              </div>
-              <div className="text-xl font-bold tracking-tight text-slate-900">
-                Pay <span className="text-[#0F9D58]">Qist</span>
-              </div>
-            </Link>
+            <Logo to="/" size="md" />
           </div>
 
           <div className="mb-8">
@@ -212,7 +198,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading || googleLoading}
+              disabled={loading}
               className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F9D58] py-4 text-base font-bold text-white shadow-lg shadow-[#0F9D58]/25 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-xl hover:shadow-[#0F9D58]/30 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
             >
               {loading ? (

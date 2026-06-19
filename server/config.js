@@ -7,7 +7,7 @@ export const SESSION_COOKIE = '__session';
 export const CSRF_COOKIE = 'csrf_token';
 export const SESSION_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 5; // 5 days
 
-export const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:4173')
+export const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:8787,http://localhost:5173,http://localhost:4173')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);

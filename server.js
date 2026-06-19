@@ -1,11 +1,14 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { applySecurityMiddleware, authRateLimiter } from './server/middleware/security.js';
 import { csrfProtection, issueCsrfToken } from './server/middleware/csrf.js';
 import { requireAuth, requireAdmin } from './server/middleware/auth.js';
 import {
   checkoutSchema,
+  contactSchema,
   loginSchema,
   productSchema,
   roleUpdateSchema,
@@ -28,8 +31,12 @@ import {
   listUsers,
   updateUserRole as setUserRole,
 } from './server/utils/users.js';
+import { seedProducts } from './src/data/seedProducts.js';
 
 dotenv.config();
+
+const products = [...seedProducts];
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 applySecurityMiddleware(app);
@@ -108,19 +115,30 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 app.get('/api/products', async (req, res) => {
-  res.json([]);
+  res.json(products);
 });
 
 app.post('/api/products', requireAuth, requireAdmin, validateBody(productSchema), async (req, res) => {
   const product = { id: Date.now().toString(), ...req.body };
+  products.push(product);
   res.json(product);
 });
 
 app.put('/api/products/:id', requireAuth, requireAdmin, validateBody(productSchema.partial()), async (req, res) => {
-  res.json({ id: req.params.id, ...req.body, success: true });
+  const index = products.findIndex((p) => p.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ message: 'Product not found.' });
+  }
+  products[index] = { ...products[index], ...req.body, id: req.params.id };
+  res.json(products[index]);
 });
 
 app.delete('/api/products/:id', requireAuth, requireAdmin, async (req, res) => {
+  const index = products.findIndex((p) => p.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ message: 'Product not found.' });
+  }
+  products.splice(index, 1);
   res.json({ success: true });
 });
 
@@ -143,6 +161,10 @@ app.post('/api/checkout', requireAuth, validateBody(checkoutSchema), async (req,
   });
 });
 
+app.post('/api/contact', validateBody(contactSchema), (req, res) => {
+  res.json({ success: true, message: 'Message received.' });
+});
+
 app.get('/api/users', requireAuth, requireAdmin, (req, res) => {
   res.json(listUsers());
 });
@@ -162,7 +184,7 @@ app.put(
   },
 );
 
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   if (err?.message === 'Not allowed by CORS') {
     return res.status(403).json({ error: 'Origin not allowed.' });
   }
@@ -172,6 +194,31 @@ app.use((err, req, res, next) => {
   return res.status(500).json({ error: err.message || 'Internal server error.' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Secure API running on http://localhost:${PORT}`);
+async function startServer() {
+  if (IS_PRODUCTION) {
+    const distPath = path.join(__dirname, 'dist');
+    app.use(express.static(distPath));
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api')) {
+        return next();
+      }
+      return res.sendFile(path.join(distPath, 'index.html'));
+    });
+  } else {
+    const { createServer } = await import('vite');
+    const vite = await createServer({
+      server: { middlewareMode: true },
+      appType: 'spa',
+    });
+    app.use(vite.middlewares);
+  }
+
+  app.listen(PORT, () => {
+    console.log(`Pay Qist running at http://localhost:${PORT}`);
+  });
+}
+
+startServer().catch((error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
 });

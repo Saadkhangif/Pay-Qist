@@ -2,13 +2,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 let csrfToken = null;
 
-export function usesSecureApi() {
-  return Boolean(API_BASE_URL);
-}
-
 export async function initApiSecurity() {
-  if (!usesSecureApi()) return;
-
   const response = await fetch(`${API_BASE_URL}/api/csrf-token`, {
     credentials: 'include',
   });

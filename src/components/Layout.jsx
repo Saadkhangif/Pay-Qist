@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useAuthModal } from '../context/AuthModalContext';
 import { useStore } from '../context/StoreContext';
 import Footer from './Footer';
+import Logo from './Logo';
 
 const navLinkClass = ({ isActive }) =>
   [
@@ -20,36 +21,48 @@ export default function Layout({ children }) {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchRef = useRef(null);
+  const searchInputRef = useRef(null);
   const [isMenuExpanded, setIsMenuExpanded] = useState(false);
   const menuRef = useRef(null);
 
-  // Filter products and pages based on the search query
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    const query = searchQuery.toLowerCase();
-
-    // Define standard pages that can be searched
-    const sitePages = [
-      { id: 'page-about', title: 'About Us', description: 'Learn more about Pay Qist and our mission', category: 'Page', url: '/about' },
-      { id: 'page-contact', title: 'Contact Us', description: 'Get in touch with our support team', category: 'Page', url: '/contact-us' },
-      { id: 'page-products', title: 'Products', description: 'Browse our complete collection of products', category: 'Page', url: '/products' },
-      { id: 'page-privacy', title: 'Privacy Policy', description: 'Information on how we collect and use your data', category: 'Page', url: '/privacy-policy' },
-      { id: 'page-terms', title: 'Terms of Service', description: 'Terms and conditions for using Pay Qist', category: 'Page', url: '/terms-of-service' },
-      { id: 'page-refund', title: 'Refund & Return Policy', description: 'Our policy on returns and refunds', category: 'Page', url: '/refund-and-return-policy' },
+  const { items: displayedProducts, mode: searchMode } = useMemo(() => {
+    const withUrl = products.map((p) => ({ ...p, url: `/product/${p.id}` }));
+    const featuredFirst = [
+      ...withUrl.filter((p) => p.featured),
+      ...withUrl.filter((p) => !p.featured),
     ];
 
-    const matchedPages = sitePages.filter((p) => p.title.toLowerCase().includes(query) || p.description.toLowerCase().includes(query));
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) {
+      return { items: featuredFirst.slice(0, 6), mode: 'suggested' };
+    }
 
-    const matchedProducts = products
-      .filter(
-        (p) =>
-          p.title?.toLowerCase().includes(query) ||
-          p.description?.toLowerCase().includes(query)
-      )
-      .map((p) => ({ ...p, url: `/product/${p.id}` }));
+    const matches = withUrl.filter(
+      (p) =>
+        p.title?.toLowerCase().includes(query) ||
+        p.description?.toLowerCase().includes(query) ||
+        p.category?.toLowerCase().includes(query),
+    );
 
-    return [...matchedPages, ...matchedProducts].slice(0, 5); // Limit the dropdown to 5 results to keep it clean
+    if (matches.length > 0) {
+      return { items: matches.slice(0, 6), mode: 'results' };
+    }
+
+    return { items: featuredFirst.slice(0, 6), mode: 'browse' };
   }, [searchQuery, products]);
+
+  const searchDropdownTitle =
+    searchMode === 'suggested'
+      ? 'Popular products'
+      : searchMode === 'browse'
+        ? 'No exact match — browse these products'
+        : 'Search results';
+
+  useEffect(() => {
+    if (isSearchExpanded) {
+      searchInputRef.current?.focus();
+    }
+  }, [isSearchExpanded]);
 
   // Close the search bar if the user clicks anywhere outside of it
   useEffect(() => {
@@ -70,16 +83,7 @@ export default function Layout({ children }) {
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-xl shadow-sm transform-gpu">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 sm:gap-6">
-            <Link to="/home" className="flex items-center gap-3">
-              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#0F9D58] to-emerald-400 text-xl font-bold text-white shadow-md">
-                Q
-              </div>
-              {/* Hide the logo text on small screens so the expanded search bar has room to breathe */}
-              <div className="hidden sm:block">
-                <div className="text-xl font-bold tracking-tight text-slate-900">Pay <span className="text-[#0F9D58]">Qist</span></div>
-                <div className="text-xs font-medium tracking-wide text-slate-500">Installments made simple</div>
-              </div>
-            </Link>
+            <Logo to="/home" size="xl" />
 
             {/* Expandable Search Component */}
             <div ref={searchRef} className="relative flex items-center">
@@ -103,22 +107,26 @@ export default function Layout({ children }) {
                 }`}
               >
                 <input
-                  type="text"
+                  ref={searchInputRef}
+                  type="search"
                   className="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20 transition-all"
-                  placeholder="Search..."
+                  placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
 
-              {/* Search Results Dropdown */}
-              {isSearchExpanded && searchQuery.trim() && (
+              {isSearchExpanded && (
                 <div className="absolute top-full left-0 mt-4 w-[280px] sm:w-[320px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
-                  {searchResults.length > 0 ? (
+                  <div className="border-b border-slate-100 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-500">
+                    {searchDropdownTitle}
+                  </div>
+                  {displayedProducts.length > 0 ? (
                     <div className="flex max-h-[300px] flex-col overflow-y-auto p-2">
-                      {searchResults.map((result) => (
+                      {displayedProducts.map((result) => (
                         <button
                           key={result.id}
+                          type="button"
                           className="flex items-center gap-3 rounded-xl p-2 text-left hover:bg-slate-50 transition"
                           onClick={() => {
                             navigate(result.url);
@@ -137,16 +145,29 @@ export default function Layout({ children }) {
                           )}
                           <div className="min-w-0 flex-1">
                             <div className="truncate text-sm font-bold text-slate-900">{result.title}</div>
-                            <div className="truncate text-xs text-slate-500">{result.category || 'General'}</div>
+                            <div className="truncate text-xs text-slate-500">{result.category || 'Electronics'}</div>
                           </div>
                         </button>
                       ))}
                     </div>
                   ) : (
                     <div className="p-4 text-center text-sm text-slate-500">
-                      No results found.
+                      Products are loading...
                     </div>
                   )}
+                  <div className="border-t border-slate-100 p-2">
+                    <button
+                      type="button"
+                      className="w-full rounded-xl px-3 py-2 text-sm font-semibold text-[#0F9D58] transition hover:bg-emerald-50"
+                      onClick={() => {
+                        navigate('/products');
+                        setIsSearchExpanded(false);
+                        setSearchQuery('');
+                      }}
+                    >
+                      View all products →
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
