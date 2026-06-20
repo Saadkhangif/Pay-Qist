@@ -90,7 +90,7 @@ function FormField({
           readOnly={readOnly}
           required
           autoComplete={autoComplete}
-          className={`w-full rounded-2xl border border-slate-200 bg-white py-3 text-sm font-medium text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-emerald-500/15 dark:bg-surface-overlay dark:text-white dark:placeholder:text-slate-500 dark:focus:border-brand-400/50 dark:focus:ring-brand-400/15 ${
+          className={`min-h-[3rem] w-full rounded-2xl border border-slate-200 bg-white py-3 text-base font-medium text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-emerald-500/15 dark:bg-surface-overlay dark:text-white dark:placeholder:text-slate-500 dark:focus:border-brand-400/50 dark:focus:ring-brand-400/15 sm:text-sm ${
             Icon ? 'pl-10 pr-4' : 'px-4'
           } ${readOnly ? 'cursor-not-allowed bg-slate-50 text-slate-500 dark:bg-surface-muted/50' : ''}`}
         />
@@ -102,7 +102,7 @@ function FormField({
 
 function FormSection({ step, title, description, children }) {
   return (
-    <section className="rounded-[1.5rem] border border-slate-200/80 bg-slate-50/50 p-5 dark:border-emerald-500/10 dark:bg-surface-overlay/30 sm:p-6">
+    <section className="rounded-[1.25rem] border border-slate-200/80 bg-slate-50/50 p-4 dark:border-emerald-500/10 dark:bg-surface-overlay/30 sm:rounded-[1.5rem] sm:p-6">
       <div className="mb-4 flex items-start gap-3">
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-xs font-extrabold text-white shadow-md shadow-brand-500/25 dark:shadow-glow-brand">
           {step}
@@ -176,8 +176,11 @@ export default function CustomerProfileForm({
           </div>
         </div>
       ) : (
-        <div className="mb-5 text-center">
-          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">{title}</h2>
+        <div className="mb-5 text-center sm:mb-6">
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-500/15 bg-white shadow-md shadow-brand-500/10 dark:border-emerald-500/20 dark:bg-white dark:shadow-glow-brand sm:mb-4 sm:h-16 sm:w-16">
+            <Logo to={null} size="md" surface="light" />
+          </div>
+          <h2 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-2xl">{title}</h2>
           {subtitle ? (
             <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>
           ) : null}
@@ -313,7 +316,7 @@ export default function CustomerProfileForm({
           <button
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
-            className="text-xs font-semibold text-brand-600 transition hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
+            className="inline-flex min-h-11 items-center px-1 text-xs font-semibold text-brand-600 transition active:text-brand-700 dark:text-brand-400 dark:active:text-brand-300"
           >
             {showPassword ? 'Hide passwords' : 'Show passwords'}
           </button>
@@ -322,7 +325,7 @@ export default function CustomerProfileForm({
         <button
           type="submit"
           disabled={loading}
-          className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-500 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-500/25 transition hover:-translate-y-0.5 hover:bg-brand-600 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 dark:shadow-glow-brand dark:hover:shadow-glow-brand-lg"
+          className="group flex min-h-[3rem] w-full touch-manipulation items-center justify-center gap-2 rounded-2xl bg-brand-500 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-500/25 transition active:scale-[0.98] sm:hover:-translate-y-0.5 sm:hover:bg-brand-600 sm:hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-70 disabled:active:scale-100 sm:disabled:hover:translate-y-0 dark:shadow-glow-brand dark:hover:shadow-glow-brand-lg"
         >
           {loading && <Spinner />}
           {loading ? 'Submitting...' : submitLabel}
@@ -335,7 +338,7 @@ export default function CustomerProfileForm({
           <button
             type="button"
             onClick={onSwitchToLogin}
-            className="font-bold text-brand-600 transition hover:text-brand-700 dark:text-brand-400"
+            className="inline-flex min-h-11 items-center font-bold text-brand-600 transition active:text-brand-700 dark:text-brand-400"
           >
             Sign in
           </button>

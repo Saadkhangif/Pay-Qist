@@ -288,12 +288,12 @@ export default function AuthModal() {
 
       <div className="pointer-events-none absolute inset-0 mesh-bg opacity-60" />
 
-      <div className="relative flex h-full max-h-[100dvh] items-end justify-center p-0 sm:items-center sm:p-4 md:p-6">
+      <div className="relative flex h-full max-h-[100dvh] items-end justify-center p-0 sm:items-center sm:p-4 lg:p-6">
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="auth-modal-title"
-          className="animate-fade-up scroll-touch relative flex max-h-[min(92dvh,100svh)] w-full max-w-5xl flex-col overflow-y-auto overscroll-contain rounded-t-[1.75rem] border border-white/20 border-b-0 bg-white/95 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_40px_rgba(15,157,88,0.12)] dark:border-emerald-500/20 dark:bg-surface-raised/95 dark:shadow-[0_-8px_40px_rgba(0,0,0,0.45)] sm:max-h-[calc(100dvh-2rem)] sm:rounded-[2rem] sm:border-b sm:pb-0 sm:shadow-[0_32px_80px_rgba(15,157,88,0.18)] md:max-h-[calc(100dvh-3rem)] lg:rounded-[2.5rem] dark:sm:shadow-[0_32px_80px_rgba(0,0,0,0.55)]"
+          className="animate-fade-up scroll-touch relative flex max-h-[min(92dvh,100svh)] w-full max-w-5xl flex-col overflow-y-auto overscroll-contain rounded-t-[1.75rem] border border-white/20 border-b-0 bg-white/95 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_40px_rgba(15,157,88,0.12)] dark:border-emerald-500/20 dark:bg-surface-raised/95 dark:shadow-[0_-8px_40px_rgba(0,0,0,0.45)] sm:max-h-[calc(100dvh-2rem)] sm:rounded-[2rem] sm:border-b sm:pb-0 sm:shadow-[0_32px_80px_rgba(15,157,88,0.18)] lg:max-h-[calc(100dvh-3rem)] lg:rounded-[2.5rem] dark:sm:shadow-[0_32px_80px_rgba(0,0,0,0.55)]"
         >
           <div className="pointer-events-none absolute inset-x-0 top-0 h-1 rounded-t-[1.75rem] bg-gradient-to-r from-brand-500 via-emerald-400 to-teal-400 sm:rounded-t-[2rem] lg:rounded-t-[2.5rem]" />
 
@@ -308,9 +308,9 @@ export default function AuthModal() {
             </svg>
           </button>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-[1.05fr_0.95fr]">
-            {/* Visual panel — tablets & desktop */}
-            <div className="relative hidden min-h-[380px] overflow-hidden md:flex md:flex-col md:justify-between lg:min-h-[520px]">
+          <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
+            {/* Visual panel — desktop only; tablets use the compact mobile layout */}
+            <div className="relative hidden min-h-[420px] overflow-hidden lg:flex lg:flex-col lg:justify-between xl:min-h-[520px]">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-600 via-brand-500 to-emerald-600" />
             <div className="pointer-events-none absolute inset-0 grid-pattern opacity-20" />
             <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-white/15 blur-3xl animate-glow-pulse" />
@@ -356,55 +356,56 @@ export default function AuthModal() {
           </div>
 
           {/* Form panel */}
-          <div className="relative px-4 py-6 pt-14 sm:px-6 sm:py-8 sm:pt-16 md:px-8 md:py-9 lg:px-10 lg:py-10">
+          <div className="relative px-4 py-5 pt-12 sm:px-6 sm:py-7 sm:pt-14 lg:px-10 lg:py-10">
             <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-brand-500/10 blur-2xl dark:bg-brand-500/15" />
 
-            {/* Mobile-only accent strip */}
-            <div className="relative mb-5 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-emerald-600 p-4 md:hidden">
+            {/* Mobile & tablet accent strip */}
+            <div className="relative mb-4 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-emerald-600 p-3.5 sm:mb-5 sm:p-4 lg:hidden">
               <div className="pointer-events-none absolute inset-0 grid-pattern opacity-20" />
-              <p className="relative text-xs font-bold uppercase tracking-wider text-emerald-100/90">Member access</p>
-              <p className="relative mt-1 text-base font-extrabold leading-snug text-white">
+              <p className="relative text-[11px] font-bold uppercase tracking-wider text-emerald-100/90 sm:text-xs">
+                Member access
+              </p>
+              <p className="relative mt-1 text-sm font-extrabold leading-snug text-white sm:text-base">
                 Unlock checkout, orders &amp; installments
               </p>
+              <div className="relative mt-3 flex flex-wrap gap-1.5">
+                {trustPills.map(({ icon: Icon, label }) => (
+                  <span
+                    key={label}
+                    className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm sm:text-[11px]"
+                  >
+                    <Icon className="h-3 w-3 text-emerald-100" aria-hidden="true" />
+                    {label}
+                  </span>
+                ))}
+              </div>
             </div>
 
             <div className="relative mx-auto w-full max-w-md">
-              <div className="mb-6 text-center sm:mb-8 md:text-left">
-                <div className="relative mx-auto mb-4 flex h-16 w-16 items-center justify-center sm:mb-5 sm:h-20 sm:w-20 md:mx-0">
+              <div className="mb-5 text-center sm:mb-6 lg:mb-8 lg:text-left">
+                <div className="relative mx-auto mb-3 flex h-14 w-14 items-center justify-center sm:mb-4 sm:h-16 sm:w-16 lg:mx-0">
                   <div className="absolute inset-0 animate-pulse-soft rounded-full bg-brand-500/15" />
                   <div className="absolute inset-1 rounded-full bg-gradient-to-br from-brand-500/20 to-emerald-400/10 blur-sm" />
-                  <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-500/20 bg-white shadow-lg shadow-brand-500/15 ring-4 ring-brand-500/10 sm:h-16 sm:w-16 dark:border-emerald-500/25 dark:bg-white dark:shadow-glow-brand dark:ring-brand-500/15">
+                  <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-brand-500/20 bg-white shadow-lg shadow-brand-500/15 ring-4 ring-brand-500/10 sm:h-14 sm:w-14 dark:border-emerald-500/25 dark:bg-white dark:shadow-glow-brand dark:ring-brand-500/15">
                     <Logo to={null} size="md" surface="light" />
                   </div>
                 </div>
 
-                <div className="section-badge mx-auto md:mx-0">
+                <div className="section-badge mx-auto lg:mx-0">
                   <Sparkles className="h-3 w-3" aria-hidden="true" />
                   Welcome back
                 </div>
 
                 <h2
                   id="auth-modal-title"
-                  className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:mt-4 sm:text-3xl md:text-4xl"
+                  className="mt-2.5 text-xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:mt-3 sm:text-2xl lg:mt-4 lg:text-4xl"
                 >
                   Sign in to{' '}
                   <span className="gradient-text">Pay Qist</span>
                 </h2>
-                <p className="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+                <p className="mt-1.5 text-sm leading-relaxed text-slate-500 dark:text-slate-400 sm:mt-2">
                   Use your email and password to unlock checkout, orders, and installment applications.
                 </p>
-              </div>
-
-              <div className="mb-5 flex flex-wrap justify-center gap-1.5 sm:mb-6 sm:gap-2 md:hidden">
-                {trustPills.map(({ icon: Icon, label }) => (
-                  <span
-                    key={label}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-brand-500/15 bg-brand-500/5 px-3 py-1.5 text-[11px] font-semibold text-brand-700 dark:border-brand-400/20 dark:bg-brand-500/10 dark:text-brand-300"
-                  >
-                    <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-                    {label}
-                  </span>
-                ))}
               </div>
 
               {error ? (
@@ -416,7 +417,7 @@ export default function AuthModal() {
                 </div>
               ) : null}
 
-              <div className="trust-glass-panel !rounded-2xl !p-4 sm:!rounded-[1.75rem] sm:!p-5 md:!p-6">
+              <div className="trust-glass-panel !rounded-2xl !p-4 sm:!rounded-[1.75rem] sm:!p-5 lg:!p-6">
                 <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
                   <FormField
                     id="auth-email"

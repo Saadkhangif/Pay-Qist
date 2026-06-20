@@ -64,26 +64,27 @@ export default function SignupPage() {
   };
 
   return (
-    <section className="relative min-h-[calc(100vh-4rem)] overflow-x-clip py-12 sm:py-16 lg:py-20">
+    <section className="relative min-h-[calc(100dvh-4rem)] overflow-x-clip py-8 sm:py-12 lg:py-20">
       <div className="pointer-events-none absolute inset-0 mesh-bg" />
       <div className="pointer-events-none absolute inset-0 grid-pattern opacity-50 dark:opacity-70" />
       <div className="dark-glow-orb -left-24 top-20 h-72 w-72 bg-brand-400/20 animate-glow-pulse dark:bg-brand-500/20" />
       <div className="dark-glow-orb -right-20 bottom-10 h-80 w-80 bg-emerald-300/15 dark:bg-teal-400/10" />
 
-      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="grid items-start gap-10 lg:grid-cols-[1fr_28rem] lg:gap-14 xl:grid-cols-[1fr_32rem]">
-          <div className="animate-fade-up space-y-8 lg:sticky lg:top-24">
+      <div className="relative mx-auto max-w-6xl px-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
+        <div className="grid items-start gap-8 lg:grid-cols-[1fr_28rem] lg:gap-14 xl:grid-cols-[1fr_32rem]">
+          {/* Marketing — below form on mobile/tablet, beside form on desktop */}
+          <div className="order-2 animate-fade-up space-y-6 lg:order-1 lg:sticky lg:top-24 lg:space-y-8">
             <div className="section-badge">
               <Sparkles className="h-3 w-3" aria-hidden="true" />
               Join Pay Qist
             </div>
 
             <div>
-              <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-slate-900 dark:text-white sm:text-5xl">
+              <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
                 Start shopping with{' '}
                 <span className="gradient-text">easy installments</span>
               </h1>
-              <p className="mt-4 max-w-lg text-base leading-relaxed text-slate-600 dark:text-slate-300 sm:text-lg">
+              <p className="mt-3 max-w-lg text-sm leading-relaxed text-slate-600 dark:text-slate-300 sm:mt-4 sm:text-base lg:text-lg">
                 Create your free account and unlock flexible payment plans on phones, laptops,
                 appliances, and more.
               </p>
@@ -95,13 +96,13 @@ export default function SignupPage() {
                   key={item}
                   className="inline-flex items-center gap-1.5 rounded-full border border-brand-500/15 bg-brand-500/5 px-3 py-1.5 text-xs font-semibold text-brand-700 dark:border-brand-400/20 dark:bg-brand-500/10 dark:text-brand-300"
                 >
-                  <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                  <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                   {item}
                 </li>
               ))}
             </ul>
 
-            <div className="space-y-4">
+            <div className="hidden space-y-4 md:block">
               {perks.map(({ icon: Icon, title, description }) => (
                 <div
                   key={title}
@@ -121,8 +122,9 @@ export default function SignupPage() {
             </div>
           </div>
 
-          <div className="animate-fade-up lg:animate-none">
-            <div className="rounded-[2rem] border border-slate-200/80 bg-white/95 p-5 shadow-card backdrop-blur-sm dark:border-emerald-500/15 dark:bg-surface-raised/95 dark:shadow-dark-card sm:p-8">
+          {/* Form — first on mobile/tablet */}
+          <div className="order-1 animate-fade-up lg:order-2 lg:animate-none">
+            <div className="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-card backdrop-blur-sm dark:border-emerald-500/15 dark:bg-surface-raised/95 dark:shadow-dark-card sm:rounded-[2rem] sm:p-6 lg:p-8">
               <CustomerProfileForm
                 title="Create your account"
                 subtitle="Fill in your details below — it only takes a minute."
