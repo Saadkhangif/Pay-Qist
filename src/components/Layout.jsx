@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useAuthModal } from '../context/AuthModalContext';
@@ -6,6 +6,7 @@ import { useStore } from '../context/StoreContext';
 import Footer from './Footer';
 import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
+import MobileNav from './MobileNav';
 
 const navLinkClass = ({ isActive }) =>
   ['nav-link', isActive ? 'nav-link-active' : ''].join(' ');
@@ -21,7 +22,7 @@ export default function Layout({ children }) {
   const searchRef = useRef(null);
   const searchInputRef = useRef(null);
   const [isMenuExpanded, setIsMenuExpanded] = useState(false);
-  const menuRef = useRef(null);
+  const closeMenu = useCallback(() => setIsMenuExpanded(false), []);
 
   const { items: displayedProducts, mode: searchMode } = useMemo(() => {
     const withUrl = products.map((p) => ({ ...p, url: `/product/${p.id}` }));
@@ -67,9 +68,6 @@ export default function Layout({ children }) {
     function handleClickOutside(event) {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setIsSearchExpanded(false);
-      }
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsMenuExpanded(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -174,7 +172,7 @@ export default function Layout({ children }) {
             </div>
           </div>
 
-          <nav className="hidden items-center gap-2 md:flex">
+          <nav className="hidden items-center gap-2 lg:flex">
             <NavLink to="/home" className={navLinkClass} end>
               Home
             </NavLink>
@@ -205,11 +203,11 @@ export default function Layout({ children }) {
             <ThemeToggle />
             {user ? (
               <>
-                <div className="hidden text-right sm:block">
+                <div className="hidden text-right lg:block">
                   <div className="text-sm font-bold text-slate-900 dark:text-slate-100">{user.name}</div>
                   <div className="text-xs capitalize text-slate-500 dark:text-slate-400">{user.role}</div>
                 </div>
-                <button className="button-ghost px-5 py-2" onClick={logout} type="button">
+                <button className="button-ghost hidden px-5 py-2 lg:inline-flex" onClick={logout} type="button">
                   Logout
                 </button>
               </>
@@ -217,60 +215,27 @@ export default function Layout({ children }) {
               <>
                 <button
                   type="button"
-                  className="button-ghost hidden sm:inline-flex"
+                  className="button-ghost hidden lg:inline-flex"
                   onClick={() => openAuthModal('login')}
                 >
                   Login
                 </button>
-                <Link to="/signup" className="button-primary px-5 py-2.5">
+                <Link to="/signup" className="button-primary hidden px-5 py-2.5 lg:inline-flex">
                   Sign Up
                 </Link>
               </>
             )}
-            
-            <div ref={menuRef} className="relative inline-block">
-              <button 
-                type="button" 
-                className="ml-2 inline-flex items-center justify-center rounded-xl p-2 text-slate-500 transition hover:bg-brand-500/10 hover:text-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 md:hidden" 
-                aria-label="Open main menu"
-                onClick={() => setIsMenuExpanded(!isMenuExpanded)}
-              >
-                <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                </svg>
-              </button>
 
-              {isMenuExpanded && (
-                <div className="absolute right-0 top-full mt-4 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-emerald-500/15 dark:bg-surface-raised dark:shadow-dark-card">
-                  <nav className="flex flex-col gap-1">
-                    <NavLink to="/home" className={navLinkClass} onClick={() => setIsMenuExpanded(false)} end>Home</NavLink>
-                    <NavLink to="/products" className={navLinkClass} onClick={() => setIsMenuExpanded(false)}>Products</NavLink>
-                    <NavLink to="/about" className={navLinkClass} onClick={() => setIsMenuExpanded(false)}>About Us</NavLink>
-                    <NavLink to="/cart" className={navLinkClass} onClick={() => setIsMenuExpanded(false)}>
-                      <span className="inline-flex items-center gap-1.5">
-                        Cart
-                        {cart.length > 0 ? (
-                          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 px-1.5 text-xs font-bold text-white">
-                            {cart.length}
-                          </span>
-                        ) : null}
-                      </span>
-                    </NavLink>
-                    {isAdmin ? <NavLink to="/admin" className={navLinkClass} onClick={() => setIsMenuExpanded(false)}>Admin</NavLink> : null}
-                  </nav>
-                  {!user ? (
-                    <div className="mt-2 flex flex-col gap-2 border-t border-slate-100 p-2 dark:border-slate-800">
-                      <button type="button" className="button-ghost w-full" onClick={() => { openAuthModal('login'); setIsMenuExpanded(false); }}>
-                        Login
-                      </button>
-                      <Link to="/signup" className="button-primary w-full py-2.5 text-center" onClick={() => setIsMenuExpanded(false)}>
-                        Sign Up
-                      </Link>
-                    </div>
-                  ) : null}
-                </div>
-              )}
-            </div>
+            <MobileNav
+              user={user}
+              isAdmin={isAdmin}
+              cartCount={cart.length}
+              isOpen={isMenuExpanded}
+              onToggle={() => setIsMenuExpanded((open) => !open)}
+              onClose={closeMenu}
+              onOpenAuth={openAuthModal}
+              onLogout={logout}
+            />
           </div>
         </div>
       </header>
