@@ -12,16 +12,17 @@ import {
   LogOut,
   X,
 } from 'lucide-react';
+import { PRIMARY_NAV_ITEMS, isNavActive } from '../lib/navigation';
 import { lockScroll, unlockScroll } from '../lib/scrollLock';
 import Logo from './Logo';
 
-const navItems = [
-  { to: '/home', label: 'Home', icon: Home, end: true },
-  { to: '/products', label: 'Products', icon: Package },
-  { to: '/about', label: 'About Us', icon: Info },
-  { to: '/cart', label: 'Cart', icon: ShoppingCart, showCartBadge: true },
-  { to: '/admin', label: 'Admin', icon: Shield, adminOnly: true },
-];
+const iconMap = {
+  Home,
+  Package,
+  Info,
+  ShoppingCart,
+  Shield,
+};
 
 function mobileNavLinkClass({ isActive }) {
   return [
@@ -86,7 +87,7 @@ export default function MobileNav({
     };
   }, [isOpen, onClose]);
 
-  const visibleItems = navItems.filter((item) => !item.adminOnly || isAdmin);
+  const visibleItems = PRIMARY_NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin);
 
   const menuOverlay = (
     <div
@@ -140,21 +141,31 @@ export default function MobileNav({
 
         <nav className="flex-1 overflow-y-auto overscroll-contain scroll-touch px-3 py-4">
           <ul className="space-y-1">
-            {visibleItems.map(({ to, label, icon: Icon, end, showCartBadge }) => (
-              <li key={to}>
-                <NavLink to={to} end={end} className={mobileNavLinkClass} onClick={onClose}>
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition group-hover:bg-brand-500/10 group-hover:text-brand-600 dark:bg-surface-overlay dark:text-slate-300 dark:group-hover:text-brand-300">
-                    <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
-                  </span>
-                  <span className="flex-1">{label}</span>
-                  {showCartBadge && cartCount > 0 ? (
-                    <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-brand-500 px-2 text-xs font-bold text-white">
-                      {cartCount}
+            {visibleItems.map((item) => {
+              const Icon = iconMap[item.icon];
+
+              return (
+                <li key={item.to}>
+                  <NavLink
+                    to={item.to}
+                    end={item.end}
+                    className={mobileNavLinkClass}
+                    isActive={() => isNavActive(location.pathname, item)}
+                    onClick={onClose}
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition group-hover:bg-brand-500/10 group-hover:text-brand-600 dark:bg-surface-overlay dark:text-slate-300 dark:group-hover:text-brand-300">
+                      <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
                     </span>
-                  ) : null}
-                </NavLink>
-              </li>
-            ))}
+                    <span className="flex-1">{item.label}</span>
+                    {item.showCartBadge && cartCount > 0 ? (
+                      <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-brand-500 px-2 text-xs font-bold text-white">
+                        {cartCount}
+                      </span>
+                    ) : null}
+                  </NavLink>
+                </li>
+              );
+            })}
           </ul>
         </nav>
 

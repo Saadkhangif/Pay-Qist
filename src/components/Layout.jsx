@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useAuthModal } from '../context/AuthModalContext';
 import { useStore } from '../context/StoreContext';
 import Footer from './Footer';
 import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
+import MobileBottomNav from './MobileBottomNav';
 import MobileNav from './MobileNav';
+import { getPageTitle, shouldHideBottomNav } from '../lib/navigation';
 
 const navLinkClass = ({ isActive }) =>
   ['nav-link', isActive ? 'nav-link-active' : ''].join(' ');
@@ -16,6 +18,9 @@ export default function Layout({ children }) {
   const { openAuthModal } = useAuthModal();
   const { cart = [], products = [] } = useStore();
   const navigate = useNavigate();
+  const location = useLocation();
+  const pageTitle = getPageTitle(location.pathname);
+  const hideBottomNav = shouldHideBottomNav(location.pathname);
 
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -75,7 +80,7 @@ export default function Layout({ children }) {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50/80 font-sans text-slate-900 dark:bg-transparent dark:text-slate-100">
+    <div className="flex min-h-screen flex-col bg-slate-50/80 pb-[calc(4.75rem+env(safe-area-inset-bottom))] font-sans text-slate-900 dark:bg-transparent dark:text-slate-100 lg:pb-0">
       <header className="site-header transform-gpu">
         <div className="h-0.5 bg-gradient-to-r from-brand-500 via-emerald-400 to-teal-400" />
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
@@ -238,11 +243,22 @@ export default function Layout({ children }) {
             />
           </div>
         </div>
+
+        <div
+          className="border-t border-slate-100 bg-slate-50/90 px-4 py-2 lg:hidden dark:border-slate-800 dark:bg-surface-overlay/50"
+          aria-live="polite"
+        >
+          <p className="truncate text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+            {pageTitle}
+          </p>
+        </div>
       </header>
 
       <main className="flex-1">{children}</main>
 
       <Footer />
+
+      <MobileBottomNav cartCount={cart.length} hidden={hideBottomNav} />
     </div>
   );
 }
