@@ -7,11 +7,13 @@ import { AuthProvider } from './context/AuthContext';
 import { AuthModalProvider } from './context/AuthModalContext';
 import { StoreProvider } from './context/StoreContext';
 import { ThemeProvider } from './context/ThemeContext';
+import ScrollOptimizer from './components/ScrollOptimizer';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <ThemeProvider>
+        <ScrollOptimizer />
         <AuthProvider>
           <AuthModalProvider>
             <StoreProvider>

@@ -48,7 +48,7 @@ export default function CompleteProfilePage() {
   };
 
   return (
-    <section className="relative overflow-hidden py-12 sm:py-16">
+    <section className="relative overflow-x-clip py-12 sm:py-16">
       <div className="pointer-events-none absolute inset-0 mesh-bg opacity-70" />
       <div className="pointer-events-none absolute inset-0 grid-pattern opacity-40 dark:opacity-60" />
       <div className="relative mx-auto max-w-lg px-4 sm:px-6">

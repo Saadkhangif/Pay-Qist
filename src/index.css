@@ -25,6 +25,27 @@
 
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  html,
+  body {
+    overscroll-behavior-y: none;
+  }
+
+  body {
+    overflow-x: clip;
+  }
+
+  [id] {
+    scroll-margin-top: 5.5rem;
   }
 
   html.theme-transition,
@@ -47,7 +68,18 @@
   .dark body {
     background-color: var(--surface-base);
     background-image: theme('backgroundImage.dark-aurora');
-    background-attachment: fixed;
+    background-attachment: scroll;
+  }
+
+  @media (min-width: 1024px) {
+    .dark body {
+      background-attachment: fixed;
+    }
+  }
+
+  html.scroll-locked body {
+    overflow: hidden;
+    touch-action: none;
   }
 
   ::selection {
@@ -93,6 +125,7 @@
       radial-gradient(at 0% 50%, rgba(15, 157, 88, 0.08) 0px, transparent 50%),
       radial-gradient(at 80% 50%, rgba(16, 185, 129, 0.06) 0px, transparent 50%),
       radial-gradient(at 0% 100%, rgba(15, 157, 88, 0.1) 0px, transparent 50%);
+    contain: paint;
   }
 
   .dark .mesh-bg {
@@ -109,6 +142,7 @@
       linear-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px),
       linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
     background-size: 48px 48px;
+    contain: paint;
   }
 
   .dark .grid-pattern {
@@ -205,6 +239,8 @@
 
   .home-section {
     @apply relative overflow-hidden;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 520px;
   }
 
   .home-section::before {
@@ -241,6 +277,8 @@
 
   .home-glow-orb {
     @apply pointer-events-none absolute rounded-full blur-3xl;
+    contain: paint;
+    transform: translateZ(0);
   }
 
   .dark-glow-orb {
@@ -276,6 +314,8 @@
   .site-header {
     @apply sticky top-0 z-40 border-b border-slate-200/80 bg-white/85 shadow-sm backdrop-blur-xl;
     @apply dark:border-emerald-500/10 dark:bg-surface-raised/80 dark:shadow-[0_4px_24px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.04)];
+    transform: translateZ(0);
+    will-change: transform;
   }
 }
 
@@ -306,6 +346,31 @@
 
   .animate-glow-pulse {
     animation: glowPulse 4s ease-in-out infinite;
+  }
+
+  .scroll-touch {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+  }
+
+  html.is-scrolling .animate-glow-pulse,
+  html.is-scrolling .animate-float,
+  html.is-scrolling .animate-float-delayed,
+  html.is-scrolling .animate-pulse-soft,
+  html.is-scrolling .animate-marquee {
+    animation-play-state: paused;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-float,
+    .animate-float-delayed,
+    .animate-glow-pulse,
+    .animate-pulse-soft,
+    .animate-marquee,
+    .animate-shimmer {
+      animation: none !important;
+    }
   }
 }
 

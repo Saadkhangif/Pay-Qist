@@ -25,6 +25,7 @@ import {
   CONTACT_PHONE_DISPLAY,
   CONTACT_WHATSAPP_URL,
 } from '../lib/contact';
+import { lockScroll, unlockScroll } from '../lib/scrollLock';
 import Logo from './Logo';
 
 const previewItems = [
@@ -220,10 +221,10 @@ export default function AuthModal() {
       if (event.key === 'Escape') closeAuthModal();
     };
 
-    document.body.style.overflow = 'hidden';
+    lockScroll();
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.body.style.overflow = '';
+      unlockScroll();
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, closeAuthModal]);
@@ -277,26 +278,23 @@ export default function AuthModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-3 sm:p-6">
+    <div className="fixed inset-0 z-50 overscroll-none">
       <button
         type="button"
-        className="absolute inset-0 bg-slate-950/75 backdrop-blur-xl"
+        className="absolute inset-0 bg-slate-950/70 backdrop-blur-md"
         onClick={closeAuthModal}
         aria-label="Close dialog"
       />
 
-      <div className="pointer-events-none absolute inset-0 mesh-bg opacity-80" />
-      <div className="pointer-events-none absolute inset-0 grid-pattern opacity-40 dark:opacity-60" />
-      <div className="pointer-events-none absolute -left-20 top-10 h-72 w-72 rounded-full bg-brand-500/25 blur-3xl animate-glow-pulse" />
-      <div className="pointer-events-none absolute -right-16 bottom-10 h-80 w-80 rounded-full bg-emerald-400/20 blur-3xl animate-glow-pulse" />
-      <div className="pointer-events-none absolute left-1/2 top-1/3 h-56 w-56 -translate-x-1/2 rounded-full bg-teal-400/10 blur-3xl" />
+      <div className="pointer-events-none absolute inset-0 mesh-bg opacity-60" />
 
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="auth-modal-title"
-        className="animate-fade-up relative my-auto w-full max-w-5xl overflow-hidden rounded-[2.5rem] border border-white/20 bg-white/90 shadow-[0_32px_80px_rgba(15,157,88,0.18),0_0_0_1px_rgba(255,255,255,0.5)_inset] backdrop-blur-2xl dark:border-emerald-500/20 dark:bg-surface-raised/90 dark:shadow-[0_32px_80px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.06)]"
-      >
+      <div className="relative flex h-full max-h-[100dvh] items-center justify-center p-3 sm:p-6">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="auth-modal-title"
+          className="animate-fade-up scroll-touch relative flex max-h-[calc(100dvh-1.5rem)] w-full max-w-5xl flex-col overflow-y-auto overscroll-contain rounded-[2.5rem] border border-white/20 bg-white/95 shadow-[0_32px_80px_rgba(15,157,88,0.18)] dark:border-emerald-500/20 dark:bg-surface-raised/95 dark:shadow-[0_32px_80px_rgba(0,0,0,0.55)] sm:max-h-[calc(100dvh-3rem)]"
+        >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-500 via-emerald-400 to-teal-400" />
 
         <button
@@ -510,6 +508,7 @@ export default function AuthModal() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

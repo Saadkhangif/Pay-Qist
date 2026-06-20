@@ -121,7 +121,7 @@ export default function Layout({ children }) {
                     {searchDropdownTitle}
                   </div>
                   {displayedProducts.length > 0 ? (
-                    <div className="flex max-h-[300px] flex-col overflow-y-auto p-2">
+                    <div className="flex max-h-[300px] flex-col overflow-y-auto overscroll-contain scroll-touch p-2">
                       {displayedProducts.map((result) => (
                         <button
                           key={result.id}

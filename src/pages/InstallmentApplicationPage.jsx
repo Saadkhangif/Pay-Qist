@@ -70,7 +70,7 @@ export default function InstallmentApplicationPage() {
   }
 
   return (
-    <section className="relative min-h-[calc(100vh-4rem)] overflow-hidden py-10 sm:py-14 lg:py-16">
+    <section className="relative min-h-[calc(100vh-4rem)] overflow-x-clip py-10 sm:py-14 lg:py-16">
       <div className="pointer-events-none absolute inset-0 mesh-bg" />
       <div className="pointer-events-none absolute inset-0 grid-pattern opacity-50 dark:opacity-70" />
       <div className="dark-glow-orb -left-24 top-16 h-72 w-72 bg-brand-400/20 animate-glow-pulse dark:bg-brand-500/20" />
