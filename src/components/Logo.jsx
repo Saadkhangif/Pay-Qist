@@ -31,7 +31,14 @@ export default function Logo({
   priority = false,
 }) {
   const { isDark } = useTheme();
-  const effectiveSurface = surface === 'auto' ? (isDark ? 'dark' : 'light') : surface;
+  const effectiveSurface =
+    surface === 'auto'
+      ? isDark
+        ? 'dark'
+        : 'light'
+      : surface === 'light' && isDark
+        ? 'dark'
+        : surface;
   const onDarkSurface = effectiveSurface === 'dark';
 
   const image = (

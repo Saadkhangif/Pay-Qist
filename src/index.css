@@ -57,7 +57,9 @@
       border-color 0.35s ease,
       color 0.25s ease,
       box-shadow 0.35s ease,
-      fill 0.25s ease !important;
+      fill 0.25s ease,
+      mix-blend-mode 0.35s ease,
+      filter 0.35s ease !important;
   }
 
   body {
@@ -184,17 +186,17 @@
 
   .product-image-well {
     @apply flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 to-brand-50/30 p-4 sm:p-6;
-    @apply dark:from-surface-overlay dark:to-brand-500/5 dark:ring-1 dark:ring-inset dark:ring-emerald-500/10;
+    @apply dark:from-white/95 dark:to-slate-100 dark:ring-1 dark:ring-inset dark:ring-emerald-500/10;
   }
 
   .product-image-well-sm {
     @apply flex items-center justify-center overflow-hidden rounded-2xl bg-slate-50 p-2;
-    @apply dark:bg-surface-overlay dark:ring-1 dark:ring-inset dark:ring-emerald-500/10;
+    @apply dark:bg-white/95 dark:ring-1 dark:ring-inset dark:ring-emerald-500/10;
   }
 
   .product-image-stage {
     @apply relative flex items-center justify-center overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm sm:p-16;
-    @apply dark:border-emerald-500/15 dark:bg-surface-overlay dark:shadow-dark-card;
+    @apply dark:border-emerald-500/15 dark:bg-white/95 dark:shadow-dark-card;
   }
 
   .product-image {

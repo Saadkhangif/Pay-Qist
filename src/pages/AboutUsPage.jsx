@@ -74,11 +74,11 @@ export default function AboutUsPage() {
             <div className="section-badge mb-6">
               Our Story
             </div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
+            <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-5xl">
               Making installments{' '}
               <span className="gradient-text">simple & fair</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-600">
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-600 dark:text-slate-300">
               Pay Qist was built on a simple belief: everyone deserves access to the products they love.
               We created a platform that makes buying now and paying later transparent, flexible, and stress-free.
             </p>
@@ -87,13 +87,13 @@ export default function AboutUsPage() {
       </section>
 
       {/* Stats */}
-      <section className="border-y border-slate-200/60 bg-white/50 py-10">
+      <section className="border-y border-slate-200/60 bg-white/50 py-10 dark:border-emerald-500/10 dark:bg-surface-overlay/40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-8 divide-x divide-slate-200/50 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-8 divide-x divide-slate-200/50 dark:divide-emerald-500/10 md:grid-cols-4">
             {stats.map((stat) => (
               <div key={stat.label} className="px-4 text-center">
-                <div className="text-3xl font-black text-brand-500">{stat.value}</div>
-                <div className="mt-1 text-sm font-medium uppercase tracking-wide text-slate-500">{stat.label}</div>
+                <div className="text-3xl font-black text-brand-500 dark:text-brand-300">{stat.value}</div>
+                <div className="mt-1 text-sm font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -105,33 +105,33 @@ export default function AboutUsPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div className="relative">
-              <div className="aspect-[4/3] overflow-hidden rounded-[2rem] border border-white bg-gradient-to-tr from-emerald-100 to-white shadow-2xl">
+              <div className="aspect-[4/3] overflow-hidden rounded-[2rem] border border-white bg-gradient-to-tr from-emerald-100 to-white shadow-2xl dark:border-emerald-500/15 dark:from-surface-overlay dark:to-surface-raised dark:shadow-dark-card">
                 <img
                   src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1200&q=80"
                   alt="Customer shopping with Pay Qist"
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover dark:brightness-90 dark:saturate-110"
                   loading="lazy"
                 />
               </div>
-              <div className="absolute -bottom-6 -right-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-xl sm:-right-6">
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Founded on</div>
-                <div className="mt-1 text-lg font-bold text-slate-900">Financial Freedom</div>
+              <div className="absolute -bottom-6 -right-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-xl dark:border-emerald-500/15 dark:bg-surface-raised dark:shadow-dark-card sm:-right-6">
+                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Founded on</div>
+                <div className="mt-1 text-lg font-bold text-slate-900 dark:text-white">Financial Freedom</div>
               </div>
             </div>
 
             <div className="space-y-6 lg:pl-4">
-              <h2 className="text-3xl font-bold text-slate-900">Our Mission</h2>
-              <p className="leading-relaxed text-slate-600">
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Our Mission</h2>
+              <p className="leading-relaxed text-slate-600 dark:text-slate-300">
                 We empower consumers with financial flexibility. By offering manageable installment plans,
                 we help you budget better and reach your purchasing goals without the burden of large upfront payments.
               </p>
-              <p className="leading-relaxed text-slate-600">
+              <p className="leading-relaxed text-slate-600 dark:text-slate-300">
                 From smartphones to home appliances, we partner with leading brands to bring you quality products
                 paired with payment options that actually work for real life.
               </p>
               <ul className="space-y-3 pt-2">
                 {['Clear, upfront pricing on every product', 'Secure checkout and protected transactions', 'Dedicated support whenever you need help'].map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-sm text-slate-600">
+                  <li key={item} className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-300">
                     <svg className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -145,11 +145,11 @@ export default function AboutUsPage() {
       </section>
 
       {/* Values */}
-      <section className="border-y border-slate-200/50 bg-white py-20">
+      <section className="border-y border-slate-200/50 bg-white py-20 dark:border-emerald-500/10 dark:bg-surface-raised/50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold text-slate-900">What We Stand For</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-slate-500">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">What We Stand For</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-slate-500 dark:text-slate-400">
               These principles guide every product we list and every payment plan we offer.
             </p>
           </div>
@@ -158,13 +158,13 @@ export default function AboutUsPage() {
             {values.map((value) => (
               <div
                 key={value.title}
-                className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm transition duration-300 hover:border-emerald-200 hover:shadow-md"
+                className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm transition duration-300 hover:border-emerald-200 hover:shadow-md dark:border-emerald-500/10 dark:bg-surface-overlay/60 dark:hover:border-brand-500/30 dark:hover:shadow-dark-card-hover"
               >
-                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-500">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-300">
                   {value.icon}
                 </div>
-                <h3 className="mb-2 text-lg font-bold text-slate-900">{value.title}</h3>
-                <p className="text-sm leading-relaxed text-slate-500">{value.description}</p>
+                <h3 className="mb-2 text-lg font-bold text-slate-900 dark:text-white">{value.title}</h3>
+                <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">{value.description}</p>
               </div>
             ))}
           </div>
@@ -175,8 +175,8 @@ export default function AboutUsPage() {
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold text-slate-900">Why Choose Pay Qist?</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-slate-500">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Why Choose Pay Qist?</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-slate-500 dark:text-slate-400">
               We are rethinking consumer finance to give you the ultimate shopping freedom.
             </p>
           </div>
@@ -185,13 +185,13 @@ export default function AboutUsPage() {
             {highlights.map((item) => (
               <div
                 key={item.title}
-                className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm transition duration-300 hover:border-emerald-200 hover:shadow-md"
+                className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm transition duration-300 hover:border-emerald-200 hover:shadow-md dark:border-emerald-500/10 dark:bg-surface-overlay/60 dark:hover:border-brand-500/30 dark:hover:shadow-dark-card-hover"
               >
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50">
-                  <div className="h-4 w-4 rounded-full bg-brand-500" />
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-500/15">
+                  <div className="h-4 w-4 rounded-full bg-brand-500 dark:bg-brand-400" />
                 </div>
-                <h3 className="mb-2 text-lg font-bold text-slate-900">{item.title}</h3>
-                <p className="text-sm leading-relaxed text-slate-500">{item.description}</p>
+                <h3 className="mb-2 text-lg font-bold text-slate-900 dark:text-white">{item.title}</h3>
+                <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">{item.description}</p>
               </div>
             ))}
           </div>
