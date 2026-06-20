@@ -336,6 +336,21 @@ app.post('/api/applications/submit', requireAuth, validateBody(applicationSubmit
   }
 });
 
+app.get('/api/applications/mine', requireAuth, (req, res) => {
+  const mine = applications
+    .filter((entry) => entry.userId === req.auth.id)
+    .map((entry) => ({
+      id: entry.id,
+      status: entry.status,
+      createdAt: entry.createdAt,
+      applicantName: entry.applicant.fullName,
+      orderCount: orders.filter((order) => order.applicationId === entry.id).length,
+    }))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  res.json(mine);
+});
+
 app.get('/api/applications', requireAuth, requireAdmin, (req, res) => {
   res.json(
     applications

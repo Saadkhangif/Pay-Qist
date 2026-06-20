@@ -172,6 +172,13 @@ export default function CartPage() {
               >
                 Apply for Installment
               </button>
+
+              <Link
+                to="/account"
+                className="block text-center text-sm font-semibold text-brand-600 hover:underline dark:text-brand-300"
+              >
+                View my orders & applications
+              </Link>
             </div>
           </div>
         </aside>

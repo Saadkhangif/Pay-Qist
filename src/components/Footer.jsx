@@ -8,14 +8,9 @@ import {
   CONTACT_PHONE_DISPLAY,
   CONTACT_PHONE_TEL,
 } from '../lib/contact';
+import { getFooterQuickLinks } from '../lib/navigation';
+import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
-
-const footerLinks = [
-  { label: 'Products', to: '/products' },
-  { label: 'How It Works', to: '/home#how-it-works' },
-  { label: 'FAQ', to: '/home#faq' },
-  { label: 'Contact', to: '/contact-us' },
-];
 
 const socialLinks = [
   {
@@ -62,6 +57,9 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const { user } = useAuth();
+  const footerLinks = getFooterQuickLinks({ user });
+
   return (
     <footer className="relative mt-auto overflow-hidden bg-slate-900 text-slate-300 dark:border-t dark:border-emerald-500/10 dark:bg-[#050809]">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-500/10 via-transparent to-emerald-500/5" />

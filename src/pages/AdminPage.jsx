@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   ClipboardList,
   CreditCard,
@@ -52,6 +53,8 @@ const NAV_ITEMS = [
   { id: 'applications', label: 'Applications', icon: ClipboardList },
   { id: 'payments', label: 'Payments', icon: CreditCard },
 ];
+
+const VALID_TABS = NAV_ITEMS.map((item) => item.id);
 
 const TAB_META = {
   overview: {
@@ -145,7 +148,9 @@ function EmptyState({ icon: Icon, title, description }) {
 export default function AdminPage() {
   const { user, users, updateUserRole, removeUserRole } = useAuth();
   const { products, orders, payments, addProduct, updateProduct, removeProduct, stats, uploadProductImage } = useStore();
-  const [tab, setTab] = useState('overview');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const [tab, setTab] = useState(VALID_TABS.includes(tabParam) ? tabParam : 'overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState('');
@@ -160,6 +165,12 @@ export default function AdminPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [applicationCount, setApplicationCount] = useState(0);
   const [latestApplication, setLatestApplication] = useState(null);
+
+  useEffect(() => {
+    if (tabParam && VALID_TABS.includes(tabParam) && tabParam !== tab) {
+      setTab(tabParam);
+    }
+  }, [tabParam, tab]);
 
   useEffect(() => {
     if (user?.role !== 'admin') return;
@@ -224,6 +235,7 @@ export default function AdminPage() {
   function switchTab(nextTab) {
     setTab(nextTab);
     setSidebarOpen(false);
+    setSearchParams(nextTab === 'overview' ? {} : { tab: nextTab }, { replace: true });
   }
 
   function resetForm() {
@@ -473,7 +485,11 @@ export default function AdminPage() {
                         <p className="mt-1 text-sm text-slate-500">{formatCurrency(products[0].price)} · {products[0].category}</p>
                       ) : null}
                     </div>
-                    <div className="admin-muted p-4">
+                    <button
+                      type="button"
+                      className="admin-muted w-full p-4 text-left transition hover:border-brand-500/20 hover:bg-white dark:hover:bg-slate-800"
+                      onClick={() => switchTab('applications')}
+                    >
                       <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Latest application</p>
                       <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
                         {latestApplication?.applicantName || 'No applications yet'}
@@ -483,7 +499,7 @@ export default function AdminPage() {
                           {latestApplication.referralName} · {latestApplication.status}
                         </p>
                       ) : null}
-                    </div>
+                    </button>
                     <div className="admin-muted p-4">
                       <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Latest order</p>
                       <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">{sortedOrders[0]?.productTitle || 'No orders yet'}</p>

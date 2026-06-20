@@ -58,10 +58,7 @@ export default function InstallmentApplicationPage() {
         referral: validation.data.referral,
         paymentMethod,
       });
-      navigate('/home', {
-        replace: true,
-        state: { applicationSuccess: true },
-      });
+      navigate('/account?tab=applications&submitted=1', { replace: true });
     } catch (err) {
       setError(err.message || 'Unable to submit your application. Please try again.');
     } finally {

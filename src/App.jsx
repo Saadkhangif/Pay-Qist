@@ -20,6 +20,7 @@ const RefundAndReturnPolicyPage = lazy(() => import('./pages/RefundAndReturnPoli
 const SignupPage = lazy(() => import('./pages/SignupPage'));
 const CompleteProfilePage = lazy(() => import('./pages/CompleteProfilePage'));
 const InstallmentApplicationPage = lazy(() => import('./pages/InstallmentApplicationPage'));
+const AccountPage = lazy(() => import('./pages/AccountPage'));
 
 function RouteFallback() {
   return (
@@ -77,6 +78,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute requireProfile>
               <CartPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/account"
+          element={
+            <ProtectedRoute requireProfile>
+              <AccountPage />
             </ProtectedRoute>
           }
         />

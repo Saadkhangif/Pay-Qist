@@ -7,6 +7,7 @@ import {
   Info,
   ShoppingCart,
   Shield,
+  User,
   LogIn,
   UserPlus,
   LogOut,
@@ -22,6 +23,7 @@ const iconMap = {
   Info,
   ShoppingCart,
   Shield,
+  User,
 };
 
 function mobileNavLinkClass({ isActive }) {
@@ -87,7 +89,11 @@ export default function MobileNav({
     };
   }, [isOpen, onClose]);
 
-  const visibleItems = PRIMARY_NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin);
+  const visibleItems = PRIMARY_NAV_ITEMS.filter((item) => {
+    if (item.adminOnly && !isAdmin) return false;
+    if (item.authRequired && !user) return false;
+    return true;
+  });
 
   const menuOverlay = (
     <div

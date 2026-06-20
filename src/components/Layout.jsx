@@ -8,7 +8,7 @@ import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
 import MobileBottomNav from './MobileBottomNav';
 import MobileNav from './MobileNav';
-import { getPageTitle, shouldHideBottomNav } from '../lib/navigation';
+import { getHeaderNavItems, getPageTitle, isNavActive, shouldHideBottomNav } from '../lib/navigation';
 
 const navLinkClass = ({ isActive }) =>
   ['nav-link', isActive ? 'nav-link-active' : ''].join(' ');
@@ -21,6 +21,7 @@ export default function Layout({ children }) {
   const location = useLocation();
   const pageTitle = getPageTitle(location.pathname);
   const hideBottomNav = shouldHideBottomNav(location.pathname);
+  const headerNavItems = getHeaderNavItems({ user, isAdmin });
 
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -178,40 +179,38 @@ export default function Layout({ children }) {
           </div>
 
           <nav className="hidden items-center gap-2 lg:flex">
-            <NavLink to="/home" className={navLinkClass} end>
-              Home
-            </NavLink>
-            <NavLink to="/products" className={navLinkClass}>
-              Products
-            </NavLink>
-            <NavLink to="/about" className={navLinkClass}>
-              About Us
-            </NavLink>
-            <NavLink to="/cart" className={navLinkClass}>
-              <span className="inline-flex items-center gap-1.5">
-                Cart
-                {cart.length > 0 ? (
-                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 px-1.5 text-xs font-bold text-white">
-                    {cart.length}
+            {headerNavItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                className={navLinkClass}
+                isActive={() => isNavActive(location.pathname, item)}
+              >
+                {item.showCartBadge ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    {item.label}
+                    {cart.length > 0 ? (
+                      <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 px-1.5 text-xs font-bold text-white">
+                        {cart.length}
+                      </span>
+                    ) : null}
                   </span>
-                ) : null}
-              </span>
-            </NavLink>
-            {isAdmin ? (
-              <NavLink to="/admin" className={navLinkClass}>
-                Admin
+                ) : (
+                  item.label
+                )}
               </NavLink>
-            ) : null}
+            ))}
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
             {user ? (
               <>
-                <div className="hidden text-right lg:block">
+                <Link to="/account" className="hidden text-right lg:block">
                   <div className="text-sm font-bold text-slate-900 dark:text-slate-100">{user.name}</div>
                   <div className="text-xs capitalize text-slate-500 dark:text-slate-400">{user.role}</div>
-                </div>
+                </Link>
                 <button className="button-ghost hidden px-5 py-2 lg:inline-flex" onClick={logout} type="button">
                   Logout
                 </button>
@@ -258,7 +257,7 @@ export default function Layout({ children }) {
 
       <Footer />
 
-      <MobileBottomNav cartCount={cart.length} hidden={hideBottomNav} />
+      <MobileBottomNav cartCount={cart.length} hidden={hideBottomNav} user={user} />
     </div>
   );
 }

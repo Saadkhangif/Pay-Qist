@@ -1,12 +1,13 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Info, Package, ShoppingCart } from 'lucide-react';
-import { BOTTOM_NAV_ITEMS, isNavActive } from '../lib/navigation';
+import { Home, Info, Package, ShoppingCart, User } from 'lucide-react';
+import { getBottomNavItems, isNavActive } from '../lib/navigation';
 
 const iconMap = {
   Home,
   Package,
   Info,
   ShoppingCart,
+  User,
 };
 
 function bottomNavLinkClass(isActive) {
@@ -18,8 +19,9 @@ function bottomNavLinkClass(isActive) {
   ].join(' ');
 }
 
-export default function MobileBottomNav({ cartCount, hidden }) {
+export default function MobileBottomNav({ cartCount, hidden, user }) {
   const { pathname } = useLocation();
+  const items = getBottomNavItems({ user });
 
   if (hidden) {
     return null;
@@ -32,7 +34,7 @@ export default function MobileBottomNav({ cartCount, hidden }) {
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <ul className="mx-auto flex max-w-lg items-stretch justify-around px-2">
-        {BOTTOM_NAV_ITEMS.map((item) => {
+        {items.map((item) => {
           const Icon = iconMap[item.icon];
           const active = isNavActive(pathname, item);
 

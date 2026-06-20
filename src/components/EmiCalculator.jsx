@@ -423,7 +423,7 @@ export default function EmiCalculator() {
 
               <div className="mt-auto grid gap-3 sm:grid-cols-2">
                 {user ? (
-                  <Link to="/cart" className="button-secondary gap-2 py-3.5">
+                  <Link to="/account" className="button-secondary gap-2 py-3.5">
                     <User className="h-4 w-4" />
                     My Account
                   </Link>
