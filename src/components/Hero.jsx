@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ArrowRight, Calculator, ShoppingBag } from 'lucide-react';
 
 const heroProducts = [
   {
@@ -21,90 +22,123 @@ const heroProducts = [
   },
 ];
 
+const trustPoints = [
+  { label: 'Fast Approval', icon: '⚡' },
+  { label: 'Secure Payments', icon: '🔒' },
+  { label: '0% Hidden Fees', icon: '✓' },
+];
+
 export default function Hero() {
   return (
-    <section className="relative pt-20 pb-28 overflow-hidden">
-      <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-[600px] h-[600px] bg-gradient-to-bl from-emerald-300/40 to-transparent rounded-full opacity-60 pointer-events-none transform-gpu"></div>
-      <div className="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-[500px] h-[500px] bg-gradient-to-tr from-emerald-200/40 to-transparent rounded-full opacity-60 pointer-events-none transform-gpu"></div>
+    <section className="relative overflow-hidden pb-28 pt-16 md:pt-20">
+      <div className="pointer-events-none absolute inset-0 mesh-bg" />
+      <div className="pointer-events-none absolute inset-0 grid-pattern opacity-60 dark:opacity-80" />
+      <div className="dark-glow-orb -right-32 -top-32 h-[500px] w-[500px] bg-brand-400/20 animate-glow-pulse dark:bg-brand-500/25" />
+      <div className="dark-glow-orb -bottom-32 -left-32 h-[400px] w-[400px] bg-emerald-300/20 dark:bg-teal-400/15" />
+      <div className="dark-glow-orb right-1/4 top-1/3 hidden h-64 w-64 bg-brand-400/10 dark:block dark:bg-emerald-400/10" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#0F9D58]/10 border border-[#0F9D58]/20 text-[#0F9D58] text-xs font-bold uppercase tracking-wider">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+          <div className="animate-fade-up space-y-8 text-center lg:text-left">
+            <div className="section-badge mx-auto lg:mx-0">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0F9D58] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0F9D58]"></span>
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-500 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-500" />
               </span>
               0% Hidden Charges
             </div>
-            <h1 className="text-5xl sm:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1]">
-              Buy Today. <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0F9D58] to-emerald-400">Pay in Easy</span> <br />
+
+            <h1 className="text-5xl font-extrabold leading-[1.08] tracking-tight text-slate-900 dark:text-white sm:text-6xl lg:text-[3.75rem]">
+              Buy Today.{' '}
+              <span className="gradient-text">Pay in Easy</span>
+              <br />
               Monthly Installments.
             </h1>
-            <p className="text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              Get your favorite phones, laptops, appliances, and more delivered today with highly flexible, secure, and transparent payment plans.
+
+            <p className="mx-auto max-w-xl text-lg leading-relaxed text-slate-600 dark:text-slate-300 lg:mx-0">
+              Get your favorite phones, laptops, appliances, and more delivered today with
+              flexible, secure, and transparent payment plans.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-              <a href="#products" className="w-full sm:w-auto rounded-full bg-[#0F9D58] px-8 py-4 text-base font-bold text-white shadow-xl shadow-[#0F9D58]/20 transition-all hover:bg-emerald-600 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#0F9D58]/30">
+
+            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-start">
+              <a href="#products" className="button-primary w-full gap-2 px-8 py-4 text-base sm:w-auto">
+                <ShoppingBag className="h-5 w-5" />
                 Shop Now
               </a>
-              <a href="#calculator" className="w-full sm:w-auto rounded-full bg-white px-8 py-4 text-base font-bold text-slate-700 shadow-lg shadow-slate-200 border border-slate-100 transition-all hover:-translate-y-1 hover:shadow-xl">
+              <a href="#calculator" className="button-secondary w-full gap-2 px-8 py-4 text-base sm:w-auto">
+                <Calculator className="h-5 w-5" />
                 Calculate Installment
               </a>
             </div>
-            <div className="flex items-center justify-center lg:justify-start gap-6 pt-4 text-sm font-medium text-slate-500">
-              <div className="flex items-center gap-2"><svg className="w-5 h-5 text-[#0F9D58]" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Fast Approval</div>
-              <div className="flex items-center gap-2"><svg className="w-5 h-5 text-[#0F9D58]" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg> Secure Payments</div>
+
+            <div className="flex flex-wrap items-center justify-center gap-4 pt-2 lg:justify-start">
+              {trustPoints.map((point) => (
+                <div
+                  key={point.label}
+                  className="flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm backdrop-blur-sm dark:border-emerald-500/15 dark:bg-surface-overlay/70 dark:text-slate-200 dark:shadow-[0_4px_16px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.04)]"
+                >
+                  <span className="text-brand-500 dark:text-brand-300">{point.icon}</span>
+                  {point.label}
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-            <div className="aspect-[4/3] rounded-[2.5rem] bg-gradient-to-tr from-emerald-100 to-white border border-white shadow-2xl p-6 sm:p-8 relative overflow-hidden transform-gpu">
-              <img
-                src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1200&q=80"
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover opacity-20"
-                aria-hidden="true"
-              />
-              <div className="relative z-10 w-full max-w-sm mx-auto space-y-4">
+          <div className="relative mx-auto w-full max-w-md animate-fade-up lg:max-w-none" style={{ animationDelay: '0.15s' }}>
+            <div className="relative aspect-[4/3] overflow-hidden rounded-[2.5rem] border border-white/80 bg-gradient-to-br from-brand-50 via-white to-emerald-50 p-6 shadow-2xl shadow-brand-500/10 dark:border-emerald-500/20 dark:from-surface-overlay dark:via-surface-raised dark:to-surface-muted dark:shadow-[0_24px_64px_rgba(0,0,0,0.45),0_0_0_1px_rgba(52,211,153,0.08),inset_0_1px_0_rgba(255,255,255,0.05)] sm:p-8">
+              <div className="pointer-events-none absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center opacity-[0.07] dark:opacity-[0.04]" />
+              <div className="pointer-events-none absolute -right-8 top-8 h-32 w-32 rounded-full bg-brand-400/20 blur-2xl dark:bg-brand-500/20" />
+
+              <div className="relative z-10 mx-auto w-full max-w-sm space-y-4">
                 {heroProducts.map((item, index) => (
-                  <div
-                    key={item.title}
-                    className={`bg-white/95 backdrop-blur p-4 rounded-2xl shadow-xl shadow-slate-200/50 flex items-center gap-4 border border-white/80 ${
-                      index === 0 ? 'animate-bounce' : 'ml-6'
-                    }`}
-                    style={index === 0 ? { animationDuration: '3s' } : undefined}
-                  >
+                  <div key={item.title} className={clsxCard(index)}>
                     <img
                       src={item.image}
                       alt={item.title}
-                      className="h-14 w-14 rounded-xl object-cover shrink-0"
+                      className="h-14 w-14 shrink-0 rounded-xl object-cover ring-2 ring-white dark:ring-emerald-500/20"
                     />
-                    <div className="min-w-0">
-                      <div className="text-sm font-bold text-slate-900 truncate">{item.title}</div>
-                      <div className="text-xs font-bold text-[#0F9D58] mt-0.5">{item.price}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">{item.title}</div>
+                      <div className="mt-0.5 text-xs font-bold text-brand-600 dark:text-brand-300">{item.price}</div>
                     </div>
-                    <div className="ml-auto text-xs font-bold text-white bg-[#0F9D58] px-2.5 py-1 rounded-lg shrink-0">
+                    <div className="shrink-0 rounded-lg bg-brand-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm dark:shadow-glow-brand">
                       Approved
                     </div>
                   </div>
                 ))}
-                <div className="bg-slate-900 text-white p-5 rounded-2xl shadow-xl ml-3">
-                  <div className="flex justify-between items-end mb-2">
-                    <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Down Payment</div>
-                    <div className="text-xs font-bold text-emerald-400">20% only</div>
+
+                <div className="ml-3 rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-5 text-white shadow-xl dark:border-emerald-500/20 dark:from-surface-muted dark:via-surface-overlay dark:to-surface-raised dark:shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(52,211,153,0.1)]">
+                  <div className="mb-2 flex items-end justify-between">
+                    <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Down Payment</div>
+                    <div className="text-xs font-bold text-brand-400">20% only</div>
                   </div>
                   <div className="text-2xl font-black">Pay the rest monthly</div>
-                  <Link to="/products" className="mt-3 inline-block text-sm font-bold text-emerald-400 hover:text-emerald-300">
-                    Browse catalog →
+                  <Link
+                    to="/products"
+                    className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-brand-400 transition hover:text-brand-300"
+                  >
+                    Browse catalog
+                    <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
               </div>
+            </div>
+
+            <div className="absolute -bottom-4 -left-4 hidden rounded-2xl border border-white bg-white/90 px-5 py-3 shadow-lg backdrop-blur-sm dark:border-emerald-500/20 dark:bg-surface-overlay/95 dark:shadow-dark-card sm:block">
+              <div className="text-2xl font-black text-brand-500 dark:text-brand-300">98%</div>
+              <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">Approval Rate</div>
             </div>
           </div>
         </div>
       </div>
     </section>
   );
+}
+
+function clsxCard(index) {
+  const base =
+    'flex items-center gap-4 rounded-2xl border border-white/80 bg-white/95 p-4 shadow-lg shadow-slate-200/50 backdrop-blur-sm dark:border-emerald-500/12 dark:bg-surface-overlay/90 dark:shadow-[0_8px_32px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.04)]';
+  if (index === 0) return `${base} animate-float`;
+  if (index === 1) return `${base} ml-6 animate-float-delayed`;
+  return `${base} ml-3`;
 }

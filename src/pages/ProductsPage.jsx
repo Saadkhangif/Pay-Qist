@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Search, Sparkles } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { formatCurrency, getDownPayment, getMonthlyInstallment } from '../lib/currency';
 
@@ -15,13 +16,11 @@ export default function ProductsPage() {
     }
   }, [categoryFromUrl]);
 
-  // Dynamically extract unique categories from the products actually stored in your database
   const categories = useMemo(() => {
     const uniqueCategories = new Set(products.map((p) => p.category || 'Uncategorized'));
     return ['All', ...Array.from(uniqueCategories)];
   }, [products]);
 
-  // Filter products based on selected category (mocking category logic if it doesn't exist)
   const displayedProducts = useMemo(() => {
     if (activeCategory === 'All') return products;
     return products.filter((p) => (p.category || 'Uncategorized') === activeCategory);
@@ -29,32 +28,36 @@ export default function ProductsPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      
-      {/* Page Header */}
-      <div className="mb-10 relative rounded-3xl overflow-hidden">
+      <div className="relative mb-12 overflow-hidden rounded-[2rem]">
         <img
           src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1600&q=80"
           alt=""
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
           aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-slate-900/60"></div>
-        <div className="relative px-8 py-14 text-center md:text-left">
-          <h1 className="text-4xl font-extrabold text-white tracking-tight">Our Products</h1>
-          <p className="mt-2 text-lg text-slate-200">Shop top brands with zero hidden fees and easy installments.</p>
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-brand-900/60" />
+        <div className="relative px-8 py-16 text-center md:text-left">
+          <div className="section-badge mb-4 border-white/20 bg-white/10 text-brand-300">
+            <Sparkles className="h-3.5 w-3.5" />
+            Catalog
+          </div>
+          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">Our Products</h1>
+          <p className="mt-3 max-w-xl text-lg text-slate-200">
+            Shop top brands with zero hidden fees and easy installments.
+          </p>
         </div>
       </div>
 
-      {/* Category Filters */}
-      <div className="mb-12 flex flex-wrap items-center justify-center md:justify-start gap-3">
+      <div className="mb-12 flex flex-wrap items-center justify-center gap-3 md:justify-start">
         {categories.map((category) => (
           <button
             key={category}
+            type="button"
             onClick={() => setActiveCategory(category)}
-            className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 ${
+            className={`rounded-full px-5 py-2.5 text-sm font-bold transition-all duration-200 ${
               activeCategory === category
-                ? 'bg-slate-900 text-white shadow-md'
-                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'
+                ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/25'
+                : 'border border-slate-200 bg-white text-slate-600 hover:border-brand-200 hover:bg-brand-50 hover:text-brand-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-brand-500/40 dark:hover:bg-slate-700 dark:hover:text-brand-400'
             }`}
           >
             {category}
@@ -62,7 +65,6 @@ export default function ProductsPage() {
         ))}
       </div>
 
-      {/* Products Grid */}
       {displayedProducts.length > 0 ? (
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {displayedProducts.map((product) => {
@@ -70,38 +72,64 @@ export default function ProductsPage() {
             const monthly = getMonthlyInstallment(product.price, 12);
 
             return (
-              <div key={product.id} className="group bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-200 transition-all duration-300 hover:shadow-xl hover:shadow-[#0F9D58]/10 hover:-translate-y-1 flex flex-col transform-gpu">
-                <Link to={`/product/${product.id}`} className="relative aspect-[4/3] bg-slate-50 overflow-hidden p-6 flex items-center justify-center block">
-                  <img src={product.imageUrl} alt={product.title} loading="lazy" decoding="async" className="object-contain h-full w-full transition-transform duration-500 group-hover:scale-105 mix-blend-multiply" style={{ willChange: 'transform' }} />
+              <article
+                key={product.id}
+                className="surface-card group flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-brand-200/60 hover:shadow-card-hover dark:hover:border-brand-500/40"
+              >
+                <Link
+                  to={`/product/${product.id}`}
+                  className="product-image-well relative block aspect-[4/3]"
+                >
+                  <img
+                    src={product.imageUrl}
+                    alt={product.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="product-image h-full w-full group-hover:scale-105"
+                  />
                 </Link>
-                
-                <div className="p-6 flex-1 flex flex-col">
+
+                <div className="flex flex-1 flex-col p-6">
                   <Link to={`/product/${product.id}`}>
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#0F9D58]">{product.category || 'Electronics'}</span>
-                    <h3 className="text-lg font-bold text-slate-900 line-clamp-2 hover:text-[#0F9D58] transition-colors mt-1">{product.title}</h3>
+                    <span className="text-xs font-bold uppercase tracking-wider text-brand-500">
+                      {product.category || 'Electronics'}
+                    </span>
+                    <h3 className="mt-1 line-clamp-2 text-lg font-bold text-slate-900 transition-colors group-hover:text-brand-600 dark:text-slate-100 dark:group-hover:text-brand-400">
+                      {product.title}
+                    </h3>
                   </Link>
-                  <div className="text-sm font-medium text-slate-400 mt-1 line-through decoration-slate-300">Total: {formatCurrency(product.price)}</div>
-                  
-                  <div className="mt-4 bg-emerald-50/50 rounded-2xl p-4 border border-emerald-100">
+                  <div className="mt-1 text-sm font-medium text-slate-400 line-through decoration-slate-300">
+                    Total: {formatCurrency(product.price)}
+                  </div>
+
+                  <div className="mt-4 rounded-2xl border border-brand-500/10 bg-brand-500/5 p-4">
                     <div className="flex items-end gap-1">
-                      <span className="text-xl font-black text-[#0F9D58]">{formatCurrency(monthly)}</span>
-                      <span className="text-sm font-medium text-slate-500 mb-0.5">/mo</span>
+                      <span className="text-xl font-black text-brand-500">{formatCurrency(monthly)}</span>
+                      <span className="mb-0.5 text-sm font-medium text-slate-500">/mo</span>
                     </div>
-                    <div className="flex justify-between items-center mt-2">
-                      <div className="text-xs font-bold text-[#0F9D58]/70 uppercase tracking-wide">× 12 Months</div>
-                      <div className="text-xs font-bold text-slate-500">Upfront: {formatCurrency(downPayment)}</div>
+                    <div className="mt-2 flex items-center justify-between">
+                      <div className="text-xs font-bold uppercase tracking-wide text-brand-500/70">
+                        × 12 Months
+                      </div>
+                      <div className="text-xs font-bold text-slate-500">
+                        Upfront: {formatCurrency(downPayment)}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-24 bg-white rounded-3xl border border-slate-200 shadow-sm text-center px-4">
-          <div className="text-6xl mb-4">🔍</div>
-          <h3 className="text-xl font-bold text-slate-900">No products found</h3>
-          <p className="mt-2 text-slate-500">We couldn't find any products in the "{activeCategory}" category.</p>
+        <div className="surface-card flex flex-col items-center justify-center px-4 py-24 text-center">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 text-brand-500">
+            <Search className="h-8 w-8" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">No products found</h3>
+          <p className="mt-2 text-slate-500">
+            We couldn&apos;t find any products in the &quot;{activeCategory}&quot; category.
+          </p>
         </div>
       )}
     </div>

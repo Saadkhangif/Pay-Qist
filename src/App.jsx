@@ -17,6 +17,9 @@ const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'));
 const ContactUsPage = lazy(() => import('./pages/ContactUsPage'));
 const AboutUsPage = lazy(() => import('./pages/AboutUsPage'));
 const RefundAndReturnPolicyPage = lazy(() => import('./pages/RefundAndReturnPolicyPage'));
+const SignupPage = lazy(() => import('./pages/SignupPage'));
+const CompleteProfilePage = lazy(() => import('./pages/CompleteProfilePage'));
+const InstallmentApplicationPage = lazy(() => import('./pages/InstallmentApplicationPage'));
 
 function RouteFallback() {
   return (
@@ -33,7 +36,7 @@ function RouteFallback() {
 
 function AuthLoadingScreen() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
       <RouteFallback />
     </div>
   );
@@ -51,7 +54,8 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/login" element={<Navigate to="/home" replace state={{ openAuth: 'login' }} />} />
-        <Route path="/signup" element={<Navigate to="/home" replace state={{ openAuth: 'signup' }} />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/complete-profile" element={<CompleteProfilePage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
@@ -59,18 +63,19 @@ function AppRoutes() {
         <Route path="/contact-us" element={<ContactUsPage />} />
         <Route path="/about" element={<AboutUsPage />} />
         <Route path="/refund-and-return-policy" element={<RefundAndReturnPolicyPage />} />
+        <Route path="/product/:productId" element={<ProductDetailPage />} />
         <Route
-          path="/product/:productId"
+          path="/apply"
           element={
-            <ProtectedRoute>
-              <ProductDetailPage />
+            <ProtectedRoute requireProfile>
+              <InstallmentApplicationPage />
             </ProtectedRoute>
           }
         />
         <Route
           path="/cart"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireProfile>
               <CartPage />
             </ProtectedRoute>
           }

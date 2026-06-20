@@ -69,16 +69,14 @@ export default function AboutUsPage() {
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-6 flex justify-center">
-              <Logo to={null} size="lg" />
+              <Logo to={null} size="lg" surface="auto" />
             </div>
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#0F9D58]/20 bg-[#0F9D58]/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-[#0F9D58]">
+            <div className="section-badge mb-6">
               Our Story
             </div>
             <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
               Making installments{' '}
-              <span className="bg-gradient-to-r from-[#0F9D58] to-emerald-400 bg-clip-text text-transparent">
-                simple & fair
-              </span>
+              <span className="gradient-text">simple & fair</span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-600">
               Pay Qist was built on a simple belief: everyone deserves access to the products they love.
@@ -94,7 +92,7 @@ export default function AboutUsPage() {
           <div className="grid grid-cols-2 gap-8 divide-x divide-slate-200/50 md:grid-cols-4">
             {stats.map((stat) => (
               <div key={stat.label} className="px-4 text-center">
-                <div className="text-3xl font-black text-[#0F9D58]">{stat.value}</div>
+                <div className="text-3xl font-black text-brand-500">{stat.value}</div>
                 <div className="mt-1 text-sm font-medium uppercase tracking-wide text-slate-500">{stat.label}</div>
               </div>
             ))}
@@ -134,7 +132,7 @@ export default function AboutUsPage() {
               <ul className="space-y-3 pt-2">
                 {['Clear, upfront pricing on every product', 'Secure checkout and protected transactions', 'Dedicated support whenever you need help'].map((item) => (
                   <li key={item} className="flex items-start gap-3 text-sm text-slate-600">
-                    <svg className="mt-0.5 h-5 w-5 shrink-0 text-[#0F9D58]" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                    <svg className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     {item}
@@ -162,7 +160,7 @@ export default function AboutUsPage() {
                 key={value.title}
                 className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm transition duration-300 hover:border-emerald-200 hover:shadow-md"
               >
-                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-[#0F9D58]">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-500">
                   {value.icon}
                 </div>
                 <h3 className="mb-2 text-lg font-bold text-slate-900">{value.title}</h3>
@@ -189,8 +187,8 @@ export default function AboutUsPage() {
                 key={item.title}
                 className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm transition duration-300 hover:border-emerald-200 hover:shadow-md"
               >
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50">
-                  <div className="h-4 w-4 rounded-full bg-[#0F9D58]" />
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50">
+                  <div className="h-4 w-4 rounded-full bg-brand-500" />
                 </div>
                 <h3 className="mb-2 text-lg font-bold text-slate-900">{item.title}</h3>
                 <p className="text-sm leading-relaxed text-slate-500">{item.description}</p>
@@ -202,16 +200,14 @@ export default function AboutUsPage() {
 
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="overflow-hidden rounded-[2rem] bg-slate-900 px-8 py-12 text-center sm:px-12 sm:py-16">
-          <h2 className="text-2xl font-bold text-white sm:text-3xl">Ready to shop smarter?</h2>
-          <p className="mx-auto mt-4 max-w-xl text-slate-400">
+        <div className="relative overflow-hidden rounded-[2rem] bg-slate-900 px-8 py-12 text-center sm:px-12 sm:py-16">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent" />
+          <h2 className="relative text-2xl font-bold text-white sm:text-3xl">Ready to shop smarter?</h2>
+          <p className="relative mx-auto mt-4 max-w-xl text-slate-400">
             Browse our catalog, pick an installment plan, and get your order delivered — all in a few simple steps.
           </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              to="/products"
-              className="w-full rounded-full bg-[#0F9D58] px-8 py-4 text-base font-bold text-white shadow-xl shadow-[#0F9D58]/20 transition-all hover:-translate-y-1 hover:bg-emerald-600 hover:shadow-2xl hover:shadow-[#0F9D58]/30 sm:w-auto"
-            >
+          <div className="relative mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link to="/products" className="button-primary w-full px-8 py-4 text-base sm:w-auto">
               Browse Products
             </Link>
             <Link

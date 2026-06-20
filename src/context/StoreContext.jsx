@@ -80,9 +80,12 @@ export function StoreProvider({ children }) {
     setProducts((currentProducts) => currentProducts.filter((product) => product.id !== productId));
   }
 
-  function addToCart(product, months) {
+  function addToCart(product, months = product?.installmentMonths ?? 12) {
+    const installmentMonths = months ?? product?.installmentMonths ?? 12;
     setCart((currentCart) => {
-      const existingItem = currentCart.find((item) => item.productId === product.id && item.installmentMonths === months);
+      const existingItem = currentCart.find(
+        (item) => item.productId === product.id && item.installmentMonths === installmentMonths,
+      );
       if (existingItem) {
         return currentCart.map((item) =>
           item.id === existingItem.id ? { ...item, quantity: item.quantity + 1 } : item,
@@ -96,7 +99,7 @@ export function StoreProvider({ children }) {
           title: product.title,
           price: product.price,
           imageUrl: product.imageUrl,
-          installmentMonths: months,
+          installmentMonths,
           quantity: 1,
         },
         ...currentCart,
@@ -131,12 +134,35 @@ export function StoreProvider({ children }) {
       cart: cart.map((item) => ({
         productId: item.productId,
         quantity: item.quantity,
-        installmentMonths: item.installmentMonths,
+        installmentMonths: item.installmentMonths || 12,
       })),
-      paymentMethod,
+      paymentMethod: paymentMethod || 'card',
       paymentReference,
     };
     const { createdOrders, createdPayments } = await apiFetch('/api/checkout', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    setOrders((currentOrders) => [...createdOrders, ...currentOrders]);
+    setPayments((currentPayments) => [...createdPayments, ...currentPayments]);
+    setCart([]);
+    return createdOrders;
+  }
+
+  async function submitInstallmentApplication({ applicant, referral, paymentMethod, paymentReference = '' }) {
+    const payload = {
+      cart: cart.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        installmentMonths: item.installmentMonths || 12,
+      })),
+      paymentMethod: paymentMethod || 'card',
+      paymentReference,
+      applicant,
+      referral,
+    };
+    const { createdOrders, createdPayments } = await apiFetch('/api/applications/submit', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -178,6 +204,7 @@ export function StoreProvider({ children }) {
       removeFromCart,
       clearCart,
       createOrderFromCart,
+      submitInstallmentApplication,
       uploadProductImage,
       storeMode: 'node',
     }),

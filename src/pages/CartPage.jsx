@@ -1,58 +1,30 @@
 // Import React hooks, routing, and shared context/lib helpers
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import StatusPill from '../components/StatusPill';
-import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
 import { formatCurrency, getDownPayment, getMonthlyInstallment } from '../lib/currency';
 
 export default function CartPage() {
-  // Setup navigation and fetch user context
   const navigate = useNavigate();
-  const { user } = useAuth();
-  // Destructure required functions and state from the global store
-  const { cart = [], removeFromCart, updateCartMonths, createOrderFromCart, clearCart } = useStore();
-  
-  // Local state for payment methods and UI processing feedback
-  const [paymentMethod, setPaymentMethod] = useState('Credit Card');
-  const [processing, setProcessing] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const { cart = [], removeFromCart, updateCartMonths, clearCart } = useStore();
 
   // Calculate the total cart values dynamically
   const subtotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
   const downPayment = useMemo(() => cart.reduce((sum, item) => sum + getDownPayment(item.price) * item.quantity, 0), [cart]);
 
-  // Handle the checkout flow
-  async function handleCheckout() {
-    setProcessing(true);
-    setSuccessMessage('');
-    setErrorMessage('');
-    try {
-      // Attempt to generate an order out of the current cart contents
-      await createOrderFromCart(user, paymentMethod);
-      setSuccessMessage('Payment approved and installment request submitted.');
-      // Wait briefly so the user sees the success message before redirecting
-      setTimeout(() => navigate('/admin'), 700);
-    } catch (err) {
-      setErrorMessage(err.message || 'Payment failed. Please try again.');
-    } finally {
-      setProcessing(false);
-    }
-  }
-
   // If the cart is empty, prompt the user to shop instead of showing a checkout form
   if (!cart.length) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center sm:px-6 lg:px-8">
-        <div className="flex h-32 w-32 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm text-slate-300 mb-8">
+        <div className="flex h-32 w-32 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm text-slate-300 dark:border-slate-700 dark:bg-slate-900 mb-8">
            <svg className="h-16 w-16" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
            </svg>
          </div>
-         <h1 className="text-4xl font-bold tracking-tight text-slate-900 mb-4">Your cart is empty</h1>
-         <p className="max-w-md text-lg text-slate-500 mb-10">You haven't added any products to your cart yet. Explore our storefront to find items you can buy on easy installments.</p>
-         <Link className="rounded-xl px-8 py-3 text-lg font-bold bg-[#0F9D58] text-white shadow-lg shadow-[#0F9D58]/20 hover:-translate-y-0.5 hover:bg-emerald-600 transition-all duration-200 inline-block" to="/home">
+         <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">Your cart is empty</h1>
+         <p className="max-w-md text-lg text-slate-500 dark:text-slate-400 mb-10">You haven't added any products to your cart yet. Explore our storefront to find items you can buy on easy installments.</p>
+         <Link className="button-primary px-8 py-3 text-lg" to="/products">
            Explore Products
          </Link>
       </div>
@@ -65,8 +37,8 @@ export default function CartPage() {
       {/* Page Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Checkout</h1>
-          <p className="mt-1 text-sm text-slate-500">Review your items and complete your purchase.</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Checkout</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Review your items and complete your purchase.</p>
         </div>
         <div className="self-start sm:self-auto">
           <StatusPill tone="success">Secure Checkout</StatusPill>
@@ -77,16 +49,22 @@ export default function CartPage() {
         <div className="space-y-6">
           {/* Loop over every cart item and display a card for it */}
           {cart.map((item) => (
-            <article key={item.id} className="bg-white border border-slate-200 shadow-sm rounded-3xl p-5 sm:p-6 transition hover:shadow-md">
+            <article key={item.id} className="surface-card p-5 transition hover:shadow-card-hover sm:p-6">
               <div className="flex flex-col gap-6 sm:flex-row">
-                <div className="shrink-0">
-                  <img src={item.imageUrl} alt={item.title} loading="lazy" decoding="async" className="h-40 w-full rounded-2xl object-cover sm:w-40 border border-slate-100" />
+                <div className="product-image-well-sm h-40 w-full shrink-0 sm:w-40">
+                  <img
+                    src={item.imageUrl}
+                    alt={item.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="product-image h-full w-full"
+                  />
                 </div>
                 
                 <div className="flex flex-1 flex-col">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h2 className="text-xl font-bold text-slate-900">{item.title}</h2>
+                      <h2 className="text-xl font-bold text-slate-900 dark:text-white">{item.title}</h2>
                       <div className="mt-1 flex items-center gap-2">
                         <span className="text-sm font-medium text-slate-600">Qty: {item.quantity}</span>
                         <span className="text-slate-300">•</span>
@@ -111,7 +89,7 @@ export default function CartPage() {
                         <button
                           key={months}
                           type="button"
-                          className={`rounded-xl px-4 py-2 text-sm font-bold transition-all duration-200 ${months === item.installmentMonths ? 'bg-[#0F9D58] text-white shadow-md shadow-[#0F9D58]/20 border border-[#0F9D58]' : 'bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900 border border-slate-200'}`}
+                          className={`rounded-xl px-4 py-2 text-sm font-bold transition-all duration-200 ${(item.installmentMonths || 12) === months ? 'border border-brand-500 bg-brand-500 text-white shadow-md shadow-brand-500/20' : 'border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
                           onClick={() => updateCartMonths(item.id, months)}
                         >
                           {months} Mo
@@ -120,19 +98,19 @@ export default function CartPage() {
                     </div>
                   </div>
 
-                  <div className="mt-6 grid grid-cols-2 gap-4 rounded-2xl bg-slate-50 p-4 border border-slate-100 sm:grid-cols-3 items-center">
+                  <div className="mt-6 grid grid-cols-2 gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50 sm:grid-cols-3 items-center">
                     <div>
                       <div className="text-xs font-semibold text-slate-500">Total Item Price</div>
-                      <div className="mt-1 font-bold text-slate-900">{formatCurrency(item.price * item.quantity)}</div>
+                      <div className="mt-1 font-bold text-slate-900 dark:text-white">{formatCurrency(item.price * item.quantity)}</div>
                     </div>
                     <div>
                       <div className="text-xs font-semibold text-slate-500">Down Payment</div>
-                      <div className="mt-1 font-bold text-slate-900">{formatCurrency(getDownPayment(item.price) * item.quantity)}</div>
+                      <div className="mt-1 font-bold text-slate-900 dark:text-white">{formatCurrency(getDownPayment(item.price) * item.quantity)}</div>
                     </div>
                     <div className="col-span-2 sm:col-span-1 border-t border-slate-200 pt-3 sm:border-t-0 sm:pt-0 sm:border-l sm:pl-4">
-                      <div className="text-xs font-bold text-[#0F9D58] uppercase tracking-wide">Monthly Pay</div>
-                      <div className="mt-1 text-lg font-black text-[#0F9D58]">
-                        {formatCurrency(getMonthlyInstallment(item.price, item.installmentMonths) * item.quantity)}
+                      <div className="text-xs font-bold uppercase tracking-wide text-brand-500">Monthly Pay</div>
+                      <div className="mt-1 text-lg font-black text-brand-500">
+                        {formatCurrency(getMonthlyInstallment(item.price, item.installmentMonths || 12) * item.quantity)}
                       </div>
                     </div>
                   </div>
@@ -155,13 +133,13 @@ export default function CartPage() {
 
         {/* Checkout & Summary Sidebar */}
         <aside className="sticky top-24 h-fit space-y-6">
-          <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 sm:p-8">
-            <h2 className="text-2xl font-bold text-slate-900">Order Summary</h2>
+          <div className="surface-card p-6 sm:p-8">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Order Summary</h2>
             
             <div className="mt-6 space-y-4 text-slate-600">
               <div className="flex items-center justify-between">
                 <span>Subtotal ({cart.length} items)</span>
-                <span className="font-bold text-slate-900">{formatCurrency(subtotal)}</span>
+                <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Processing Fee</span>
@@ -169,75 +147,30 @@ export default function CartPage() {
               </div>
               <div className="my-4 border-t border-slate-100"></div>
               <div className="flex items-center justify-between">
-                <span className="text-lg font-bold text-slate-900">Total Down Payment</span>
-                <span className="text-xl font-black text-[#0F9D58]">{formatCurrency(downPayment)}</span>
+                <span className="text-lg font-bold text-slate-900 dark:text-white">Total Down Payment</span>
+                <span className="text-xl font-black text-brand-500">{formatCurrency(downPayment)}</span>
               </div>
               <p className="text-xs text-slate-400 font-medium text-right">Due today to process order</p>
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 sm:p-8">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Payment Details</h3>
-            
+          <div className="surface-card p-6 sm:p-8">
+            <h3 className="mb-4 text-lg font-bold text-slate-900 dark:text-white">Next step</h3>
+
             <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Select Method</label>
-                <div className="relative">
-                  <select 
-                    className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20 transition-all shadow-sm font-medium" 
-                    value={paymentMethod} 
-                    onChange={(event) => setPaymentMethod(event.target.value)}
-                  >
-                    <option>Credit Card</option>
-                    <option>Debit Card</option>
-                    <option>JazzCash</option>
-                    <option>EasyPaisa</option>
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
-                  </div>
-                </div>
+              <div className="rounded-xl border border-brand-500/20 bg-brand-500/5 p-4 dark:border-brand-400/20 dark:bg-brand-500/10">
+                <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                  Continue to the installment application form. You&apos;ll upload your ID photos, fill in your
+                  details, and add a referral before your application is submitted.
+                </p>
               </div>
 
-              <div className="rounded-xl border border-blue-500/20 bg-blue-50 p-4">
-                <div className="flex gap-3">
-                  <svg className="h-5 w-5 shrink-0 text-blue-500" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
-                  <p className="text-xs text-blue-800 leading-relaxed">
-                    This is a demo environment. No real charges will be made. The mock processor simulates a successful transaction.
-                  </p>
-                </div>
-              </div>
-
-              {errorMessage && (
-                <div className="rounded-xl border border-rose-500/20 bg-rose-50 p-4 flex items-center gap-3 text-sm text-rose-800">
-                  <svg className="h-5 w-5 shrink-0 text-rose-500" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                  {errorMessage}
-                </div>
-              )}
-              
-              {successMessage && (
-                <div className="rounded-xl border border-emerald-500/20 bg-emerald-50 p-4 flex items-center gap-3 text-sm text-emerald-800">
-                  <svg className="h-5 w-5 shrink-0 text-emerald-500" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  {successMessage}
-                </div>
-              )}
-
-              <button 
-                className="rounded-xl bg-[#0F9D58] text-white font-bold w-full py-3.5 text-base shadow-lg shadow-[#0F9D58]/20 flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-xl hover:shadow-[#0F9D58]/30 active:translate-y-0 disabled:opacity-70 disabled:hover:translate-y-0" 
-                type="button" 
-                onClick={handleCheckout} 
-                disabled={processing}
+              <button
+                className="button-primary w-full py-3.5 text-base"
+                type="button"
+                onClick={() => navigate('/apply')}
               >
-                {processing ? (
-                  <>
-                    <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    Pay {formatCurrency(downPayment)}
-                  </>
-                )}
+                Apply for Installment
               </button>
             </div>
           </div>

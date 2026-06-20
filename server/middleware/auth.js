@@ -1,9 +1,10 @@
+import { SESSION_COOKIE } from '../config.js';
 import { verifySessionToken } from '../utils/session.js';
 import { getUserById } from '../utils/users.js';
 import { normalizeRole } from '../utils/roles.js';
 
 export async function requireAuth(req, res, next) {
-  const sessionToken = req.cookies?.__session;
+  const sessionToken = req.cookies?.[SESSION_COOKIE];
 
   if (!sessionToken) {
     return res.status(401).json({ error: 'Authentication required.' });
@@ -22,7 +23,7 @@ export async function requireAuth(req, res, next) {
       uid: user.id,
       email: user.email,
       name: user.name,
-      role: normalizeRole(user.role, user.email),
+      role: normalizeRole(user.role),
     };
     return next();
   } catch {

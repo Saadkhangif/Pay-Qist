@@ -9,6 +9,9 @@ function buildUserProfile(user) {
     name: user.name || 'Customer',
     email: user.email || '',
     role: user.role || 'customer',
+    cnic: user.cnic || '',
+    phone: user.phone || '',
+    profileComplete: Boolean(user.profileComplete ?? (user.cnic && user.phone)),
     provider: 'local',
   };
 }
@@ -51,14 +54,33 @@ export function AuthProvider({ children }) {
       .catch(console.error);
   }, [user]);
 
-  async function signup({ name, email, password }) {
+  async function signup({ cnic, email, phone, password, confirmPassword }) {
     await ensureCsrfToken();
     const payload = await apiFetch('/api/auth/signup', {
       method: 'POST',
       body: JSON.stringify({
-        name: name.trim(),
+        cnic: cnic.trim(),
         email: email.trim().toLowerCase(),
+        phone: phone.trim(),
         password,
+        confirmPassword,
+      }),
+    });
+    const profile = buildUserProfile(payload.user);
+    setUser(profile);
+    return profile;
+  }
+
+  async function completeProfile({ cnic, email, phone, password, confirmPassword }) {
+    await ensureCsrfToken();
+    const payload = await apiFetch('/api/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify({
+        cnic: cnic.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+        password,
+        confirmPassword,
       }),
     });
     const profile = buildUserProfile(payload.user);
@@ -115,6 +137,7 @@ export function AuthProvider({ children }) {
       isLoading,
       isAdmin: user?.role === 'admin',
       signup,
+      completeProfile,
       login,
       logout,
       updateUserRole,

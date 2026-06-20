@@ -5,12 +5,10 @@ import { useAuthModal } from '../context/AuthModalContext';
 import { useStore } from '../context/StoreContext';
 import Footer from './Footer';
 import Logo from './Logo';
+import ThemeToggle from './ThemeToggle';
 
 const navLinkClass = ({ isActive }) =>
-  [
-    'rounded-full px-4 py-2 text-sm font-medium transition',
-    isActive ? 'text-[#0F9D58] bg-[#0F9D58]/10 border border-[#0F9D58]/20 shadow-sm' : 'border border-transparent text-slate-600 hover:bg-slate-100 hover:text-[#0F9D58]',
-  ].join(' ');
+  ['nav-link', isActive ? 'nav-link-active' : ''].join(' ');
 
 export default function Layout({ children }) {
   const { user, logout, isAdmin } = useAuth();
@@ -79,17 +77,18 @@ export default function Layout({ children }) {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 selection:bg-[#0F9D58] selection:text-white">
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-xl shadow-sm transform-gpu">
+    <div className="flex min-h-screen flex-col bg-slate-50/80 font-sans text-slate-900 dark:bg-transparent dark:text-slate-100">
+      <header className="site-header transform-gpu">
+        <div className="h-0.5 bg-gradient-to-r from-brand-500 via-emerald-400 to-teal-400" />
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 sm:gap-6">
-            <Logo to="/home" size="xl" />
+            <Logo to="/home" size="xl" priority surface="auto" />
 
             {/* Expandable Search Component */}
             <div ref={searchRef} className="relative flex items-center">
               <button
                 type="button"
-                className="rounded-full p-2 text-slate-500 hover:bg-[#0F9D58]/10 hover:text-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58] transition"
+                className="rounded-full p-2 text-slate-500 transition hover:bg-brand-500/10 hover:text-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
                 onClick={() => {
                   setIsSearchExpanded(!isSearchExpanded);
                   if (isSearchExpanded) setSearchQuery(''); // Clear input if closing
@@ -109,7 +108,7 @@ export default function Layout({ children }) {
                 <input
                   ref={searchInputRef}
                   type="search"
-                  className="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20 transition-all"
+                  className="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-900 placeholder-slate-400 transition-all focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500"
                   placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -117,8 +116,8 @@ export default function Layout({ children }) {
               </div>
 
               {isSearchExpanded && (
-                <div className="absolute top-full left-0 mt-4 w-[280px] sm:w-[320px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
-                  <div className="border-b border-slate-100 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-500">
+                <div className="absolute top-full left-0 mt-4 w-[280px] sm:w-[320px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-emerald-500/15 dark:bg-surface-raised dark:shadow-dark-card">
+                  <div className="border-b border-slate-100 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:text-slate-400">
                     {searchDropdownTitle}
                   </div>
                   {displayedProducts.length > 0 ? (
@@ -127,7 +126,7 @@ export default function Layout({ children }) {
                         <button
                           key={result.id}
                           type="button"
-                          className="flex items-center gap-3 rounded-xl p-2 text-left hover:bg-slate-50 transition"
+                          className="flex items-center gap-3 rounded-xl p-2 text-left transition hover:bg-slate-50 dark:hover:bg-surface-overlay/80"
                           onClick={() => {
                             navigate(result.url);
                             setIsSearchExpanded(false);
@@ -135,17 +134,19 @@ export default function Layout({ children }) {
                           }}
                         >
                           {result.imageUrl ? (
-                            <img src={result.imageUrl} alt={result.title} className="h-10 w-10 shrink-0 rounded-lg object-cover border border-slate-100" />
+                            <div className="product-image-well-sm h-10 w-10 shrink-0">
+                              <img src={result.imageUrl} alt={result.title} className="product-image h-full w-full" />
+                            </div>
                           ) : (
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-100 bg-slate-50 text-[#0F9D58]">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-100 bg-slate-50 text-brand-500 dark:border-slate-700 dark:bg-slate-800">
                               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                               </svg>
                             </div>
                           )}
                           <div className="min-w-0 flex-1">
-                            <div className="truncate text-sm font-bold text-slate-900">{result.title}</div>
-                            <div className="truncate text-xs text-slate-500">{result.category || 'Electronics'}</div>
+                            <div className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">{result.title}</div>
+                            <div className="truncate text-xs text-slate-500 dark:text-slate-400">{result.category || 'Electronics'}</div>
                           </div>
                         </button>
                       ))}
@@ -155,10 +156,10 @@ export default function Layout({ children }) {
                       Products are loading...
                     </div>
                   )}
-                  <div className="border-t border-slate-100 p-2">
+                  <div className="border-t border-slate-100 p-2 dark:border-slate-800">
                     <button
                       type="button"
-                      className="w-full rounded-xl px-3 py-2 text-sm font-semibold text-[#0F9D58] transition hover:bg-emerald-50"
+                      className="w-full rounded-xl px-3 py-2 text-sm font-semibold text-brand-500 transition hover:bg-brand-50 dark:hover:bg-brand-500/10"
                       onClick={() => {
                         navigate('/products');
                         setIsSearchExpanded(false);
@@ -184,7 +185,14 @@ export default function Layout({ children }) {
               About Us
             </NavLink>
             <NavLink to="/cart" className={navLinkClass}>
-              Cart {cart.length > 0 ? `(${cart.length})` : ''}
+              <span className="inline-flex items-center gap-1.5">
+                Cart
+                {cart.length > 0 ? (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 px-1.5 text-xs font-bold text-white">
+                    {cart.length}
+                  </span>
+                ) : null}
+              </span>
             </NavLink>
             {isAdmin ? (
               <NavLink to="/admin" className={navLinkClass}>
@@ -193,14 +201,15 @@ export default function Layout({ children }) {
             ) : null}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <ThemeToggle />
             {user ? (
               <>
                 <div className="hidden text-right sm:block">
-                  <div className="text-sm font-bold text-slate-900">{user.name}</div>
-                  <div className="text-xs text-slate-500 capitalize">{user.role}</div>
+                  <div className="text-sm font-bold text-slate-900 dark:text-slate-100">{user.name}</div>
+                  <div className="text-xs capitalize text-slate-500 dark:text-slate-400">{user.role}</div>
                 </div>
-                <button className="rounded-xl px-5 py-2 text-sm font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition-all duration-200" onClick={logout} type="button">
+                <button className="button-ghost px-5 py-2" onClick={logout} type="button">
                   Logout
                 </button>
               </>
@@ -208,25 +217,21 @@ export default function Layout({ children }) {
               <>
                 <button
                   type="button"
-                  className="hidden rounded-xl px-5 py-2.5 text-sm font-semibold text-slate-600 transition-all duration-200 hover:bg-slate-100 hover:text-slate-900 sm:block"
+                  className="button-ghost hidden sm:inline-flex"
                   onClick={() => openAuthModal('login')}
                 >
                   Login
                 </button>
-                <button
-                  type="button"
-                  className="rounded-xl bg-[#0F9D58] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#0F9D58]/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-600"
-                  onClick={() => openAuthModal('signup')}
-                >
+                <Link to="/signup" className="button-primary px-5 py-2.5">
                   Sign Up
-                </button>
+                </Link>
               </>
             )}
             
             <div ref={menuRef} className="relative inline-block">
               <button 
                 type="button" 
-                className="ml-2 inline-flex items-center justify-center rounded-xl p-2 text-slate-500 hover:bg-[#0F9D58]/10 hover:text-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58] transition" 
+                className="ml-2 inline-flex items-center justify-center rounded-xl p-2 text-slate-500 transition hover:bg-brand-500/10 hover:text-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 md:hidden" 
                 aria-label="Open main menu"
                 onClick={() => setIsMenuExpanded(!isMenuExpanded)}
               >
@@ -236,14 +241,33 @@ export default function Layout({ children }) {
               </button>
 
               {isMenuExpanded && (
-                <div className="absolute right-0 top-full mt-4 w-48 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
+                <div className="absolute right-0 top-full mt-4 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-emerald-500/15 dark:bg-surface-raised dark:shadow-dark-card">
                   <nav className="flex flex-col gap-1">
                     <NavLink to="/home" className={navLinkClass} onClick={() => setIsMenuExpanded(false)} end>Home</NavLink>
                     <NavLink to="/products" className={navLinkClass} onClick={() => setIsMenuExpanded(false)}>Products</NavLink>
                     <NavLink to="/about" className={navLinkClass} onClick={() => setIsMenuExpanded(false)}>About Us</NavLink>
-                    <NavLink to="/cart" className={navLinkClass} onClick={() => setIsMenuExpanded(false)}>Cart {cart.length > 0 ? `(${cart.length})` : ''}</NavLink>
+                    <NavLink to="/cart" className={navLinkClass} onClick={() => setIsMenuExpanded(false)}>
+                      <span className="inline-flex items-center gap-1.5">
+                        Cart
+                        {cart.length > 0 ? (
+                          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 px-1.5 text-xs font-bold text-white">
+                            {cart.length}
+                          </span>
+                        ) : null}
+                      </span>
+                    </NavLink>
                     {isAdmin ? <NavLink to="/admin" className={navLinkClass} onClick={() => setIsMenuExpanded(false)}>Admin</NavLink> : null}
                   </nav>
+                  {!user ? (
+                    <div className="mt-2 flex flex-col gap-2 border-t border-slate-100 p-2 dark:border-slate-800">
+                      <button type="button" className="button-ghost w-full" onClick={() => { openAuthModal('login'); setIsMenuExpanded(false); }}>
+                        Login
+                      </button>
+                      <Link to="/signup" className="button-primary w-full py-2.5 text-center" onClick={() => setIsMenuExpanded(false)}>
+                        Sign Up
+                      </Link>
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>

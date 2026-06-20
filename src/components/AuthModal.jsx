@@ -15,30 +15,27 @@ function Spinner() {
 }
 
 export default function AuthModal() {
-  const { isOpen, mode, setMode, closeAuthModal, returnTo } = useAuthModal();
-  const { login, signup, isLoading: authLoading } = useAuth();
+  const { isOpen, closeAuthModal, returnTo } = useAuthModal();
+  const { login, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const isSignup = mode === 'signup';
   const busy = loading || authLoading;
 
   useEffect(() => {
     if (!isOpen) {
-      setName('');
       setEmail('');
       setPassword('');
       setShowPassword(false);
       setError('');
       setLoading(false);
     }
-  }, [isOpen, mode]);
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -55,16 +52,16 @@ export default function AuthModal() {
     };
   }, [isOpen, closeAuthModal]);
 
-  const finishAuth = () => {
+  const finishAuth = (destination) => {
     closeAuthModal();
-    if (returnTo) navigate(returnTo);
+    if (destination) navigate(destination);
   };
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
 
-    const validation = validateAuthForm(isSignup ? 'signup' : 'login', { name, email, password });
+    const validation = validateAuthForm('login', { email, password });
     if (!validation.success) {
       setError(validation.error);
       return;
@@ -72,23 +69,31 @@ export default function AuthModal() {
 
     setLoading(true);
     try {
-      if (isSignup) {
-        await signup({ name, email, password });
-      } else {
-        await login({ email, password });
+      const profile = await login({ email, password });
+      const nextPath = returnTo || '/home';
+
+      if (profile.role !== 'admin' && !profile.profileComplete) {
+        finishAuth(`/complete-profile?returnTo=${encodeURIComponent(nextPath)}`);
+        return;
       }
-      finishAuth();
+
+      finishAuth(nextPath);
     } catch (err) {
-      setError(err.message || `Failed to ${isSignup ? 'create account' : 'sign in'}. Please try again.`);
+      setError(err.message || 'Failed to sign in. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  const goToSignup = () => {
+    closeAuthModal();
+    navigate('/signup');
+  };
+
   if (!isOpen) return null;
 
   const inputClass =
-    'w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20';
+    'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 placeholder-slate-400 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-emerald-500/15 dark:bg-surface-overlay dark:text-white dark:focus:border-brand-400/50';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -103,12 +108,12 @@ export default function AuthModal() {
         role="dialog"
         aria-modal="true"
         aria-labelledby="auth-modal-title"
-        className="relative w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl"
+        className="relative w-full max-w-sm rounded-[2rem] border border-slate-200/80 bg-white p-6 shadow-2xl dark:border-emerald-500/15 dark:bg-surface-raised"
       >
         <button
           type="button"
           onClick={closeAuthModal}
-          className="absolute right-4 top-4 rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+          className="absolute right-4 top-4 rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-surface-overlay"
           aria-label="Close"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
@@ -117,65 +122,41 @@ export default function AuthModal() {
         </button>
 
         <div className="mb-5 pr-6">
-          <Logo to={null} size="sm" />
-          <h2 id="auth-modal-title" className="text-xl font-bold text-slate-900">
-            {isSignup ? 'Create your account' : 'Welcome back'}
+          <Logo to={null} size="sm" surface="light" />
+          <h2 id="auth-modal-title" className="text-xl font-bold text-slate-900 dark:text-white">
+            Welcome back
           </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            {isSignup ? 'Join Pay Qist to shop with easy installments.' : 'Sign in to continue shopping.'}
-          </p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Sign in to continue shopping.</p>
         </div>
 
-        <div className="mb-5 flex rounded-lg bg-slate-100 p-1">
+        <div className="mb-5 flex rounded-2xl bg-slate-100 p-1 dark:bg-surface-muted">
           <button
             type="button"
-            onClick={() => setMode('login')}
-            className={`flex-1 rounded-md py-2 text-sm font-semibold transition ${
-              !isSignup ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-            }`}
+            className="flex-1 rounded-xl bg-white py-2 text-sm font-semibold text-slate-900 shadow-sm dark:bg-surface-overlay dark:text-white"
           >
             Sign in
           </button>
           <button
             type="button"
-            onClick={() => setMode('signup')}
-            className={`flex-1 rounded-md py-2 text-sm font-semibold transition ${
-              isSignup ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-            }`}
+            onClick={goToSignup}
+            className="flex-1 rounded-xl py-2 text-sm font-semibold text-slate-500 transition hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
           >
             Sign up
           </button>
         </div>
 
-        {error && (
+        {error ? (
           <div
             role="alert"
-            className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2.5 text-xs font-medium text-rose-800"
+            className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-xs font-medium text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200"
           >
             {error}
           </div>
-        )}
+        ) : null}
 
-        <form onSubmit={handleSubmit} className="space-y-3">
-          {isSignup && (
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-700" htmlFor="auth-name">
-                Full name
-              </label>
-              <input
-                id="auth-name"
-                type="text"
-                required
-                className={inputClass}
-                placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-          )}
-
+        <form onSubmit={handleLogin} className="space-y-3">
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-700" htmlFor="auth-email">
+            <label className="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300" htmlFor="auth-email">
               Email
             </label>
             <input
@@ -191,17 +172,17 @@ export default function AuthModal() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-700" htmlFor="auth-password">
+            <label className="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300" htmlFor="auth-password">
               Password
             </label>
             <div className="relative">
               <input
                 id="auth-password"
                 type={showPassword ? 'text' : 'password'}
-                autoComplete={isSignup ? 'new-password' : 'current-password'}
+                autoComplete="current-password"
                 required
                 className={`${inputClass} pr-10`}
-                placeholder={isSignup ? 'Create a password' : 'Your password'}
+                placeholder="Your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -228,22 +209,12 @@ export default function AuthModal() {
           <button
             type="submit"
             disabled={busy}
-            className="mt-1 flex w-full items-center justify-center gap-2 rounded-lg bg-[#0F9D58] py-2.5 text-sm font-bold text-white shadow-md shadow-[#0F9D58]/20 transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-70"
+            className="mt-1 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-500 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/25 transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-glow-brand"
           >
             {loading && <Spinner />}
-            {loading ? (isSignup ? 'Creating account...' : 'Signing in...') : isSignup ? 'Create account' : 'Sign in'}
+            {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
-
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={closeAuthModal}
-            className="flex-1 rounded-lg border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
-          >
-            Cancel
-          </button>
-        </div>
 
         <p className="mt-4 text-center text-[11px] leading-relaxed text-slate-400">
           By continuing, you agree to our{' '}

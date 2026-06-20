@@ -1,7 +1,14 @@
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import { ALLOWED_ORIGINS, IS_PRODUCTION } from '../config.js';
+import { ALLOWED_ORIGINS, APP_URL, CANONICAL_HOST, IS_PRODUCTION } from '../config.js';
+
+function isAllowedHost(hostHeader) {
+  if (!hostHeader) {
+    return false;
+  }
+  return hostHeader === CANONICAL_HOST;
+}
 
 export function applySecurityMiddleware(app) {
   if (IS_PRODUCTION) {
@@ -10,7 +17,11 @@ export function applySecurityMiddleware(app) {
       if (req.secure || req.headers['x-forwarded-proto'] === 'https') {
         return next();
       }
-      return res.redirect(301, `https://${req.headers.host}${req.originalUrl}`);
+      if (!isAllowedHost(req.headers.host)) {
+        return res.status(400).json({ error: 'Invalid host.' });
+      }
+      const redirectUrl = new URL(req.originalUrl, APP_URL);
+      return res.redirect(301, redirectUrl.toString());
     });
   }
 
@@ -21,9 +32,10 @@ export function applySecurityMiddleware(app) {
             directives: {
               defaultSrc: ["'self'"],
               scriptSrc: ["'self'"],
-              styleSrc: ["'self'", "'unsafe-inline'"],
+              styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+              fontSrc: ["'self'", 'https://fonts.gstatic.com'],
               imgSrc: ["'self'", 'data:', 'https:'],
-              connectSrc: ["'self'", 'https://identitytoolkit.googleapis.com', 'https://securetoken.googleapis.com'],
+              connectSrc: ["'self'"],
               frameSrc: ["'none'"],
               objectSrc: ["'none'"],
               baseUri: ["'self'"],
@@ -41,7 +53,15 @@ export function applySecurityMiddleware(app) {
   app.use(
     cors({
       origin(origin, callback) {
-        if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+        if (!origin) {
+          if (IS_PRODUCTION) {
+            callback(new Error('Not allowed by CORS'));
+            return;
+          }
+          callback(null, true);
+          return;
+        }
+        if (ALLOWED_ORIGINS.includes(origin)) {
           callback(null, true);
           return;
         }
@@ -70,4 +90,12 @@ export const authRateLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many authentication attempts. Please try again later.' },
+});
+
+export const contactRateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many contact submissions. Please try again later.' },
 });

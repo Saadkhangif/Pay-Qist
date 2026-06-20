@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
+import { Mail, MapPin, Phone } from 'lucide-react';
+import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from '../lib/contact';
 import Logo from './Logo';
 
 const footerLinks = [
   { label: 'Products', to: '/products' },
   { label: 'How It Works', to: '/home#how-it-works' },
   { label: 'FAQ', to: '/home#faq' },
-  { label: 'Contact', to: 'mailto:support@payqist.com' },
+  { label: 'Contact', to: '/contact-us' },
 ];
 
 const socialLinks = [
@@ -54,12 +56,19 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="mt-auto border-t border-slate-200 bg-white">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 md:grid-cols-2 lg:grid-cols-3 lg:px-8">
-        <div className="space-y-4">
-          <Logo to="/home" size="md" />
-          <p className="max-w-xs text-sm text-slate-500">
-            Shop today, pay in easy monthly installments. Zero hidden fees.
+    <footer className="relative mt-auto overflow-hidden bg-slate-900 text-slate-300 dark:border-t dark:border-emerald-500/10 dark:bg-[#050809]">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-500/10 via-transparent to-emerald-500/5" />
+      <div className="pointer-events-none absolute -right-24 top-0 h-64 w-64 rounded-full bg-brand-500/10 blur-3xl" />
+
+      <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-14 sm:px-6 md:grid-cols-2 lg:grid-cols-3 lg:px-8">
+        <div className="space-y-5">
+          <div className="space-y-2">
+            <Logo to="/home" size="lg" surface="dark" />
+            <p className="text-sm font-semibold text-brand-400">پیسے بعد میں</p>
+          </div>
+          <p className="max-w-xs text-sm leading-relaxed text-slate-400">
+            Shop today, pay in easy monthly installments. Zero hidden fees, instant approval, and
+            premium products delivered to your door.
           </p>
           <div className="flex items-center gap-2">
             {socialLinks.map((social) => (
@@ -69,7 +78,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={social.name}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:border-[#0F9D58] hover:bg-[#0F9D58] hover:text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700 text-slate-400 transition-all duration-200 hover:border-brand-500 hover:bg-brand-500 hover:text-white hover:shadow-glow-brand"
               >
                 <svg
                   className="h-4 w-4"
@@ -87,40 +96,44 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900">Quick Links</h3>
-          <nav className="flex flex-col gap-2">
-            {footerLinks.map((link) =>
-              link.to.startsWith('mailto:') ? (
-                <a
-                  key={link.label}
-                  href={link.to}
-                  className="text-sm font-semibold text-slate-600 transition-colors hover:text-[#0F9D58]"
-                >
-                  {link.label}
-                </a>
-              ) : (
-                <Link
-                  key={link.label}
-                  to={link.to}
-                  className="text-sm font-semibold text-slate-600 transition-colors hover:text-[#0F9D58]"
-                >
-                  {link.label}
-                </Link>
-              ),
-            )}
+        <div className="space-y-5">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-white">Quick Links</h3>
+          <nav className="flex flex-col gap-3">
+            {footerLinks.map((link) => (
+              <Link
+                key={link.label}
+                to={link.to}
+                className="text-sm font-medium text-slate-400 transition-colors hover:text-brand-400"
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
-          <p className="text-sm text-slate-500">
-            <span className="font-semibold text-slate-700">support@payqist.com</span>
-            <br />
-            +92 300 1234567
-          </p>
+          <div className="space-y-3 pt-2">
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="flex items-center gap-2 text-sm text-slate-400 transition hover:text-brand-400"
+            >
+              <Mail className="h-4 w-4 shrink-0" />
+              {CONTACT_EMAIL}
+            </a>
+            <a
+              href={`tel:${CONTACT_PHONE_TEL}`}
+              className="flex items-center gap-2 text-sm text-slate-400 transition hover:text-brand-400"
+            >
+              <Phone className="h-4 w-4 shrink-0" />
+              {CONTACT_PHONE_DISPLAY}
+            </a>
+            <p className="flex items-center gap-2 text-sm text-slate-400">
+              <MapPin className="h-4 w-4 shrink-0" />
+              Islamabad, Pakistan
+            </p>
+          </div>
         </div>
 
-        <div className="space-y-3 md:col-span-2 lg:col-span-1">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900">Find Us</h3>
-          <p className="text-sm text-slate-500">Islamabad, Pakistan</p>
-          <div className="h-40 overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+        <div className="space-y-4 md:col-span-2 lg:col-span-1">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-white">Find Us</h3>
+          <div className="h-44 overflow-hidden rounded-2xl border border-slate-700 shadow-lg">
             <iframe
               title="Pay Qist location"
               src="https://maps.google.com/maps?q=Islamabad,Pakistan&hl=en&z=12&output=embed"
@@ -135,15 +148,18 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-slate-100">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-4 text-sm text-slate-500 sm:flex-row sm:px-6 lg:px-8">
+      <div className="relative border-t border-slate-800">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-sm text-slate-500 sm:flex-row sm:px-6 lg:px-8">
           <p>© {new Date().getFullYear()} Pay Qist. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <Link to="/privacy-policy" className="font-medium hover:text-[#0F9D58]">
+          <div className="flex items-center gap-6">
+            <Link to="/privacy-policy" className="font-medium transition hover:text-brand-400">
               Privacy
             </Link>
-            <Link to="/terms-of-service" className="font-medium hover:text-[#0F9D58]">
+            <Link to="/terms-of-service" className="font-medium transition hover:text-brand-400">
               Terms
+            </Link>
+            <Link to="/refund-and-return-policy" className="font-medium transition hover:text-brand-400">
+              Refunds
             </Link>
           </div>
         </div>

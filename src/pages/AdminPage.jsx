@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
+  ClipboardList,
   CreditCard,
   LayoutDashboard,
   Menu,
@@ -10,10 +11,12 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import AdminApplicationsPanel from '../components/AdminApplicationsPanel';
 import SectionHeading from '../components/SectionHeading';
 import StatusPill from '../components/StatusPill';
 import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
+import { apiFetch } from '../lib/api';
 import { formatCurrency } from '../lib/currency';
 
 const emptyForm = {
@@ -46,6 +49,7 @@ const NAV_ITEMS = [
   { id: 'products', label: 'Products', icon: Package },
   { id: 'users', label: 'Users', icon: Users },
   { id: 'orders', label: 'Orders', icon: ShoppingCart },
+  { id: 'applications', label: 'Applications', icon: ClipboardList },
   { id: 'payments', label: 'Payments', icon: CreditCard },
 ];
 
@@ -64,7 +68,11 @@ const TAB_META = {
   },
   orders: {
     title: 'Order overview',
-    description: 'Track installment applications and order status.',
+    description: 'Track installment orders and payment status.',
+  },
+  applications: {
+    title: 'Installment applications',
+    description: 'Review submitted application forms, ID photos, and referral details.',
   },
   payments: {
     title: 'Payment history',
@@ -81,8 +89,8 @@ function AlertBanner({ message, type = 'success' }) {
     <div
       className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium ${
         isError
-          ? 'border-rose-200 bg-rose-50 text-rose-800'
-          : 'border-[#0F9D58]/20 bg-emerald-50 text-emerald-800'
+          ? 'border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300'
+          : 'border-brand-500/20 bg-brand-50 text-brand-800 dark:border-brand-500/30 dark:bg-brand-500/10 dark:text-brand-300'
       }`}
     >
       {isError ? (
@@ -90,7 +98,7 @@ function AlertBanner({ message, type = 'success' }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
         </svg>
       ) : (
-        <svg className="h-5 w-5 shrink-0 text-[#0F9D58]" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+        <svg className="h-5 w-5 shrink-0 text-brand-500" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       )}
@@ -101,18 +109,18 @@ function AlertBanner({ message, type = 'success' }) {
 
 function StatCard({ label, value, icon: Icon, accent = 'emerald' }) {
   const accents = {
-    emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-    sky: 'bg-sky-50 text-sky-600 border-sky-100',
-    amber: 'bg-amber-50 text-amber-600 border-amber-100',
-    violet: 'bg-violet-50 text-violet-600 border-violet-100',
+    emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/20',
+    sky: 'bg-sky-50 text-sky-600 border-sky-100 dark:bg-sky-500/15 dark:text-sky-400 dark:border-sky-500/20',
+    amber: 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-500/20',
+    violet: 'bg-violet-50 text-violet-600 border-violet-100 dark:bg-violet-500/15 dark:text-violet-400 dark:border-violet-500/20',
   };
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="admin-panel p-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-bold uppercase tracking-wide text-slate-500">{label}</p>
-          <p className="mt-2 text-3xl font-black text-slate-900">{value}</p>
+          <p className="text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
+          <p className="mt-2 text-3xl font-black text-slate-900 dark:text-white">{value}</p>
         </div>
         <div className={`rounded-2xl border p-3 ${accents[accent]}`}>
           <Icon className="h-5 w-5" />
@@ -124,12 +132,12 @@ function StatCard({ label, value, icon: Icon, accent = 'emerald' }) {
 
 function EmptyState({ icon: Icon, title, description }) {
   return (
-    <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-12 text-center">
-      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+    <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-12 text-center dark:border-slate-700 dark:bg-slate-900/50">
+      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm dark:bg-slate-800 dark:text-slate-500">
         <Icon className="h-7 w-7" />
       </div>
-      <h3 className="text-lg font-bold text-slate-900">{title}</h3>
-      <p className="mt-2 text-sm text-slate-500">{description}</p>
+      <h3 className="text-lg font-bold text-slate-900 dark:text-white">{title}</h3>
+      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{description}</p>
     </div>
   );
 }
@@ -150,6 +158,20 @@ export default function AdminPage() {
   const [productCategory, setProductCategory] = useState('all');
   const [userSearch, setUserSearch] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [applicationCount, setApplicationCount] = useState(0);
+  const [latestApplication, setLatestApplication] = useState(null);
+
+  useEffect(() => {
+    if (user?.role !== 'admin') return;
+
+    apiFetch('/api/applications')
+      .then((payload) => {
+        const list = Array.isArray(payload) ? payload : [];
+        setApplicationCount(list.length);
+        setLatestApplication(list[0] || null);
+      })
+      .catch(() => {});
+  }, [user]);
 
   const sortedOrders = useMemo(() => [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)), [orders]);
   const sortedPayments = useMemo(() => [...payments].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)), [payments]);
@@ -300,6 +322,7 @@ export default function AdminPage() {
     products: products.length,
     users: users.length,
     orders: orders.length,
+    applications: applicationCount,
     payments: payments.length,
   };
 
@@ -318,8 +341,8 @@ export default function AdminPage() {
               onClick={() => switchTab(item.id)}
               className={`flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
                 isActive
-                  ? 'bg-[#0F9D58] text-white shadow-md'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-brand-500 text-white shadow-md'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'
               }`}
             >
               <span className="flex items-center gap-3">
@@ -329,7 +352,7 @@ export default function AdminPage() {
               {count != null ? (
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-                    isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                    isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
                   }`}
                 >
                   {count}
@@ -346,13 +369,13 @@ export default function AdminPage() {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-6 flex items-center justify-between lg:hidden">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-[#0F9D58]">Admin portal</p>
-          <h1 className="text-xl font-bold text-slate-900">Control center</h1>
+          <p className="text-xs font-bold uppercase tracking-wider text-brand-500">Admin portal</p>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Control center</h1>
         </div>
         <button
           type="button"
           onClick={() => setSidebarOpen(true)}
-          className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-600 shadow-sm"
+          className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
         >
           <Menu className="h-5 w-5" />
         </button>
@@ -369,13 +392,13 @@ export default function AdminPage() {
 
       <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
         <aside
-          className={`fixed inset-y-0 left-0 z-50 w-72 transform border-r border-slate-200 bg-white p-5 shadow-xl transition-transform lg:static lg:z-auto lg:w-auto lg:transform-none lg:rounded-3xl lg:border lg:shadow-sm ${
+          className={`admin-sidebar fixed inset-y-0 left-0 z-50 w-72 transform border-r p-5 shadow-xl transition-transform lg:static lg:z-auto lg:w-auto lg:transform-none lg:rounded-3xl lg:border lg:shadow-sm ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
         >
           <div className="mb-6 flex items-center justify-between lg:hidden">
-            <span className="text-sm font-bold text-slate-900">Navigation</span>
-            <button type="button" onClick={() => setSidebarOpen(false)} className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100">
+            <span className="text-sm font-bold text-slate-900 dark:text-white">Navigation</span>
+            <button type="button" onClick={() => setSidebarOpen(false)} className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -384,7 +407,7 @@ export default function AdminPage() {
         </aside>
 
         <section className="min-w-0 space-y-6">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+          <div className="admin-panel p-6 md:p-8">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <SectionHeading
                 variant="light"
@@ -410,7 +433,7 @@ export default function AdminPage() {
               </div>
 
               <div className="grid gap-6 xl:grid-cols-2">
-                <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+                <article className="admin-panel p-6 md:p-8">
                   <SectionHeading
                     variant="light"
                     eyebrow="Quick actions"
@@ -424,10 +447,10 @@ export default function AdminPage() {
                         <button
                           key={item.id}
                           type="button"
-                          className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-left text-sm font-bold text-slate-700 transition hover:border-[#0F9D58]/30 hover:bg-white hover:shadow-md"
+                          className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-left text-sm font-bold text-slate-700 transition hover:border-brand-500/30 hover:bg-white hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                           onClick={() => switchTab(item.id)}
                         >
-                          <Icon className="h-4 w-4 text-[#0F9D58]" />
+                          <Icon className="h-4 w-4 text-brand-500" />
                           {item.label}
                         </button>
                       );
@@ -435,7 +458,7 @@ export default function AdminPage() {
                   </div>
                 </article>
 
-                <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+                <article className="admin-panel p-6 md:p-8">
                   <SectionHeading
                     variant="light"
                     eyebrow="Recent activity"
@@ -443,23 +466,34 @@ export default function AdminPage() {
                     description="Most recent products, orders, and payments."
                   />
                   <div className="mt-6 space-y-3">
-                    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                    <div className="admin-muted p-4">
                       <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Latest product</p>
-                      <p className="mt-1 text-lg font-bold text-slate-900">{products[0]?.title || 'No products yet'}</p>
+                      <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">{products[0]?.title || 'No products yet'}</p>
                       {products[0] ? (
                         <p className="mt-1 text-sm text-slate-500">{formatCurrency(products[0].price)} · {products[0].category}</p>
                       ) : null}
                     </div>
-                    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                    <div className="admin-muted p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Latest application</p>
+                      <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
+                        {latestApplication?.applicantName || 'No applications yet'}
+                      </p>
+                      {latestApplication ? (
+                        <p className="mt-1 text-sm text-slate-500">
+                          {latestApplication.referralName} · {latestApplication.status}
+                        </p>
+                      ) : null}
+                    </div>
+                    <div className="admin-muted p-4">
                       <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Latest order</p>
-                      <p className="mt-1 text-lg font-bold text-slate-900">{sortedOrders[0]?.productTitle || 'No orders yet'}</p>
+                      <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">{sortedOrders[0]?.productTitle || 'No orders yet'}</p>
                       {sortedOrders[0] ? (
                         <p className="mt-1 text-sm text-slate-500">{sortedOrders[0].userName} · {sortedOrders[0].installmentMonths} months</p>
                       ) : null}
                     </div>
-                    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                    <div className="admin-muted p-4">
                       <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Latest payment</p>
-                      <p className="mt-1 text-lg font-bold text-slate-900">{sortedPayments[0]?.orderTitle || 'No payments yet'}</p>
+                      <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">{sortedPayments[0]?.orderTitle || 'No payments yet'}</p>
                       {sortedPayments[0] ? (
                         <p className="mt-1 text-sm text-slate-500">{formatCurrency(sortedPayments[0].amount)} · {sortedPayments[0].paymentMethod}</p>
                       ) : null}
@@ -472,9 +506,9 @@ export default function AdminPage() {
 
           {tab === 'products' ? (
             <div className="grid gap-8 xl:grid-cols-[400px_1fr]">
-              <form className="space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-8" onSubmit={handleSubmit}>
-                <h2 className="text-2xl font-bold text-slate-900">{editingId ? 'Edit product' : 'Add product'}</h2>
-                <p className="text-sm text-slate-500">Paste an image URL or upload a file for preview.</p>
+              <form className="admin-panel space-y-4 p-6 md:p-8" onSubmit={handleSubmit}>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{editingId ? 'Edit product' : 'Add product'}</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Paste an image URL or upload a file for preview.</p>
 
                 {previewImage ? (
                   <img src={previewImage} alt="Preview" className="h-40 w-full rounded-2xl border border-slate-200 object-cover" />
@@ -485,21 +519,21 @@ export default function AdminPage() {
                 )}
 
                 <input
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-medium text-slate-900 placeholder-slate-400 transition-all focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20"
+                  className="input"
                   placeholder="Product title"
                   value={form.title}
                   onChange={(event) => setForm({ ...form, title: event.target.value })}
                   required
                 />
                 <textarea
-                  className="min-h-28 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-medium text-slate-900 placeholder-slate-400 transition-all focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20"
+                  className="input min-h-28"
                   placeholder="Description"
                   value={form.description}
                   onChange={(event) => setForm({ ...form, description: event.target.value })}
                   required
                 />
                 <input
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-medium text-slate-900 placeholder-slate-400 transition-all focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20"
+                  className="input"
                   type="number"
                   min="1"
                   placeholder="Price (PKR)"
@@ -508,19 +542,19 @@ export default function AdminPage() {
                   required
                 />
                 <input
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-medium text-slate-900 placeholder-slate-400 transition-all focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20"
+                  className="input"
                   placeholder="Image URL"
                   value={form.imageUrl}
                   onChange={(event) => setForm({ ...form, imageUrl: event.target.value })}
                 />
                 <input
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-[#0F9D58] file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white"
+                  className="input text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-brand-500 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white"
                   type="file"
                   accept="image/*"
                   onChange={(event) => setImageFile(event.target.files?.[0] || null)}
                 />
                 <select
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-medium text-slate-900 transition-all focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20"
+                  className="input"
                   value={form.category}
                   onChange={(event) => setForm({ ...form, category: event.target.value })}
                 >
@@ -531,18 +565,18 @@ export default function AdminPage() {
                   ))}
                 </select>
                 <input
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-medium text-slate-900 placeholder-slate-400 transition-all focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20"
+                  className="input"
                   placeholder="Installment months, e.g. 3,6,12"
                   value={form.allowedInstallmentMonths}
                   onChange={(event) => setForm({ ...form, allowedInstallmentMonths: event.target.value })}
                 />
-                <label className="flex items-center gap-3 text-sm font-semibold text-slate-700">
+                <label className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
                   <input type="checkbox" checked={form.featured} onChange={(event) => setForm({ ...form, featured: event.target.checked })} />
                   Featured on home page
                 </label>
                 <div className="flex gap-3">
                   <button
-                    className="flex-1 rounded-xl bg-[#0F9D58] py-3 font-bold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-600 disabled:opacity-70 disabled:hover:translate-y-0"
+                    className="button-primary flex-1 py-3"
                     type="submit"
                     disabled={busy}
                   >
@@ -550,7 +584,7 @@ export default function AdminPage() {
                   </button>
                   {editingId ? (
                     <button
-                      className="rounded-xl border border-slate-200 bg-white px-6 py-3 font-bold text-slate-700 transition-all duration-200 hover:bg-slate-50"
+                      className="button-secondary px-6 py-3"
                       type="button"
                       onClick={resetForm}
                     >
@@ -561,18 +595,18 @@ export default function AdminPage() {
               </form>
 
               <div className="space-y-4">
-                <div className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row">
+                <div className="admin-panel flex flex-col gap-3 p-4 sm:flex-row">
                   <div className="relative flex-1">
                     <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <input
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm font-medium text-slate-900 placeholder-slate-400 focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20"
+                      className="input py-2.5 pl-10 pr-4 text-sm"
                       placeholder="Search products..."
                       value={productSearch}
                       onChange={(event) => setProductSearch(event.target.value)}
                     />
                   </div>
                   <select
-                    className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700 focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20"
+                    className="input py-2.5 text-sm font-semibold"
                     value={productCategory}
                     onChange={(event) => setProductCategory(event.target.value)}
                   >
@@ -587,7 +621,7 @@ export default function AdminPage() {
 
                 {filteredProducts.length ? (
                   filteredProducts.map((product) => (
-                    <article key={product.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <article key={product.id} className="admin-panel overflow-hidden p-5">
                       <div className="flex flex-col gap-5 sm:flex-row">
                         <img
                           src={product.imageUrl}
@@ -600,7 +634,7 @@ export default function AdminPage() {
                           <div className="flex flex-wrap items-start justify-between gap-3">
                             <div>
                               <div className="flex flex-wrap items-center gap-2">
-                                <h3 className="text-xl font-bold text-slate-900">{product.title}</h3>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">{product.title}</h3>
                                 {product.featured ? (
                                   <StatusPill variant="light" tone="warning">
                                     Featured
@@ -608,21 +642,21 @@ export default function AdminPage() {
                                 ) : null}
                               </div>
                               <div className="mt-1 flex items-center gap-2">
-                                <span className="font-semibold text-[#0F9D58]">{formatCurrency(product.price)}</span>
+                                <span className="font-semibold text-brand-500">{formatCurrency(product.price)}</span>
                                 <span className="text-slate-300">•</span>
                                 <span className="text-sm font-medium text-slate-500">{product.category || 'Uncategorized'}</span>
                               </div>
                             </div>
                             <div className="flex gap-2">
                               <button
-                                className="rounded-lg border border-slate-200 bg-white px-4 py-1.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+                                className="button-secondary px-4 py-1.5 text-sm"
                                 type="button"
                                 onClick={() => beginEdit(product)}
                               >
                                 Edit
                               </button>
                               <button
-                                className="rounded-lg border border-rose-200 bg-white px-4 py-1.5 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                                className="rounded-lg border border-rose-200 bg-white px-4 py-1.5 text-sm font-semibold text-rose-600 transition hover:bg-rose-50 dark:border-rose-500/30 dark:bg-slate-800 dark:text-rose-400 dark:hover:bg-rose-500/10"
                                 type="button"
                                 onClick={() => setDeleteTarget(product)}
                               >
@@ -630,7 +664,7 @@ export default function AdminPage() {
                               </button>
                             </div>
                           </div>
-                          <p className="text-sm leading-6 text-slate-500 line-clamp-2">{product.description}</p>
+                          <p className="text-sm leading-6 text-slate-500 line-clamp-2 dark:text-slate-400">{product.description}</p>
                           <div className="flex flex-wrap gap-2">
                             {Array.isArray(product.allowedInstallmentMonths) &&
                               product.allowedInstallmentMonths.map((months) => (
@@ -656,10 +690,10 @@ export default function AdminPage() {
 
           {tab === 'users' ? (
             <div className="space-y-4">
-              <div className="relative rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="admin-panel relative p-4">
                 <Search className="pointer-events-none absolute left-7 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm font-medium text-slate-900 placeholder-slate-400 focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20"
+                  className="input py-2.5 pl-10 pr-4 text-sm"
                   placeholder="Search users by name, email, or role..."
                   value={userSearch}
                   onChange={(event) => setUserSearch(event.target.value)}
@@ -668,11 +702,11 @@ export default function AdminPage() {
 
               {filteredUsers.length ? (
                 filteredUsers.map((account) => (
-                  <article key={account.id} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <article key={account.id} className="admin-panel p-6">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                       <div>
                         <div className="flex flex-wrap items-center gap-3">
-                          <h3 className="text-xl font-bold text-slate-900">{account.name}</h3>
+                          <h3 className="text-xl font-bold text-slate-900 dark:text-white">{account.name}</h3>
                           <StatusPill variant="light" tone={account.role === 'admin' ? 'success' : 'slate'}>
                             {account.role}
                           </StatusPill>
@@ -682,12 +716,12 @@ export default function AdminPage() {
                             </StatusPill>
                           ) : null}
                         </div>
-                        <p className="mt-2 text-sm font-medium text-slate-600">{account.email}</p>
+                        <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-400">{account.email}</p>
                       </div>
 
                       <div className="flex flex-wrap gap-3">
                         <select
-                          className="min-w-44 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700 transition focus:border-[#0F9D58] focus:outline-none focus:ring-2 focus:ring-[#0F9D58]/20"
+                          className="input min-w-44 py-2.5 text-sm font-semibold"
                           value={account.role}
                           disabled={account.id === user?.id || savingUserId === account.id}
                           onChange={(event) => handleRoleChange(account.id, event.target.value)}
@@ -699,7 +733,7 @@ export default function AdminPage() {
                           ))}
                         </select>
                         <button
-                          className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50"
+                          className="button-secondary px-4 py-2.5 text-sm disabled:opacity-50"
                           type="button"
                           disabled={account.id === user?.id || savingUserId === account.id || account.role === 'customer'}
                           onClick={() => handleRoleChange(account.id, 'customer')}
@@ -720,7 +754,7 @@ export default function AdminPage() {
             <div className="space-y-4">
               {sortedOrders.length ? (
                 sortedOrders.map((order) => (
-                  <article key={order.id} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <article key={order.id} className="admin-panel p-6">
                     <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
                       <img
                         src={order.productImage}
@@ -732,8 +766,8 @@ export default function AdminPage() {
                       <div className="flex-1 space-y-3">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <h3 className="text-xl font-bold text-slate-900">{order.productTitle}</h3>
-                            <p className="mt-1 text-sm font-medium text-slate-600">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">{order.productTitle}</h3>
+                            <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-400">
                               {order.userName} · {order.userEmail}
                             </p>
                           </div>
@@ -748,9 +782,9 @@ export default function AdminPage() {
                             ['Down payment', formatCurrency(order.downPayment)],
                             ['Method', order.paymentMethod],
                           ].map(([label, value]) => (
-                            <div key={label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">{label}</p>
-                              <p className="mt-1 text-lg font-black text-slate-900">{value}</p>
+                            <div key={label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+                              <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
+                              <p className="mt-1 text-lg font-black text-slate-900 dark:text-white">{value}</p>
                             </div>
                           ))}
                         </div>
@@ -762,26 +796,28 @@ export default function AdminPage() {
                 <EmptyState
                   icon={ShoppingCart}
                   title="No orders yet"
-                  description="Installment applications will appear here once customers checkout."
+                  description="Installment orders will appear here once customers complete their application."
                 />
               )}
             </div>
           ) : null}
 
+          {tab === 'applications' ? <AdminApplicationsPanel /> : null}
+
           {tab === 'payments' ? (
             <div className="space-y-4">
               {sortedPayments.length ? (
                 sortedPayments.map((payment) => (
-                  <article key={payment.id} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <article key={payment.id} className="admin-panel p-6">
                     <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-                      <div className="grid h-28 w-full place-items-center rounded-2xl border border-emerald-100 bg-emerald-50 text-sm font-bold uppercase tracking-wider text-emerald-600 sm:w-36">
+                      <div className="grid h-28 w-full place-items-center rounded-2xl border border-emerald-100 bg-emerald-50 text-sm font-bold uppercase tracking-wider text-emerald-600 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400 sm:w-36">
                         Payment
                       </div>
                       <div className="flex-1 space-y-3">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <h3 className="text-xl font-bold text-slate-900">{payment.orderTitle}</h3>
-                            <p className="mt-1 text-sm font-medium text-slate-600">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">{payment.orderTitle}</h3>
+                            <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-400">
                               {payment.userName} · {payment.userEmail}
                             </p>
                           </div>
@@ -796,9 +832,9 @@ export default function AdminPage() {
                             ['Reference', payment.paymentReference || 'n/a'],
                             ['Date', new Date(payment.createdAt).toLocaleDateString()],
                           ].map(([label, value]) => (
-                            <div key={label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">{label}</p>
-                              <p className="mt-1 text-lg font-black text-slate-900">{value}</p>
+                            <div key={label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+                              <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
+                              <p className="mt-1 text-lg font-black text-slate-900 dark:text-white">{value}</p>
                             </div>
                           ))}
                         </div>
@@ -820,9 +856,9 @@ export default function AdminPage() {
 
       {deleteTarget ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
-            <h3 className="text-xl font-bold text-slate-900">Remove product?</h3>
-            <p className="mt-2 text-sm text-slate-500">
+          <div className="admin-panel w-full max-w-md p-6 shadow-xl">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Remove product?</h3>
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               &ldquo;{deleteTarget.title}&rdquo; will be permanently removed from the catalog.
             </p>
             <div className="mt-6 flex gap-3">
@@ -835,7 +871,7 @@ export default function AdminPage() {
               </button>
               <button
                 type="button"
-                className="flex-1 rounded-xl border border-slate-200 py-2.5 font-bold text-slate-700 transition hover:bg-slate-50"
+                className="button-secondary flex-1 py-2.5"
                 onClick={() => setDeleteTarget(null)}
               >
                 Cancel
