@@ -80,6 +80,9 @@
   html.scroll-locked body {
     overflow: hidden;
     touch-action: none;
+    position: fixed;
+    width: 100%;
+    inset: 0;
   }
 
   ::selection {

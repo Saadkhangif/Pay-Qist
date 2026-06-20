@@ -180,9 +180,9 @@ function FormField({
             autoComplete={autoComplete}
             placeholder={placeholder}
             required
-            className={`w-full bg-transparent py-3.5 text-sm font-semibold text-slate-900 placeholder:font-normal placeholder:text-slate-400 focus:outline-none dark:text-white dark:placeholder:text-slate-500 ${
+            className={`min-h-[3rem] w-full bg-transparent py-3 text-base font-semibold text-slate-900 placeholder:font-normal placeholder:text-slate-400 focus:outline-none sm:py-3.5 sm:text-sm dark:text-white dark:placeholder:text-slate-500 ${
               Icon ? 'pl-11 pr-4' : 'px-4'
-            } ${trailing ? 'pr-12' : ''}`}
+            } ${trailing ? 'pr-14 sm:pr-12' : ''}`}
           />
           {trailing}
         </div>
@@ -278,46 +278,46 @@ export default function AuthModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overscroll-none">
+    <div className="fixed inset-0 z-50 overscroll-none touch-manipulation">
       <button
         type="button"
-        className="absolute inset-0 bg-slate-950/70 backdrop-blur-md"
+        className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm sm:backdrop-blur-md"
         onClick={closeAuthModal}
         aria-label="Close dialog"
       />
 
       <div className="pointer-events-none absolute inset-0 mesh-bg opacity-60" />
 
-      <div className="relative flex h-full max-h-[100dvh] items-center justify-center p-3 sm:p-6">
+      <div className="relative flex h-full max-h-[100dvh] items-end justify-center p-0 sm:items-center sm:p-4 md:p-6">
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="auth-modal-title"
-          className="animate-fade-up scroll-touch relative flex max-h-[calc(100dvh-1.5rem)] w-full max-w-5xl flex-col overflow-y-auto overscroll-contain rounded-[2.5rem] border border-white/20 bg-white/95 shadow-[0_32px_80px_rgba(15,157,88,0.18)] dark:border-emerald-500/20 dark:bg-surface-raised/95 dark:shadow-[0_32px_80px_rgba(0,0,0,0.55)] sm:max-h-[calc(100dvh-3rem)]"
+          className="animate-fade-up scroll-touch relative flex max-h-[min(92dvh,100svh)] w-full max-w-5xl flex-col overflow-y-auto overscroll-contain rounded-t-[1.75rem] border border-white/20 border-b-0 bg-white/95 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_40px_rgba(15,157,88,0.12)] dark:border-emerald-500/20 dark:bg-surface-raised/95 dark:shadow-[0_-8px_40px_rgba(0,0,0,0.45)] sm:max-h-[calc(100dvh-2rem)] sm:rounded-[2rem] sm:border-b sm:pb-0 sm:shadow-[0_32px_80px_rgba(15,157,88,0.18)] md:max-h-[calc(100dvh-3rem)] lg:rounded-[2.5rem] dark:sm:shadow-[0_32px_80px_rgba(0,0,0,0.55)]"
         >
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-500 via-emerald-400 to-teal-400" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1 rounded-t-[1.75rem] bg-gradient-to-r from-brand-500 via-emerald-400 to-teal-400 sm:rounded-t-[2rem] lg:rounded-t-[2.5rem]" />
 
-        <button
-          type="button"
-          onClick={closeAuthModal}
-          className="absolute right-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-slate-200/80 bg-white/80 text-slate-500 shadow-sm transition hover:scale-105 hover:text-slate-800 dark:border-emerald-500/15 dark:bg-surface-overlay/80 dark:text-slate-400 dark:hover:text-white"
-          aria-label="Close"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+          <button
+            type="button"
+            onClick={closeAuthModal}
+            className="absolute right-3 top-3 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-slate-200/80 bg-white/90 text-slate-500 shadow-sm transition active:scale-95 hover:text-slate-800 sm:right-4 sm:top-4 sm:h-10 sm:w-10 sm:hover:scale-105 dark:border-emerald-500/15 dark:bg-surface-overlay/90 dark:text-slate-400 dark:hover:text-white"
+            aria-label="Close"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
 
-        <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
-          {/* Visual panel */}
-          <div className="relative hidden min-h-[520px] overflow-hidden lg:flex lg:flex-col lg:justify-between">
+          <div className="grid md:grid-cols-2 lg:grid-cols-[1.05fr_0.95fr]">
+            {/* Visual panel — tablets & desktop */}
+            <div className="relative hidden min-h-[380px] overflow-hidden md:flex md:flex-col md:justify-between lg:min-h-[520px]">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-600 via-brand-500 to-emerald-600" />
             <div className="pointer-events-none absolute inset-0 grid-pattern opacity-20" />
             <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-white/15 blur-3xl animate-glow-pulse" />
             <div className="pointer-events-none absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-emerald-300/25 blur-3xl" />
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.22),transparent_50%),radial-gradient(circle_at_85%_75%,rgba(255,255,255,0.12),transparent_45%)]" />
 
-            <div className="relative p-10 pb-0">
+            <div className="relative p-6 pb-0 md:p-8 lg:p-10">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-200 opacity-75" />
@@ -325,17 +325,17 @@ export default function AuthModal() {
                 </span>
                 Member access
               </div>
-              <h2 className="mt-5 max-w-xs text-3xl font-extrabold leading-[1.12] tracking-tight text-white">
+              <h2 className="mt-4 max-w-xs text-2xl font-extrabold leading-[1.12] tracking-tight text-white md:mt-5 md:text-3xl">
                 Everything you need,{' '}
                 <span className="text-emerald-100">waiting inside.</span>
               </h2>
             </div>
 
-            <div className="relative flex flex-1 items-center justify-center px-10 py-6">
+            <div className="relative flex flex-1 items-center justify-center px-6 py-4 md:px-8 lg:px-10 lg:py-6">
               <LoginPreviewCard />
             </div>
 
-            <div className="relative space-y-4 p-10 pt-0">
+            <div className="relative space-y-3 p-6 pt-0 md:space-y-4 md:p-8 lg:p-10">
               <div className="flex flex-wrap gap-2">
                 {trustPills.map(({ icon: Icon, label }) => (
                   <span
@@ -356,27 +356,36 @@ export default function AuthModal() {
           </div>
 
           {/* Form panel */}
-          <div className="relative px-6 py-8 sm:px-10 sm:py-10">
+          <div className="relative px-4 py-6 pt-14 sm:px-6 sm:py-8 sm:pt-16 md:px-8 md:py-9 lg:px-10 lg:py-10">
             <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-brand-500/10 blur-2xl dark:bg-brand-500/15" />
 
-            <div className="relative mx-auto max-w-md">
-              <div className="mb-8 text-center lg:text-left">
-                <div className="relative mx-auto mb-5 flex h-20 w-20 items-center justify-center lg:mx-0">
+            {/* Mobile-only accent strip */}
+            <div className="relative mb-5 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-emerald-600 p-4 md:hidden">
+              <div className="pointer-events-none absolute inset-0 grid-pattern opacity-20" />
+              <p className="relative text-xs font-bold uppercase tracking-wider text-emerald-100/90">Member access</p>
+              <p className="relative mt-1 text-base font-extrabold leading-snug text-white">
+                Unlock checkout, orders &amp; installments
+              </p>
+            </div>
+
+            <div className="relative mx-auto w-full max-w-md">
+              <div className="mb-6 text-center sm:mb-8 md:text-left">
+                <div className="relative mx-auto mb-4 flex h-16 w-16 items-center justify-center sm:mb-5 sm:h-20 sm:w-20 md:mx-0">
                   <div className="absolute inset-0 animate-pulse-soft rounded-full bg-brand-500/15" />
                   <div className="absolute inset-1 rounded-full bg-gradient-to-br from-brand-500/20 to-emerald-400/10 blur-sm" />
-                  <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-brand-500/20 bg-white shadow-lg shadow-brand-500/15 ring-4 ring-brand-500/10 dark:border-emerald-500/25 dark:bg-surface-overlay dark:shadow-glow-brand dark:ring-brand-500/15">
+                  <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-500/20 bg-white shadow-lg shadow-brand-500/15 ring-4 ring-brand-500/10 sm:h-16 sm:w-16 dark:border-emerald-500/25 dark:bg-surface-overlay dark:shadow-glow-brand dark:ring-brand-500/15">
                     <Logo to={null} size="md" surface="light" />
                   </div>
                 </div>
 
-                <div className="section-badge mx-auto lg:mx-0">
+                <div className="section-badge mx-auto md:mx-0">
                   <Sparkles className="h-3 w-3" aria-hidden="true" />
                   Welcome back
                 </div>
 
                 <h2
                   id="auth-modal-title"
-                  className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl"
+                  className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:mt-4 sm:text-3xl md:text-4xl"
                 >
                   Sign in to{' '}
                   <span className="gradient-text">Pay Qist</span>
@@ -386,7 +395,7 @@ export default function AuthModal() {
                 </p>
               </div>
 
-              <div className="mb-6 flex flex-wrap justify-center gap-2 lg:hidden">
+              <div className="mb-5 flex flex-wrap justify-center gap-1.5 sm:mb-6 sm:gap-2 md:hidden">
                 {trustPills.map(({ icon: Icon, label }) => (
                   <span
                     key={label}
@@ -407,8 +416,8 @@ export default function AuthModal() {
                 </div>
               ) : null}
 
-              <div className="trust-glass-panel !rounded-[1.75rem] !p-5 sm:!p-6">
-                <form onSubmit={handleLogin} className="space-y-5">
+              <div className="trust-glass-panel !rounded-2xl !p-4 sm:!rounded-[1.75rem] sm:!p-5 md:!p-6">
+                <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
                   <FormField
                     id="auth-email"
                     label="Email address"
@@ -433,7 +442,7 @@ export default function AuthModal() {
                       <button
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-brand-600 dark:hover:bg-surface-muted dark:hover:text-brand-400"
+                        className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl text-slate-400 transition active:bg-slate-100 active:text-brand-600 sm:right-3 sm:h-auto sm:w-auto sm:rounded-lg sm:p-1 sm:hover:bg-slate-100 sm:hover:text-brand-600 dark:active:bg-surface-muted dark:active:text-brand-400 sm:dark:hover:bg-surface-muted sm:dark:hover:text-brand-400"
                         aria-label={showPassword ? 'Hide password' : 'Show password'}
                       >
                         {showPassword ? (
@@ -454,7 +463,7 @@ export default function AuthModal() {
                     <button
                       type="button"
                       onClick={handleForgotPassword}
-                      className="text-xs font-bold text-brand-600 transition hover:text-brand-700 dark:text-brand-400"
+                      className="min-h-11 px-1 text-xs font-bold text-brand-600 transition active:text-brand-700 dark:text-brand-400"
                     >
                       Forgot password?
                     </button>
@@ -463,7 +472,7 @@ export default function AuthModal() {
                   <button
                     type="submit"
                     disabled={busy}
-                    className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-emerald-500 py-4 text-sm font-bold text-white shadow-lg shadow-brand-500/30 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand-500/40 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 dark:shadow-glow-brand"
+                    className="group relative flex min-h-[3rem] w-full touch-manipulation items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-emerald-500 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-500/30 transition active:scale-[0.98] sm:py-4 sm:hover:-translate-y-0.5 sm:hover:shadow-xl sm:hover:shadow-brand-500/40 disabled:cursor-not-allowed disabled:opacity-70 disabled:active:scale-100 sm:disabled:hover:translate-y-0 dark:shadow-glow-brand"
                   >
                     <span className="pointer-events-none absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
                     {loading && <Spinner />}
@@ -473,34 +482,34 @@ export default function AuthModal() {
                 </form>
               </div>
 
-              <div className="mt-6 overflow-hidden rounded-[1.75rem] border border-brand-500/15 bg-gradient-to-br from-brand-500/5 via-white to-emerald-500/5 p-5 dark:border-emerald-500/15 dark:from-brand-500/10 dark:via-surface-overlay/40 dark:to-emerald-500/5">
+              <div className="mt-5 overflow-hidden rounded-2xl border border-brand-500/15 bg-gradient-to-br from-brand-500/5 via-white to-emerald-500/5 p-4 sm:mt-6 sm:rounded-[1.75rem] sm:p-5 dark:border-emerald-500/15 dark:from-brand-500/10 dark:via-surface-overlay/40 dark:to-emerald-500/5">
                 <p className="text-center text-sm text-slate-600 dark:text-slate-300">
                   New to Pay Qist?{' '}
                   <button
                     type="button"
                     onClick={goToSignup}
-                    className="font-extrabold text-brand-600 underline decoration-brand-500/30 underline-offset-2 transition hover:text-brand-700 dark:text-brand-400"
+                    className="min-h-11 font-extrabold text-brand-600 underline decoration-brand-500/30 underline-offset-2 transition active:text-brand-700 dark:text-brand-400"
                   >
                     Create a free account
                   </button>
                 </p>
 
-                <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                <div className="mt-3 flex flex-col gap-2 sm:mt-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">
                   <a
                     href={CONTACT_WHATSAPP_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50 px-3.5 py-2 text-[11px] font-bold text-emerald-700 transition hover:-translate-y-0.5 hover:shadow-md dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-300"
+                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50 px-3.5 py-2.5 text-xs font-bold text-emerald-700 transition active:scale-[0.98] sm:w-auto sm:text-[11px] sm:hover:-translate-y-0.5 sm:hover:shadow-md dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-300"
                   >
                     <WhatsAppIcon />
                     {CONTACT_PHONE_DISPLAY}
                   </a>
                   <a
                     href={`mailto:${CONTACT_EMAIL}`}
-                    className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-[11px] font-bold text-slate-600 transition hover:-translate-y-0.5 hover:border-brand-200 hover:text-brand-700 hover:shadow-md dark:border-emerald-500/15 dark:bg-surface-overlay dark:text-slate-300"
+                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-600 transition active:scale-[0.98] sm:w-auto sm:max-w-full sm:text-[11px] sm:hover:-translate-y-0.5 sm:hover:border-brand-200 sm:hover:text-brand-700 sm:hover:shadow-md dark:border-emerald-500/15 dark:bg-surface-overlay dark:text-slate-300"
                   >
-                    <Mail className="h-3.5 w-3.5 text-red-500" />
-                    {CONTACT_EMAIL.toLowerCase()}
+                    <Mail className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                    <span className="truncate">{CONTACT_EMAIL.toLowerCase()}</span>
                   </a>
                 </div>
               </div>
