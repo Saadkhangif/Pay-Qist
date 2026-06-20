@@ -1,6 +1,13 @@
 import { Link } from 'react-router-dom';
-import { Mail, MapPin, Phone } from 'lucide-react';
-import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from '../lib/contact';
+import { ExternalLink, Mail, MapPin, Phone } from 'lucide-react';
+import {
+  CONTACT_ADDRESS,
+  CONTACT_EMAIL,
+  CONTACT_MAPS_EMBED_URL,
+  CONTACT_MAPS_URL,
+  CONTACT_PHONE_DISPLAY,
+  CONTACT_PHONE_TEL,
+} from '../lib/contact';
 import Logo from './Logo';
 
 const footerLinks = [
@@ -124,19 +131,35 @@ export default function Footer() {
               <Phone className="h-4 w-4 shrink-0" />
               {CONTACT_PHONE_DISPLAY}
             </a>
-            <p className="flex items-center gap-2 text-sm text-slate-400">
-              <MapPin className="h-4 w-4 shrink-0" />
-              Islamabad, Pakistan
-            </p>
+            <a
+              href={CONTACT_MAPS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-start gap-2 text-sm text-slate-400 transition hover:text-brand-400"
+            >
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>{CONTACT_ADDRESS}</span>
+            </a>
           </div>
         </div>
 
         <div className="space-y-4 md:col-span-2 lg:col-span-1">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-white">Find Us</h3>
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-white">Find Us on Maps</h3>
+            <a
+              href={CONTACT_MAPS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-400 transition hover:text-brand-300"
+            >
+              Open in Maps
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </div>
           <div className="h-44 overflow-hidden rounded-2xl border border-slate-700 shadow-lg">
             <iframe
-              title="Pay Qist location"
-              src="https://maps.google.com/maps?q=Islamabad,Pakistan&hl=en&z=12&output=embed"
+              title="Pay Qist office location"
+              src={CONTACT_MAPS_EMBED_URL}
               width="100%"
               height="100%"
               style={{ border: 0 }}
