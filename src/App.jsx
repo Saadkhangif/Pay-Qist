@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthModalHost from './components/AuthModalHost';
@@ -103,6 +104,7 @@ export default function App() {
     <Layout>
       <AppRoutes />
       <AuthModalHost />
+      <Analytics />
     </Layout>
   );
 }
