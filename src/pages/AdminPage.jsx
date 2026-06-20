@@ -511,9 +511,11 @@ export default function AdminPage() {
                 <p className="text-sm text-slate-500 dark:text-slate-400">Paste an image URL or upload a file for preview.</p>
 
                 {previewImage ? (
-                  <img src={previewImage} alt="Preview" className="h-40 w-full rounded-2xl border border-slate-200 object-cover" />
+                  <div className="product-image-well-sm h-40 w-full">
+                    <img src={previewImage} alt="Preview" className="product-image h-full w-full object-cover" />
+                  </div>
                 ) : (
-                  <div className="flex h-40 items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-sm text-slate-400">
+                  <div className="flex h-40 items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-sm text-slate-400 dark:border-slate-700 dark:bg-surface-overlay/60 dark:text-slate-500">
                     Image preview
                   </div>
                 )}
@@ -623,13 +625,15 @@ export default function AdminPage() {
                   filteredProducts.map((product) => (
                     <article key={product.id} className="admin-panel overflow-hidden p-5">
                       <div className="flex flex-col gap-5 sm:flex-row">
-                        <img
-                          src={product.imageUrl}
-                          alt={product.title}
-                          loading="lazy"
-                          decoding="async"
-                          className="h-28 w-full rounded-2xl object-cover sm:w-36"
-                        />
+                        <div className="product-image-well-sm h-28 w-full shrink-0 sm:w-36">
+                          <img
+                            src={product.imageUrl}
+                            alt={product.title}
+                            loading="lazy"
+                            decoding="async"
+                            className="product-image h-full w-full object-cover"
+                          />
+                        </div>
                         <div className="flex-1 space-y-3">
                           <div className="flex flex-wrap items-start justify-between gap-3">
                             <div>
@@ -756,13 +760,15 @@ export default function AdminPage() {
                 sortedOrders.map((order) => (
                   <article key={order.id} className="admin-panel p-6">
                     <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-                      <img
-                        src={order.productImage}
-                        alt={order.productTitle}
-                        loading="lazy"
-                        decoding="async"
-                        className="h-28 w-full rounded-2xl object-cover sm:w-36"
-                      />
+                      <div className="product-image-well-sm h-28 w-full shrink-0 sm:w-36">
+                        <img
+                          src={order.productImage}
+                          alt={order.productTitle}
+                          loading="lazy"
+                          decoding="async"
+                          className="product-image h-full w-full object-cover"
+                        />
+                      </div>
                       <div className="flex-1 space-y-3">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>

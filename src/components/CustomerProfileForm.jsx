@@ -158,7 +158,7 @@ export default function CustomerProfileForm({
         <div className="relative mb-6 overflow-hidden rounded-[1.75rem] border border-brand-500/15 bg-gradient-to-br from-brand-50 via-white to-emerald-50 px-6 py-7 text-center dark:border-emerald-500/10 dark:from-brand-500/10 dark:via-surface-raised dark:to-emerald-500/5">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(15,157,88,0.12),transparent_60%)]" />
           <div className="relative">
-            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full border-2 border-brand-200/80 bg-white shadow-lg shadow-brand-500/10 ring-4 ring-brand-500/5 dark:border-emerald-500/20 dark:bg-surface-overlay dark:shadow-glow-brand dark:ring-brand-500/10">
+            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full border-2 border-brand-200/80 bg-white shadow-lg shadow-brand-500/10 ring-4 ring-brand-500/5 dark:border-emerald-500/20 dark:bg-white dark:shadow-glow-brand dark:ring-brand-500/10">
               <Logo to={null} size="lg" surface="light" />
             </div>
             <div className="section-badge mx-auto mb-3">

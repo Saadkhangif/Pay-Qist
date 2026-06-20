@@ -193,7 +193,7 @@ export default function InstallmentApplicationForm({
         <header className="relative overflow-hidden rounded-[1.75rem] border border-brand-500/15 bg-gradient-to-br from-brand-50 via-white to-emerald-50 px-6 py-7 text-center dark:border-emerald-500/10 dark:from-brand-500/10 dark:via-surface-raised dark:to-emerald-500/5">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(15,157,88,0.12),transparent_60%)]" />
           <div className="relative">
-            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full border-2 border-brand-200/80 bg-white shadow-lg shadow-brand-500/10 dark:border-emerald-500/20 dark:bg-surface-overlay dark:shadow-glow-brand">
+            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full border-2 border-brand-200/80 bg-white shadow-lg shadow-brand-500/10 dark:border-emerald-500/20 dark:bg-white dark:shadow-glow-brand">
               <Logo to={null} size="sm" surface="light" />
             </div>
             <div className="section-badge mx-auto mb-3">

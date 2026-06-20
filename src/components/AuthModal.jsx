@@ -373,7 +373,7 @@ export default function AuthModal() {
                 <div className="relative mx-auto mb-4 flex h-16 w-16 items-center justify-center sm:mb-5 sm:h-20 sm:w-20 md:mx-0">
                   <div className="absolute inset-0 animate-pulse-soft rounded-full bg-brand-500/15" />
                   <div className="absolute inset-1 rounded-full bg-gradient-to-br from-brand-500/20 to-emerald-400/10 blur-sm" />
-                  <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-500/20 bg-white shadow-lg shadow-brand-500/15 ring-4 ring-brand-500/10 sm:h-16 sm:w-16 dark:border-emerald-500/25 dark:bg-surface-overlay dark:shadow-glow-brand dark:ring-brand-500/15">
+                  <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-500/20 bg-white shadow-lg shadow-brand-500/15 ring-4 ring-brand-500/10 sm:h-16 sm:w-16 dark:border-emerald-500/25 dark:bg-white dark:shadow-glow-brand dark:ring-brand-500/15">
                     <Logo to={null} size="md" surface="light" />
                   </div>
                 </div>

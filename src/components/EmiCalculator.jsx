@@ -228,7 +228,7 @@ export default function EmiCalculator() {
         <div className="overflow-hidden rounded-[2rem] border border-slate-200/70 bg-white/90 shadow-card backdrop-blur-sm dark:border-emerald-500/15 dark:bg-surface-raised/90 dark:shadow-dark-card">
           <div className="relative overflow-hidden border-b border-slate-200/80 bg-gradient-to-r from-brand-50 via-white to-emerald-50 px-6 py-10 text-center dark:border-emerald-500/10 dark:from-brand-500/10 dark:via-surface-raised dark:to-emerald-500/5 sm:px-10">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(15,157,88,0.12),transparent_55%)] dark:bg-[radial-gradient(circle_at_50%_0%,rgba(52,211,153,0.1),transparent_55%)]" />
-            <div className="relative mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl border border-brand-200/80 bg-white shadow-lg shadow-brand-500/10 ring-4 ring-brand-500/10 dark:border-emerald-500/20 dark:bg-surface-overlay dark:shadow-glow-brand dark:ring-brand-500/15">
+            <div className="relative mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl border border-brand-200/80 bg-white shadow-lg shadow-brand-500/10 ring-4 ring-brand-500/10 dark:border-emerald-500/20 dark:bg-white dark:shadow-glow-brand dark:ring-brand-500/15">
               <Logo to={null} size="md" surface="light" />
             </div>
             <p className="relative text-2xl font-extrabold leading-snug text-slate-900 dark:text-white sm:text-3xl">
