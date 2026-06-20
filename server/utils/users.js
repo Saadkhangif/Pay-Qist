@@ -23,7 +23,7 @@ function seedAdminUser() {
     email: ADMIN_EMAIL,
     passwordHash: hashPassword(ADMIN_PASSWORD),
     role: 'admin',
-    cnic: '',
+    cnic: '1234512345671',
     phone: '',
     profileComplete: true,
   });

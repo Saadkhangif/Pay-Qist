@@ -50,8 +50,12 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      await signup(values);
-      navigate('/home', { replace: true });
+      const profile = await signup(values);
+      if (profile.profileComplete) {
+        navigate('/home', { replace: true });
+      } else {
+        navigate('/complete-profile', { replace: true });
+      }
     } catch (err) {
       setError(err.message || 'Failed to create account. Please try again.');
     } finally {
