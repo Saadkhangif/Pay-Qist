@@ -1,6 +1,6 @@
+import './server/loadEnv.js';
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { applySecurityMiddleware, authRateLimiter, contactRateLimiter } from './server/middleware/security.js';
@@ -42,9 +42,6 @@ import { isDatabaseEnabled } from './server/db/index.js';
 import { registerAvatarRoutes } from './server/routes/avatar.js';
 import { registerBlobUploadRoutes } from './server/routes/blobUpload.js';
 import { persistApplicationImages, resolvePersonImageUrls } from './server/utils/applicationImages.js';
-
-dotenv.config();
-dotenv.config({ path: '.env.local', override: true });
 
 const products = [...seedProducts];
 const orders = [];
