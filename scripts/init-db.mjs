@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { Pool } from '@neondatabase/serverless';
 
 dotenv.config();
+dotenv.config({ path: '.env.local', override: true });
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
