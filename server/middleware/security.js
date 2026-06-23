@@ -76,10 +76,17 @@ export function applySecurityMiddleware(app) {
   app.use(
     rateLimit({
       windowMs: 15 * 60 * 1000,
-      max: 300,
+      max: IS_PRODUCTION ? 300 : 2000,
       standardHeaders: true,
       legacyHeaders: false,
       message: { error: 'Too many requests. Please try again later.' },
+      skip(req) {
+        // Keep CSRF bootstrap and health checks reachable even during high request bursts.
+        if (req.method === 'GET' && (req.path === '/api/csrf-token' || req.path === '/api/health')) {
+          return true;
+        }
+        return false;
+      },
     }),
   );
 }
