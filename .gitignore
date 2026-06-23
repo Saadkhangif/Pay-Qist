@@ -1,6 +1,8 @@
 node_modules
 dist
 .env
+.env.production
+.env.preview
 .DS_Store
 .vite
 .vercel
