@@ -30,7 +30,7 @@ const trustPoints = [
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden pb-28 pt-16 md:pt-20">
+    <section className="relative overflow-hidden pb-20 pt-12 sm:pb-28 sm:pt-16 md:pt-20">
       <div className="pointer-events-none absolute inset-0 mesh-bg" />
       <div className="pointer-events-none absolute inset-0 grid-pattern opacity-60 dark:opacity-80" />
       <div className="dark-glow-orb -right-32 -top-32 h-[500px] w-[500px] bg-brand-400/20 animate-glow-pulse dark:bg-brand-500/25" />
@@ -48,14 +48,14 @@ export default function Hero() {
               0% Hidden Charges
             </div>
 
-            <h1 className="text-5xl font-extrabold leading-[1.08] tracking-tight text-slate-900 dark:text-white sm:text-6xl lg:text-[3.75rem]">
+            <h1 className="text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-900 dark:text-white xs:text-5xl sm:text-6xl lg:text-[3.75rem]">
               Buy Today.{' '}
               <span className="gradient-text">Pay in Easy</span>
               <br />
               Monthly Installments.
             </h1>
 
-            <p className="mx-auto max-w-xl text-lg leading-relaxed text-slate-600 dark:text-slate-300 lg:mx-0">
+            <p className="mx-auto max-w-xl text-base leading-relaxed text-slate-600 dark:text-slate-300 sm:text-lg lg:mx-0">
               Get your favorite phones, laptops, appliances, and more delivered today with
               flexible, secure, and transparent payment plans.
             </p>
@@ -85,7 +85,7 @@ export default function Hero() {
           </div>
 
           <div className="relative mx-auto w-full max-w-md animate-fade-up lg:max-w-none" style={{ animationDelay: '0.15s' }}>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-[2.5rem] border border-white/80 bg-gradient-to-br from-brand-50 via-white to-emerald-50 p-6 shadow-2xl shadow-brand-500/10 dark:border-emerald-500/20 dark:from-surface-overlay dark:via-surface-raised dark:to-surface-muted dark:shadow-[0_24px_64px_rgba(0,0,0,0.45),0_0_0_1px_rgba(52,211,153,0.08),inset_0_1px_0_rgba(255,255,255,0.05)] sm:p-8">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/80 bg-gradient-to-br from-brand-50 via-white to-emerald-50 p-4 shadow-2xl shadow-brand-500/10 dark:border-emerald-500/20 dark:from-surface-overlay dark:via-surface-raised dark:to-surface-muted dark:shadow-[0_24px_64px_rgba(0,0,0,0.45),0_0_0_1px_rgba(52,211,153,0.08),inset_0_1px_0_rgba(255,255,255,0.05)] sm:rounded-[2.5rem] sm:p-6 md:p-8">
               <div className="pointer-events-none absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center opacity-[0.07] dark:opacity-[0.04]" />
               <div className="pointer-events-none absolute -right-8 top-8 h-32 w-32 rounded-full bg-brand-400/20 blur-2xl dark:bg-brand-500/20" />
 
@@ -137,8 +137,8 @@ export default function Hero() {
 
 function clsxCard(index) {
   const base =
-    'flex items-center gap-4 rounded-2xl border border-white/80 bg-white/95 p-4 shadow-lg shadow-slate-200/50 backdrop-blur-sm dark:border-emerald-500/12 dark:bg-surface-overlay/90 dark:shadow-[0_8px_32px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.04)]';
+    'flex items-center gap-3 rounded-2xl border border-white/80 bg-white/95 p-3 shadow-lg shadow-slate-200/50 backdrop-blur-sm dark:border-emerald-500/12 dark:bg-surface-overlay/90 dark:shadow-[0_8px_32px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.04)] sm:gap-4 sm:p-4';
   if (index === 0) return `${base} animate-float`;
-  if (index === 1) return `${base} ml-6 animate-float-delayed`;
-  return `${base} ml-3`;
+  if (index === 1) return `${base} sm:ml-6 animate-float-delayed`;
+  return `${base} sm:ml-3`;
 }

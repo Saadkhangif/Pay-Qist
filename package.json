@@ -6,13 +6,16 @@
   "scripts": {
     "dev": "NODE_ENV=development node server.js",
     "build": "vite build",
+    "db:init": "node scripts/init-db.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "NODE_ENV=production node server.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
+    "@neondatabase/serverless": "^1.1.0",
     "@tanstack/react-query": "^5.50.0",
+    "@vercel/blob": "^2.4.1",
     "clsx": "^2.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -21,6 +24,7 @@
     "express-rate-limit": "^7.4.0",
     "helmet": "^7.1.0",
     "lucide-react": "^0.400.0",
+    "multer": "^2.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.52.1",

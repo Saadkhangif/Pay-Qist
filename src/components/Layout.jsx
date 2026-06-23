@@ -81,7 +81,7 @@ export default function Layout({ children }) {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50/80 pb-[calc(4.75rem+env(safe-area-inset-bottom))] font-sans text-slate-900 dark:bg-transparent dark:text-slate-100 lg:pb-0">
+    <div className="flex min-h-screen min-w-0 flex-col bg-slate-50/80 pb-[calc(4.75rem+env(safe-area-inset-bottom))] font-sans text-slate-900 dark:bg-transparent dark:text-slate-100 lg:pb-0">
       <header className="site-header transform-gpu">
         <div className="h-0.5 bg-gradient-to-r from-brand-500 via-emerald-400 to-teal-400" />
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
@@ -106,7 +106,7 @@ export default function Layout({ children }) {
 
               <div
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                  isSearchExpanded ? 'w-32 opacity-100 sm:w-56 lg:w-64' : 'w-0 opacity-0'
+                  isSearchExpanded ? 'w-full max-w-[9rem] opacity-100 xs:max-w-[11rem] sm:max-w-[14rem] lg:max-w-[16rem]' : 'w-0 opacity-0'
                 }`}
               >
                 <input
@@ -120,7 +120,7 @@ export default function Layout({ children }) {
               </div>
 
               {isSearchExpanded && (
-                <div className="absolute top-full left-0 mt-4 w-[280px] sm:w-[320px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-emerald-500/15 dark:bg-surface-raised dark:shadow-dark-card">
+                <div className="absolute top-full left-0 z-50 mt-4 w-[min(320px,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-emerald-500/15 dark:bg-surface-raised dark:shadow-dark-card sm:w-[320px]">
                   <div className="border-b border-slate-100 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:text-slate-400">
                     {searchDropdownTitle}
                   </div>
@@ -253,7 +253,7 @@ export default function Layout({ children }) {
         </div>
       </header>
 
-      <main className="flex-1">{children}</main>
+      <main className="min-w-0 flex-1">{children}</main>
 
       <Footer />
 

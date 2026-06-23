@@ -36,25 +36,25 @@ export default function ProductsPage() {
           aria-hidden="true"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-brand-900/60" />
-        <div className="relative px-8 py-16 text-center md:text-left">
+        <div className="relative px-5 py-10 text-center sm:px-8 sm:py-14 md:px-8 md:py-16 md:text-left">
           <div className="section-badge mb-4 border-white/20 bg-white/10 text-brand-300">
             <Sparkles className="h-3.5 w-3.5" />
             Catalog
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">Our Products</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl">Our Products</h1>
           <p className="mt-3 max-w-xl text-lg text-slate-200">
             Shop top brands with zero hidden fees and easy installments.
           </p>
         </div>
       </div>
 
-      <div className="mb-12 flex flex-wrap items-center justify-center gap-3 md:justify-start">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:justify-start">
         {categories.map((category) => (
           <button
             key={category}
             type="button"
             onClick={() => setActiveCategory(category)}
-            className={`rounded-full px-5 py-2.5 text-sm font-bold transition-all duration-200 ${
+            className={`rounded-full px-4 py-2 text-sm font-bold transition-all duration-200 sm:px-5 sm:py-2.5 ${
               activeCategory === category
                 ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/25'
                 : 'border border-slate-200 bg-white text-slate-600 hover:border-brand-200 hover:bg-brand-50 hover:text-brand-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-brand-500/40 dark:hover:bg-slate-700 dark:hover:text-brand-400'

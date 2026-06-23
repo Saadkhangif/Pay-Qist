@@ -1,16 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ClipboardList, Package, ShoppingBag } from 'lucide-react';
+import { ClipboardList, Package, ShoppingBag, User } from 'lucide-react';
 import ApplicationSuccessBanner from '../components/ApplicationSuccessBanner';
+import AvatarUpload from '../components/AvatarUpload';
 import SectionHeading from '../components/SectionHeading';
 import StatusPill from '../components/StatusPill';
 import { useStore } from '../context/StoreContext';
+import { useAuth } from '../context/AuthContext';
 import { apiFetch } from '../lib/api';
 import { formatCurrency } from '../lib/currency';
 
 const TABS = [
   { id: 'orders', label: 'Orders', icon: ShoppingBag },
   { id: 'applications', label: 'Applications', icon: ClipboardList },
+  { id: 'profile', label: 'Profile', icon: User },
 ];
 
 function formatDate(value) {
@@ -30,6 +33,7 @@ function statusTone(status) {
 
 export default function AccountPage() {
   const navigate = useNavigate();
+  const { user, updateAvatarPathname } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const { orders = [], payments = [] } = useStore();
   const [applications, setApplications] = useState([]);
@@ -278,6 +282,15 @@ export default function AccountPage() {
               </button>
             </div>
           )}
+        </div>
+      ) : null}
+
+      {activeTab === 'profile' ? (
+        <div className="mt-8 max-w-xl">
+          <AvatarUpload
+            initialPathname={user?.avatarPathname}
+            onUploaded={(uploaded) => updateAvatarPathname(uploaded.pathname)}
+          />
         </div>
       ) : null}
     </div>

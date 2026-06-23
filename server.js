@@ -35,6 +35,13 @@ import {
   updateUserRole as setUserRole,
 } from './server/utils/users.js';
 import { seedProducts } from './src/data/seedProducts.js';
+import { imageUpload } from './server/middleware/upload.js';
+import { uploadFileToBlobAndDb, getStorageStatus, streamBlobToResponse } from './server/storage/blob.js';
+import { getBlobById, getBlobByPathname } from './server/db/blobs.js';
+import { isDatabaseEnabled } from './server/db/index.js';
+import { registerAvatarRoutes } from './server/routes/avatar.js';
+import { registerBlobUploadRoutes } from './server/routes/blobUpload.js';
+import { persistApplicationImages, resolvePersonImageUrls } from './server/utils/applicationImages.js';
 
 dotenv.config();
 
@@ -47,6 +54,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 applySecurityMiddleware(app);
 app.use(cookieParser());
+
+registerAvatarRoutes(app, { csrfProtection, requireAuth });
+registerBlobUploadRoutes(app, { csrfProtection, requireAuth });
+
 app.use(express.json({ limit: '15mb' }));
 app.use('/api', csrfProtection);
 
@@ -61,13 +72,138 @@ function clearSession(res) {
   res.clearCookie(SESSION_COOKIE, COOKIE_OPTIONS);
 }
 
+function canViewBlob(record, auth) {
+  if (!record) {
+    return false;
+  }
+
+  if (auth.role === 'admin') {
+    return true;
+  }
+
+  return record.uploaded_by === auth.id;
+}
+
+async function serveAuthorizedBlob(req, res, record) {
+  if (!record) {
+    return res.status(404).json({ error: 'File not found.' });
+  }
+
+  if (!canViewBlob(record, req.auth)) {
+    return res.status(403).json({ error: 'Not allowed to view this file.' });
+  }
+
+  if (record.access === 'public') {
+    return res.redirect(record.url);
+  }
+
+  try {
+    const streamed = await streamBlobToResponse(res, record.pathname, 'private');
+    if (!streamed) {
+      return res.status(404).send('Not found');
+    }
+    return undefined;
+  } catch (error) {
+    return res.status(500).json({ error: error.message || 'Unable to load file.' });
+  }
+}
+
 app.get('/api/csrf-token', (req, res) => {
   const csrfToken = issueCsrfToken(res);
   res.json({ csrfToken });
 });
 
 app.get('/api/health', (req, res) => {
-  res.json({ ok: true });
+  res.json({ ok: true, storage: getStorageStatus() });
+});
+
+app.get('/api/storage/status', requireAuth, requireAdmin, (req, res) => {
+  res.json(getStorageStatus());
+});
+
+app.post(
+  '/api/uploads',
+  requireAuth,
+  imageUpload.single('file'),
+  async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded.' });
+    }
+
+    const access = req.body.access === 'private' ? 'private' : 'public';
+    const entityType = req.body.entityType || null;
+    const entityId = req.body.entityId || null;
+    const folder = req.body.folder || (entityType ? `${entityType}s` : 'uploads');
+
+    try {
+      const result = await uploadFileToBlobAndDb({
+        buffer: req.file.buffer,
+        contentType: req.file.mimetype,
+        filename: req.file.originalname,
+        folder,
+        access,
+        uploadedBy: req.auth.id,
+        entityType,
+        entityId,
+      });
+
+      return res.json(result);
+    } catch (error) {
+      return res.status(500).json({ error: error.message || 'Upload failed.' });
+    }
+  },
+);
+
+app.get('/api/uploads/:id', requireAuth, async (req, res) => {
+  if (!isDatabaseEnabled()) {
+    return res.status(503).json({ error: 'Database is not configured.' });
+  }
+
+  const record = await getBlobById(req.params.id);
+
+  if (!record) {
+    return res.status(404).json({ error: 'File record not found.' });
+  }
+
+  if (!canViewBlob(record, req.auth)) {
+    return res.status(403).json({ error: 'Not allowed to view this file.' });
+  }
+
+  return res.json({
+    id: record.id,
+    url: record.url,
+    pathname: record.pathname,
+    contentType: record.content_type,
+    sizeBytes: record.size_bytes,
+    access: record.access,
+    entityType: record.entity_type,
+    entityId: record.entity_id,
+    createdAt: record.created_at,
+  });
+});
+
+app.get('/api/uploads/:id/file', requireAuth, async (req, res) => {
+  if (!isDatabaseEnabled()) {
+    return res.status(503).json({ error: 'Database is not configured.' });
+  }
+
+  const record = await getBlobById(req.params.id);
+  return serveAuthorizedBlob(req, res, record);
+});
+
+app.get('/api/blobs', requireAuth, async (req, res) => {
+  const pathname = req.query.pathname;
+
+  if (!pathname || typeof pathname !== 'string') {
+    return res.status(400).json({ error: 'Missing pathname' });
+  }
+
+  if (!isDatabaseEnabled()) {
+    return res.status(503).json({ error: 'Database is not configured.' });
+  }
+
+  const record = await getBlobByPathname(pathname);
+  return serveAuthorizedBlob(req, res, record);
 });
 
 app.get('/api/auth/me', (req, res) => {
@@ -297,13 +433,22 @@ app.post('/api/applications/submit', requireAuth, validateBody(applicationSubmit
     const applicationId = `app_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const createdAt = new Date().toISOString();
 
+    const { applicant: storedApplicant, referral: storedReferral } = await persistApplicationImages(
+      applicant,
+      referral,
+      {
+        applicationId,
+        uploadedBy: user.id,
+      },
+    );
+
     const application = {
       id: applicationId,
       userId: user.id,
       userName: user.name,
       userEmail: user.email,
-      applicant,
-      referral,
+      applicant: storedApplicant,
+      referral: storedReferral,
       status: 'submitted',
       createdAt,
     };
@@ -392,7 +537,12 @@ app.get('/api/applications/:id', requireAuth, requireAdmin, (req, res) => {
       quantity: order.quantity,
     }));
 
-  res.json({ ...application, relatedOrders });
+  res.json({
+    ...application,
+    applicant: resolvePersonImageUrls(application.applicant),
+    referral: resolvePersonImageUrls(application.referral),
+    relatedOrders,
+  });
 });
 
 app.post('/api/contact', contactRateLimiter, validateBody(contactSchema), (req, res) => {
@@ -419,6 +569,14 @@ app.put(
 );
 
 app.use((err, req, res, _next) => {
+  if (err?.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({ error: 'File is too large. Maximum size is 5 MB.' });
+  }
+
+  if (err?.message === 'Only image files are allowed.') {
+    return res.status(400).json({ error: err.message });
+  }
+
   if (err?.message === 'Not allowed by CORS') {
     return res.status(403).json({ error: 'Origin not allowed.' });
   }
@@ -426,16 +584,24 @@ app.use((err, req, res, _next) => {
   return res.status(500).json({ error: 'Internal server error.' });
 });
 
+function setupProductionStatic() {
+  const distPath = path.join(__dirname, 'dist');
+  app.use(express.static(distPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    return res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
+
+if (IS_PRODUCTION && process.env.VERCEL) {
+  setupProductionStatic();
+}
+
 async function startServer() {
   if (IS_PRODUCTION) {
-    const distPath = path.join(__dirname, 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res, next) => {
-      if (req.path.startsWith('/api')) {
-        return next();
-      }
-      return res.sendFile(path.join(distPath, 'index.html'));
-    });
+    setupProductionStatic();
   } else {
     const { createServer } = await import('vite');
     const vite = await createServer({
@@ -447,10 +613,20 @@ async function startServer() {
 
   app.listen(PORT, () => {
     console.log(`Pay Qist running at http://localhost:${PORT}`);
+    const storage = getStorageStatus();
+    if (storage.blob && storage.database) {
+      console.log('Vercel Blob + Neon Postgres storage is configured.');
+    } else if (storage.blob || storage.database) {
+      console.log('Partial storage config:', storage);
+    }
   });
 }
 
-startServer().catch((error) => {
-  console.error('Failed to start server:', error);
-  process.exit(1);
-});
+if (!process.env.VERCEL) {
+  startServer().catch((error) => {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  });
+}
+
+export default app;

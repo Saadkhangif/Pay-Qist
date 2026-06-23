@@ -107,7 +107,7 @@ function DocumentUploadGroup({ title, hint, children }) {
         <p className="text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300">{title}</p>
         {hint ? <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">{hint}</p> : null}
       </div>
-      <div className="grid grid-cols-3 gap-3 sm:gap-4">{children}</div>
+      <div className="responsive-grid-3">{children}</div>
     </div>
   );
 }

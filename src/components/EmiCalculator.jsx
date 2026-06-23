@@ -194,7 +194,7 @@ export default function EmiCalculator() {
   }
 
   return (
-    <section id="calculator" className="home-section home-section-spotlight relative overflow-hidden py-24">
+    <section id="calculator" className="home-section home-section-spotlight relative overflow-hidden py-16 sm:py-20 md:py-24">
       <div className="pointer-events-none absolute inset-0 mesh-bg opacity-80" />
       <div className="pointer-events-none absolute inset-0 grid-pattern opacity-40 dark:opacity-50" />
       <div className="dark-glow-orb -left-24 top-16 h-72 w-72 bg-brand-400/15 animate-glow-pulse dark:bg-brand-500/20" />
@@ -239,7 +239,7 @@ export default function EmiCalculator() {
             </p>
           </div>
 
-          <div className="grid gap-8 p-6 sm:p-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
+          <div className="grid gap-6 p-4 sm:gap-8 sm:p-6 md:p-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
             <div className="space-y-5">
               <div className="flex items-center gap-2.5">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-500/10 text-brand-600 dark:bg-brand-500/15 dark:text-brand-300">
@@ -334,7 +334,7 @@ export default function EmiCalculator() {
             <div className="flex flex-col gap-5">
               <div
                 aria-live="polite"
-                className="relative overflow-hidden rounded-3xl border border-brand-500/25 bg-gradient-to-br from-slate-900 via-slate-900 to-brand-950 p-7 text-white shadow-2xl shadow-brand-900/30 dark:border-emerald-500/25 dark:from-surface-muted dark:via-surface-overlay dark:to-brand-950/80 dark:shadow-glow-brand-lg"
+                className="relative overflow-hidden rounded-2xl border border-brand-500/25 bg-gradient-to-br from-slate-900 via-slate-900 to-brand-950 p-5 text-white shadow-2xl shadow-brand-900/30 dark:border-emerald-500/25 dark:from-surface-muted dark:via-surface-overlay dark:to-brand-950/80 dark:shadow-glow-brand-lg sm:rounded-3xl sm:p-7"
               >
                 <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-brand-400/25 blur-3xl animate-glow-pulse" />
                 <div className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-emerald-400/15 blur-2xl" />
@@ -346,7 +346,7 @@ export default function EmiCalculator() {
                 </div>
 
                 <p
-                  className={`relative mt-3 bg-gradient-to-r from-white via-brand-100 to-emerald-200 bg-clip-text text-5xl font-black tabular-nums tracking-tight text-transparent transition-transform duration-300 sm:text-6xl ${
+                  className={`relative mt-3 bg-gradient-to-r from-white via-brand-100 to-emerald-200 bg-clip-text text-3xl font-black tabular-nums tracking-tight text-transparent transition-transform duration-300 xs:text-4xl sm:text-5xl md:text-6xl ${
                     installmentPulse ? 'scale-105' : 'scale-100'
                   }`}
                 >

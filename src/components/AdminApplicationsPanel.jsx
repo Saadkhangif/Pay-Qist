@@ -1,8 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ClipboardList, Search } from 'lucide-react';
 import StatusPill from './StatusPill';
-import { apiFetch } from '../lib/api';
+import { apiFetch, blobFileUrl } from '../lib/api';
 import { formatCurrency } from '../lib/currency';
+
+function resolveImageSrc(value) {
+  if (!value) return null;
+  if (value.startsWith('data:') || value.startsWith('http')) return value;
+  if (value.startsWith('/api/uploads/')) return value;
+  return blobFileUrl(value);
+}
 
 function formatDate(value) {
   if (!value) return '—';
@@ -13,12 +20,14 @@ function formatDate(value) {
 }
 
 function ImagePreview({ label, src }) {
+  const imageSrc = resolveImageSrc(src);
+
   return (
     <div className="space-y-2">
       <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
-      {src ? (
-        <a href={src} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
-          <img src={src} alt={label} className="aspect-square w-full object-cover transition hover:scale-105" />
+      {imageSrc ? (
+        <a href={imageSrc} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
+          <img src={imageSrc} alt={label} className="aspect-square w-full object-cover transition hover:scale-105" />
         </a>
       ) : (
         <div className="flex aspect-square items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-xs text-slate-400 dark:border-slate-700 dark:bg-slate-800/50">
@@ -43,7 +52,7 @@ function PersonReview({ title, person, extraFields = [] }) {
     <div className="space-y-4 rounded-[1.5rem] border border-slate-200/80 bg-white p-5 dark:border-slate-700 dark:bg-slate-900/40">
       <h4 className="text-sm font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">{title}</h4>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="responsive-grid-3">
         <ImagePreview label="Picture" src={person.photo} />
         <ImagePreview label="ID Front" src={person.idFront} />
         <ImagePreview label="ID Back" src={person.idBack} />

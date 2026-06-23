@@ -11,6 +11,7 @@ function buildUserProfile(user) {
     role: user.role || 'customer',
     cnic: user.cnic || '',
     phone: user.phone || '',
+    avatarPathname: user.avatarPathname || '',
     profileComplete: Boolean(user.profileComplete ?? (user.cnic && user.phone)),
     provider: 'local',
   };
@@ -130,6 +131,12 @@ export function AuthProvider({ children }) {
     await updateUserRole(userId, 'customer');
   }
 
+  function updateAvatarPathname(avatarPathname) {
+    setUser((currentUser) =>
+      currentUser ? { ...currentUser, avatarPathname: avatarPathname || '' } : currentUser,
+    );
+  }
+
   const value = useMemo(
     () => ({
       user,
@@ -142,6 +149,7 @@ export function AuthProvider({ children }) {
       logout,
       updateUserRole,
       removeUserRole,
+      updateAvatarPathname,
     }),
     [user, users, isLoading],
   );

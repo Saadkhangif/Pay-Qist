@@ -45,8 +45,9 @@ function buildErrorMessage(payload, status) {
 export async function apiFetch(path, options = {}, retryOnCsrf = true) {
   const method = (options.method || 'GET').toUpperCase();
   const isMutation = !['GET', 'HEAD', 'OPTIONS'].includes(method);
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
   const headers = {
-    ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+    ...(options.body && !isFormData ? { 'Content-Type': 'application/json' } : {}),
     ...options.headers,
   };
 
@@ -85,6 +86,89 @@ export async function apiFetch(path, options = {}, retryOnCsrf = true) {
   }
 
   return payload;
+}
+
+export async function apiUpload(path, formData) {
+  return apiFetch(path, {
+    method: 'POST',
+    body: formData,
+  });
+}
+
+export function avatarViewUrl(pathname) {
+  if (!pathname) return null;
+  return `${API_BASE_URL}/api/avatar/view?pathname=${encodeURIComponent(pathname)}`;
+}
+
+export async function uploadAvatarFile(file) {
+  const token = await ensureCsrfToken();
+  const response = await fetch(
+    `${API_BASE_URL}/api/avatar/upload?filename=${encodeURIComponent(file.name)}`,
+    {
+      method: 'POST',
+      body: file,
+      credentials: 'include',
+      headers: {
+        'X-CSRF-Token': token,
+        'Content-Type': file.type,
+      },
+    },
+  );
+
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(payload.error || payload.message || `Upload failed (${response.status}).`);
+  }
+
+  return payload;
+}
+
+export async function uploadBlobFile(file, options = {}) {
+  const { access = 'private', folder, entityType, entityId } = options;
+  const params = new URLSearchParams({ filename: file.name });
+
+  if (access) {
+    params.set('access', access);
+  }
+  if (folder) {
+    params.set('folder', folder);
+  }
+  if (entityType) {
+    params.set('entityType', entityType);
+  }
+  if (entityId) {
+    params.set('entityId', entityId);
+  }
+
+  const token = await ensureCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/api/blob-upload?${params}`, {
+    method: 'POST',
+    body: file,
+    credentials: 'include',
+    headers: {
+      'X-CSRF-Token': token,
+      'Content-Type': file.type || 'application/octet-stream',
+    },
+  });
+
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(payload.error || payload.message || `Upload failed (${response.status}).`);
+  }
+
+  return payload;
+}
+
+export function blobFileUrl(id) {
+  if (!id) return null;
+  return `${API_BASE_URL}/api/uploads/${id}/file`;
+}
+
+export function blobPathnameUrl(pathname) {
+  if (!pathname) return null;
+  return `${API_BASE_URL}/api/blobs?pathname=${encodeURIComponent(pathname)}`;
 }
 
 export { API_BASE_URL };

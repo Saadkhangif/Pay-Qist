@@ -12,6 +12,7 @@ function publicUser(user) {
     role: user.role,
     cnic: user.cnic || '',
     phone: user.phone || '',
+    avatarPathname: user.avatarPathname || '',
     profileComplete: Boolean(user.cnic && user.phone),
   };
 }
@@ -140,5 +141,16 @@ export function updateUserRole(userId, role, actorId) {
   }
 
   user.role = role;
+  return publicUser(user);
+}
+
+export function updateUserAvatar(userId, avatarPathname) {
+  const user = getInternalUserById(userId);
+
+  if (!user) {
+    throw new Error('User not found.');
+  }
+
+  user.avatarPathname = avatarPathname || '';
   return publicUser(user);
 }

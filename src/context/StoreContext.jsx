@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { apiFetch } from '../lib/api';
+import { apiFetch, uploadBlobFile } from '../lib/api';
 import { useAuth } from './AuthContext';
 import { getDownPayment } from '../lib/currency';
 import { readStorage, writeStorage } from '../lib/storage';
@@ -121,12 +121,27 @@ export function StoreProvider({ children }) {
     setCart([]);
   }
 
-  async function uploadProductImage(file, _productId = 'draft') {
+  async function uploadProductImage(file, productId = 'draft') {
     if (!file) {
       return '';
     }
 
-    return URL.createObjectURL(file);
+    try {
+      const result = await uploadBlobFile(file, {
+        access: 'public',
+        folder: 'products',
+        entityType: 'product',
+        entityId: productId,
+      });
+      return result.url;
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn('Blob upload unavailable, using local preview URL:', error.message);
+        return URL.createObjectURL(file);
+      }
+
+      throw error;
+    }
   }
 
   async function createOrderFromCart(_user, paymentMethod, paymentReference = '') {

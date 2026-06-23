@@ -25,8 +25,15 @@
 
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 5.5rem;
+    scroll-padding-top: calc(5.5rem + env(safe-area-inset-top));
     -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  @media (max-width: 1023px) {
+    html {
+      scroll-padding-top: calc(7.5rem + env(safe-area-inset-top));
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -42,10 +49,31 @@
 
   body {
     overflow-x: clip;
+    min-width: 320px;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  img {
+    display: block;
   }
 
   [id] {
-    scroll-margin-top: 5.5rem;
+    scroll-margin-top: calc(5.5rem + env(safe-area-inset-top));
+  }
+
+  @media (max-width: 1023px) {
+    [id] {
+      scroll-margin-top: calc(7.5rem + env(safe-area-inset-top));
+    }
   }
 
   html.theme-transition,
@@ -195,7 +223,7 @@
   }
 
   .product-image-stage {
-    @apply relative flex items-center justify-center overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm sm:p-16;
+    @apply relative flex items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:rounded-[2.5rem] sm:p-8 md:p-12 lg:p-16;
     @apply dark:border-emerald-500/15 dark:bg-white/95 dark:shadow-dark-card;
   }
 
@@ -211,16 +239,20 @@
     @apply input-field;
   }
 
+  .page-container {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
   .page-panel {
-    @apply surface-card space-y-6 p-8 text-slate-600 dark:text-slate-300 sm:p-12;
+    @apply surface-card space-y-6 p-5 text-slate-600 dark:text-slate-300 sm:p-8 md:p-12;
   }
 
   .page-title {
-    @apply text-3xl font-semibold text-slate-900 dark:text-white;
+    @apply text-2xl font-semibold text-slate-900 dark:text-white sm:text-3xl;
   }
 
   .page-heading {
-    @apply text-xl font-semibold text-slate-900 dark:text-white;
+    @apply text-lg font-semibold text-slate-900 dark:text-white sm:text-xl;
   }
 
   .admin-panel {
@@ -325,6 +357,15 @@
 }
 
 @layer utilities {
+  .responsive-grid-3 {
+    @apply grid grid-cols-1 gap-3 xs:grid-cols-3 xs:gap-4;
+  }
+
+  .overflow-x-auto-touch {
+    @apply overflow-x-auto scroll-touch;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .animate-float {
     animation: float 6s ease-in-out infinite;
   }

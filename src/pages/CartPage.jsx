@@ -22,7 +22,7 @@ export default function CartPage() {
              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
            </svg>
          </div>
-         <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">Your cart is empty</h1>
+         <h1 className="mb-4 text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">Your cart is empty</h1>
          <p className="max-w-md text-lg text-slate-500 dark:text-slate-400 mb-10">You haven't added any products to your cart yet. Explore our storefront to find items you can buy on easy installments.</p>
          <Link className="button-primary px-8 py-3 text-lg" to="/products">
            Explore Products
@@ -37,7 +37,7 @@ export default function CartPage() {
       {/* Page Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Checkout</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">Checkout</h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Review your items and complete your purchase.</p>
         </div>
         <div className="self-start sm:self-auto">

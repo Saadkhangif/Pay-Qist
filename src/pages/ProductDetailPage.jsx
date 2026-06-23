@@ -51,7 +51,7 @@ export default function ProductDetailPage() {
         Back to Catalog
       </Link>
 
-      <div className="grid lg:grid-cols-[1.2fr_1fr] gap-12 xl:gap-16 items-start">
+      <div className="grid items-start gap-8 lg:grid-cols-[1.2fr_1fr] lg:gap-12 xl:gap-16">
         
         {/* Left Column: Product Imagery */}
         <div className="product-image-stage">
@@ -69,10 +69,10 @@ export default function ProductDetailPage() {
         </div>
 
         {/* Right Column: Checkout Widget */}
-        <div className="space-y-8 sticky top-24">
+        <div className="space-y-8 lg:sticky lg:top-24">
           <div>
             <span className="inline-block text-xs font-bold uppercase tracking-wider text-brand-500 mb-2">{product.category || 'Electronics'}</span>
-            <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+            <h1 className="mb-3 text-2xl font-extrabold leading-tight tracking-tight text-slate-900 dark:text-white sm:text-3xl md:text-4xl">
               {product.title}
             </h1>
             <p className="mb-6 text-lg leading-relaxed text-slate-500 dark:text-slate-400">
@@ -84,7 +84,7 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Installment Selector Widget */}
-          <div className="surface-card p-6 sm:p-8">
+          <div className="surface-card p-5 sm:p-6 md:p-8">
             <h3 className="mb-4 text-sm font-bold uppercase tracking-widest text-slate-900 dark:text-white">Select Installment Plan</h3>
             
             <div className="grid grid-cols-3 gap-3 mb-8">
