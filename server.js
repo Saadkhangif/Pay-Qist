@@ -44,6 +44,7 @@ import { registerBlobUploadRoutes } from './server/routes/blobUpload.js';
 import { persistApplicationImages, resolvePersonImageUrls } from './server/utils/applicationImages.js';
 
 dotenv.config();
+dotenv.config({ path: '.env.local', override: true });
 
 const products = [...seedProducts];
 const orders = [];

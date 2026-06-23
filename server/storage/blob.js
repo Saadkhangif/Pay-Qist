@@ -2,6 +2,7 @@ import { Readable } from 'node:stream';
 import { put, del, get } from '@vercel/blob';
 import { insertBlobRecord } from '../db/blobs.js';
 import { isBlobStorageEnabled, isDatabaseEnabled } from '../db/index.js';
+import { getBlobClientOptions } from './blobClient.js';
 
 function sanitizeFilename(name = 'file') {
   return name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 120);
@@ -29,15 +30,14 @@ export async function uploadFileToBlobAndDb({
   entityId,
 }) {
   if (!isBlobStorageEnabled()) {
-    throw new Error('BLOB_READ_WRITE_TOKEN is not configured. Add Vercel Blob to your project.');
+    throw new Error('Blob storage is not configured. Add Vercel Blob to your project.');
   }
 
   const pathname = buildPathname({ folder, filename, userId: uploadedBy });
-  const blob = await put(pathname, buffer, {
+  const blob = await put(pathname, buffer, getBlobClientOptions({
     access,
     contentType: contentType || 'application/octet-stream',
-    token: process.env.BLOB_READ_WRITE_TOKEN,
-  });
+  }));
 
   let record = null;
   if (isDatabaseEnabled()) {
@@ -67,7 +67,7 @@ export async function deleteBlobByUrl(url) {
     return;
   }
 
-  await del(url, { token: process.env.BLOB_READ_WRITE_TOKEN });
+  await del(url, getBlobClientOptions());
 }
 
 /**
@@ -76,13 +76,12 @@ export async function deleteBlobByUrl(url) {
  */
 export async function streamBlobToResponse(res, pathnameOrUrl, access) {
   if (!isBlobStorageEnabled()) {
-    throw new Error('BLOB_READ_WRITE_TOKEN is not configured.');
+    throw new Error('Blob storage is not configured.');
   }
 
-  const result = await get(pathnameOrUrl, {
+  const result = await get(pathnameOrUrl, getBlobClientOptions({
     access,
-    token: process.env.BLOB_READ_WRITE_TOKEN,
-  });
+  }));
 
   if (!result || result.statusCode !== 200) {
     return false;

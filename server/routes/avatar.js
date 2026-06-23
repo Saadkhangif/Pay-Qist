@@ -3,6 +3,7 @@ import { Readable } from 'stream';
 import { get, put } from '@vercel/blob';
 import { insertBlobRecord } from '../db/blobs.js';
 import { isBlobStorageEnabled, isDatabaseEnabled } from '../db/index.js';
+import { getBlobClientOptions } from '../storage/blobClient.js';
 import { updateUserAvatar } from '../utils/users.js';
 
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
@@ -55,12 +56,11 @@ export function registerAvatarRoutes(app, { csrfProtection, requireAuth }) {
 
       try {
         const pathname = buildAvatarPathname(req.auth.id, filename);
-        const blob = await put(pathname, req.body, {
+        const blob = await put(pathname, req.body, getBlobClientOptions({
           access: 'private',
           contentType,
-          token: process.env.BLOB_READ_WRITE_TOKEN,
           addRandomSuffix: false,
-        });
+        }));
 
         let record = null;
         if (isDatabaseEnabled()) {
@@ -103,10 +103,9 @@ export function registerAvatarRoutes(app, { csrfProtection, requireAuth }) {
     }
 
     try {
-      const result = await get(pathname, {
+      const result = await get(pathname, getBlobClientOptions({
         access: 'private',
-        token: process.env.BLOB_READ_WRITE_TOKEN,
-      });
+      }));
 
       if (!result || result.statusCode === 404) {
         return res.status(404).json({ error: 'Avatar not found.' });

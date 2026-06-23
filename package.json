@@ -7,6 +7,7 @@
     "dev": "NODE_ENV=development node server.js",
     "build": "vite build",
     "db:init": "node scripts/init-db.mjs",
+    "env:pull": "vercel env pull .env.vercel.tmp --environment=development --yes && node scripts/merge-env.mjs .env.vercel.tmp",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "NODE_ENV=production node server.js"

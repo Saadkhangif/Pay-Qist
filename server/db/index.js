@@ -1,4 +1,7 @@
 import { neon } from '@neondatabase/serverless';
+import { isBlobStorageEnabled } from '../storage/blobClient.js';
+
+export { isBlobStorageEnabled };
 
 function resolveDatabaseUrl() {
   return process.env.DATABASE_URL || process.env.POSTGRES_URL || '';
@@ -6,10 +9,6 @@ function resolveDatabaseUrl() {
 
 export function isDatabaseEnabled() {
   return Boolean(resolveDatabaseUrl());
-}
-
-export function isBlobStorageEnabled() {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 }
 
 let sqlClient = null;
