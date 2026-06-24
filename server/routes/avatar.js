@@ -4,7 +4,7 @@ import { get, put } from '@vercel/blob';
 import { insertBlobRecord } from '../db/blobs.js';
 import { isBlobStorageEnabled, isDatabaseEnabled } from '../db/index.js';
 import { getBlobClientOptions } from '../storage/blobClient.js';
-import { updateUserAvatar } from '../utils/users.js';
+import { updateProfileAvatar } from '../db/userProfiles.js';
 
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
@@ -76,7 +76,7 @@ export function registerAvatarRoutes(app, { csrfProtection, requireAuth }) {
           });
         }
 
-        updateUserAvatar(req.auth.id, blob.pathname || pathname);
+        await updateProfileAvatar(req.auth.id, blob.pathname || pathname);
 
         return res.json({
           url: blob.url,

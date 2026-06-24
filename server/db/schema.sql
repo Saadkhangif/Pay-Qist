@@ -39,3 +39,18 @@ CREATE INDEX IF NOT EXISTS products_category_idx ON products (category);
 CREATE TABLE IF NOT EXISTS comments (
   comment TEXT
 );
+
+CREATE TABLE IF NOT EXISTS user_profiles (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL DEFAULT '',
+  role TEXT NOT NULL DEFAULT 'customer' CHECK (role IN ('admin', 'customer')),
+  cnic TEXT NOT NULL DEFAULT '',
+  phone TEXT NOT NULL DEFAULT '',
+  avatar_pathname TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS user_profiles_email_idx ON user_profiles (email);
+CREATE INDEX IF NOT EXISTS user_profiles_role_idx ON user_profiles (role);

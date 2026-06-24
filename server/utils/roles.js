@@ -12,6 +12,7 @@ export function userFromRecord(record) {
     role: normalizeRole(record.role),
     cnic: record.cnic || '',
     phone: record.phone || '',
+    avatarPathname: record.avatarPathname || record.avatar_pathname || '',
     profileComplete: Boolean(record.cnic && record.phone),
   };
 }

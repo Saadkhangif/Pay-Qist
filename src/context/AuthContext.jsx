@@ -1,5 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { apiFetch, ensureCsrfToken, initApiSecurity } from '../lib/api';
+import { apiFetch, initApiSecurity } from '../lib/api';
+import {
+  isNeonAuthConfigured,
+  neonGetSession,
+  neonSignIn,
+  neonSignOut,
+  neonSignUp,
+} from '../lib/neonAuth';
 
 const AuthContext = createContext(null);
 
@@ -13,8 +20,13 @@ function buildUserProfile(user) {
     phone: user.phone || '',
     avatarPathname: user.avatarPathname || '',
     profileComplete: Boolean(user.profileComplete ?? (user.cnic && user.phone)),
-    provider: 'local',
+    provider: isNeonAuthConfigured ? 'neon' : 'local',
   };
+}
+
+async function fetchAppUser() {
+  const payload = await apiFetch('/api/auth/me');
+  return buildUserProfile(payload.user);
 }
 
 export function AuthProvider({ children }) {
@@ -28,6 +40,21 @@ export function AuthProvider({ children }) {
     async function bootstrapAuth() {
       try {
         await initApiSecurity();
+
+        if (isNeonAuthConfigured) {
+          const session = await neonGetSession();
+          if (!session?.user) {
+            if (!cancelled) setUser(null);
+            return;
+          }
+
+          const profile = await fetchAppUser().catch(() => null);
+          if (!cancelled) {
+            setUser(profile);
+          }
+          return;
+        }
+
         const payload = await apiFetch('/api/auth/me').catch(() => null);
         if (!cancelled) {
           setUser(payload?.user ? buildUserProfile(payload.user) : null);
@@ -56,12 +83,36 @@ export function AuthProvider({ children }) {
   }, [user]);
 
   async function signup({ cnic, email, phone, password, confirmPassword }) {
-    await ensureCsrfToken();
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (isNeonAuthConfigured) {
+      await neonSignUp({
+        email: normalizedEmail,
+        password,
+        name: normalizedEmail.split('@')[0] || 'Customer',
+      });
+
+      const profile = await apiFetch('/api/auth/profile', {
+        method: 'PUT',
+        body: JSON.stringify({
+          cnic: cnic.trim(),
+          email: normalizedEmail,
+          phone: phone.trim(),
+          password,
+          confirmPassword,
+        }),
+      });
+
+      const nextProfile = buildUserProfile(profile.user);
+      setUser(nextProfile);
+      return nextProfile;
+    }
+
     const payload = await apiFetch('/api/auth/signup', {
       method: 'POST',
       body: JSON.stringify({
         cnic: cnic.trim(),
-        email: email.trim().toLowerCase(),
+        email: normalizedEmail,
         phone: phone.trim(),
         password,
         confirmPassword,
@@ -73,7 +124,6 @@ export function AuthProvider({ children }) {
   }
 
   async function completeProfile({ cnic, email, phone, password, confirmPassword }) {
-    await ensureCsrfToken();
     const payload = await apiFetch('/api/auth/profile', {
       method: 'PUT',
       body: JSON.stringify({
@@ -90,11 +140,19 @@ export function AuthProvider({ children }) {
   }
 
   async function login({ email, password }) {
-    await ensureCsrfToken();
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (isNeonAuthConfigured) {
+      await neonSignIn({ email: normalizedEmail, password });
+      const profile = await fetchAppUser();
+      setUser(profile);
+      return profile;
+    }
+
     const payload = await apiFetch('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({
-        email: email.trim().toLowerCase(),
+        email: normalizedEmail,
         password,
       }),
     });
@@ -104,7 +162,11 @@ export function AuthProvider({ children }) {
   }
 
   async function logout() {
-    await apiFetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    if (isNeonAuthConfigured) {
+      await neonSignOut().catch(() => {});
+    } else {
+      await apiFetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    }
     setUser(null);
   }
 

@@ -14,6 +14,10 @@ export function csrfProtection(req, res, next) {
     return next();
   }
 
+  if (req.headers.authorization?.startsWith('Bearer ')) {
+    return next();
+  }
+
   const cookieToken = req.cookies?.[CSRF_COOKIE];
   const headerToken = req.headers['x-csrf-token'];
 

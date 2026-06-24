@@ -1,7 +1,27 @@
+import { getNeonSessionToken } from './neonAuth.js';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 const CSRF_COOKIE_NAME = 'csrf_token';
 
 let csrfToken = null;
+
+async function getAuthHeaders(isMutation) {
+  const headers = {};
+
+  if (isMutation) {
+    const token = await ensureCsrfToken();
+    if (token) {
+      headers['X-CSRF-Token'] = token;
+    }
+  }
+
+  const bearer = await getNeonSessionToken();
+  if (bearer) {
+    headers.Authorization = `Bearer ${bearer}`;
+  }
+
+  return headers;
+}
 
 function readCsrfCookie() {
   if (typeof document === 'undefined') return null;
@@ -47,17 +67,12 @@ export async function apiFetch(path, options = {}, retryOnCsrf = true) {
   const method = (options.method || 'GET').toUpperCase();
   const isMutation = !['GET', 'HEAD', 'OPTIONS'].includes(method);
   const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+  const authHeaders = await getAuthHeaders(isMutation);
   const headers = {
     ...(options.body && !isFormData ? { 'Content-Type': 'application/json' } : {}),
+    ...authHeaders,
     ...options.headers,
   };
-
-  if (isMutation) {
-    const token = await ensureCsrfToken();
-    if (token) {
-      headers['X-CSRF-Token'] = token;
-    }
-  }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
@@ -102,7 +117,7 @@ export function avatarViewUrl(pathname) {
 }
 
 export async function uploadAvatarFile(file) {
-  const token = await ensureCsrfToken();
+  const authHeaders = await getAuthHeaders(true);
   const response = await fetch(
     `${API_BASE_URL}/api/avatar/upload?filename=${encodeURIComponent(file.name)}`,
     {
@@ -110,7 +125,7 @@ export async function uploadAvatarFile(file) {
       body: file,
       credentials: 'include',
       headers: {
-        'X-CSRF-Token': token,
+        ...authHeaders,
         'Content-Type': file.type,
       },
     },
@@ -142,13 +157,13 @@ export async function uploadBlobFile(file, options = {}) {
     params.set('entityId', entityId);
   }
 
-  const token = await ensureCsrfToken();
+  const authHeaders = await getAuthHeaders(true);
   const response = await fetch(`${API_BASE_URL}/api/blob-upload?${params}`, {
     method: 'POST',
     body: file,
     credentials: 'include',
     headers: {
-      'X-CSRF-Token': token,
+      ...authHeaders,
       'Content-Type': file.type || 'application/octet-stream',
     },
   });

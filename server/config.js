@@ -20,6 +20,12 @@ function requireProductionSecret(name, devDefault) {
   return devDefault;
 }
 
+export const NEON_AUTH_BASE_URL = (
+  process.env.NEON_AUTH_BASE_URL ||
+  process.env.VITE_NEON_AUTH_URL ||
+  ''
+).replace(/\/$/, '');
+
 export const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@payqist.com').toLowerCase();
 export const ADMIN_PASSWORD = requireProductionSecret('ADMIN_PASSWORD', 'admin123');
 export const SESSION_SECRET = requireProductionSecret('SESSION_SECRET', 'payqist-dev-session-secret-change-me');

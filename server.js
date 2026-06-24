@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { applySecurityMiddleware, authRateLimiter, contactRateLimiter } from './server/middleware/security.js';
 import { csrfProtection, issueCsrfToken } from './server/middleware/csrf.js';
-import { requireAuth, requireAdmin } from './server/middleware/auth.js';
+import { requireAuth, requireAdmin, getAuthenticatedProfile } from './server/middleware/auth.js';
 import {
   applicationSubmitSchema,
   checkoutSchema,
@@ -33,8 +33,13 @@ import {
   getUserById,
   updateUserProfile,
   listUsers,
-  updateUserRole as setUserRole,
 } from './server/utils/users.js';
+import {
+  getProfileById,
+  upsertProfile,
+  listProfiles,
+  updateProfileRole,
+} from './server/db/userProfiles.js';
 import { seedProducts } from './src/data/seedProducts.js';
 import { imageUpload } from './server/middleware/upload.js';
 import { uploadFileToBlobAndDb, getStorageStatus, streamBlobToResponse } from './server/storage/blob.js';
@@ -232,26 +237,14 @@ app.get('/api/blobs', requireAuth, async (req, res) => {
   return serveAuthorizedBlob(req, res, record);
 });
 
-app.get('/api/auth/me', (req, res) => {
-  const sessionToken = req.cookies?.[SESSION_COOKIE];
-  if (!sessionToken) {
+app.get('/api/auth/me', async (req, res) => {
+  const profile = await getAuthenticatedProfile(req);
+
+  if (!profile) {
     return res.status(401).json({ error: 'Not authenticated.' });
   }
 
-  try {
-    const decoded = verifySessionToken(sessionToken);
-    const user = getUserById(decoded.id);
-
-    if (!user) {
-      clearSession(res);
-      return res.status(401).json({ error: 'Session expired.' });
-    }
-
-    return res.json({ user: userFromRecord(user) });
-  } catch {
-    clearSession(res);
-    return res.status(401).json({ error: 'Session expired.' });
-  }
+  return res.json({ user: userFromRecord(profile) });
 });
 
 app.post('/api/auth/signup', authRateLimiter, validateBody(signupSchema), (req, res) => {
@@ -281,9 +274,9 @@ app.post('/api/auth/logout', (req, res) => {
   return res.json({ message: 'Logged out.' });
 });
 
-app.put('/api/auth/profile', requireAuth, validateBody(profileSchema), (req, res) => {
+app.put('/api/auth/profile', requireAuth, validateBody(profileSchema), async (req, res) => {
   try {
-    const user = updateUserProfile(req.auth.id, req.body);
+    const user = await upsertProfile(req.auth.id, req.body);
     return res.json({ user: userFromRecord(user) });
   } catch (error) {
     return res.status(400).json({ error: error.message || 'Unable to update profile.' });
@@ -409,7 +402,7 @@ app.post('/api/checkout', requireAuth, validateBody(checkoutSchema), async (req,
   }
 
   const { cart, paymentMethod = 'card', paymentReference = '' } = req.body;
-  const user = getUserById(req.auth.id);
+  const user = (await getProfileById(req.auth.id)) || getUserById(req.auth.id);
 
   if (!user) {
     return res.status(401).json({ error: 'User not found.' });
@@ -445,7 +438,7 @@ app.post('/api/applications/submit', requireAuth, validateBody(applicationSubmit
   }
 
   const { cart, paymentMethod = 'card', paymentReference = '', applicant, referral } = req.body;
-  const user = getUserById(req.auth.id);
+  const user = (await getProfileById(req.auth.id)) || getUserById(req.auth.id);
 
   if (!user) {
     return res.status(401).json({ error: 'User not found.' });
@@ -575,8 +568,10 @@ app.post('/api/contact', contactRateLimiter, validateBody(contactSchema), (req, 
   res.json({ success: true, message: 'Message received.' });
 });
 
-app.get('/api/users', requireAuth, requireAdmin, (req, res) => {
-  res.json(listUsers());
+app.get('/api/users', requireAuth, requireAdmin, async (req, res) => {
+  const profiles = await listProfiles();
+  const users = profiles.length ? profiles : listUsers();
+  res.json(users.map((entry) => userFromRecord(entry)));
 });
 
 app.put(
@@ -584,9 +579,9 @@ app.put(
   requireAuth,
   requireAdmin,
   validateBody(roleUpdateSchema),
-  (req, res) => {
+  async (req, res) => {
     try {
-      const user = setUserRole(req.params.id, req.body.role, req.auth.id);
+      const user = await updateProfileRole(req.params.id, req.body.role, req.auth.id);
       res.json({ success: true, role: user.role });
     } catch (error) {
       res.status(404).json({ error: error.message || 'User not found.' });

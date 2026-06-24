@@ -66,7 +66,7 @@ export function applySecurityMiddleware(app) {
       },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'X-CSRF-Token'],
+      allowedHeaders: ['Content-Type', 'X-CSRF-Token', 'Authorization'],
     }),
   );
 
