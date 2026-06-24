@@ -16,6 +16,7 @@ import {
   roleUpdateSchema,
   signupSchema,
   validateBody,
+  commentSchema,
 } from './server/validation/schemas.js';
 import {
   COOKIE_OPTIONS,
@@ -39,6 +40,7 @@ import { imageUpload } from './server/middleware/upload.js';
 import { uploadFileToBlobAndDb, getStorageStatus, streamBlobToResponse } from './server/storage/blob.js';
 import { getBlobById, getBlobByPathname } from './server/db/blobs.js';
 import { isDatabaseEnabled } from './server/db/index.js';
+import { createComment, listComments } from './server/db/comments.js';
 import { registerAvatarRoutes } from './server/routes/avatar.js';
 import { registerBlobUploadRoutes } from './server/routes/blobUpload.js';
 import { persistApplicationImages, resolvePersonImageUrls } from './server/utils/applicationImages.js';
@@ -113,6 +115,32 @@ app.get('/api/csrf-token', (req, res) => {
 
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, storage: getStorageStatus() });
+});
+
+app.get('/api/comments', async (req, res) => {
+  if (!isDatabaseEnabled()) {
+    return res.status(503).json({ error: 'Database is not configured.' });
+  }
+
+  try {
+    const rows = await listComments();
+    return res.json({ comments: rows.map((row) => row.comment) });
+  } catch (error) {
+    return res.status(500).json({ error: error.message || 'Unable to load comments.' });
+  }
+});
+
+app.post('/api/comments', contactRateLimiter, validateBody(commentSchema), async (req, res) => {
+  if (!isDatabaseEnabled()) {
+    return res.status(503).json({ error: 'Database is not configured.' });
+  }
+
+  try {
+    const saved = await createComment(req.body.comment);
+    return res.status(201).json({ comment: saved });
+  } catch (error) {
+    return res.status(500).json({ error: error.message || 'Unable to save comment.' });
+  }
 });
 
 app.get('/api/storage/status', requireAuth, requireAdmin, (req, res) => {

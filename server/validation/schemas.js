@@ -75,6 +75,10 @@ export const contactSchema = z.object({
   message: z.string().trim().min(10, 'Message must be at least 10 characters.').max(2000),
 });
 
+export const commentSchema = z.object({
+  comment: z.string().trim().min(1, 'Comment is required.').max(500),
+});
+
 export const checkoutSchema = z.object({
   cart: z
     .array(
