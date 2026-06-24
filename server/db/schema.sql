@@ -35,3 +35,7 @@ CREATE TABLE IF NOT EXISTS products (
 
 CREATE INDEX IF NOT EXISTS products_featured_idx ON products (featured);
 CREATE INDEX IF NOT EXISTS products_category_idx ON products (category);
+
+CREATE TABLE IF NOT EXISTS comments (
+  comment TEXT
+);
