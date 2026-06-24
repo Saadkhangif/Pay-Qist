@@ -8,7 +8,10 @@ export function registerBlobUploadRoutes(app, { csrfProtection, requireAuth }) {
     '/api/blob-upload',
     csrfProtection,
     requireAuth,
-    express.raw({ limit: MAX_UPLOAD_BYTES }),
+    express.raw({
+      limit: MAX_UPLOAD_BYTES,
+      type: () => true,
+    }),
     async (req, res) => {
       if (!isBlobStorageEnabled()) {
         return res.status(503).json({ error: 'Blob storage is not configured.' });
