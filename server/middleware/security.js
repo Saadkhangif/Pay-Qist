@@ -53,11 +53,8 @@ export function applySecurityMiddleware(app) {
   app.use(
     cors({
       origin(origin, callback) {
+        // Same-origin SPA + API requests often omit Origin; allow those through.
         if (!origin) {
-          if (IS_PRODUCTION) {
-            callback(new Error('Not allowed by CORS'));
-            return;
-          }
           callback(null, true);
           return;
         }

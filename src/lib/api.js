@@ -20,7 +20,8 @@ export async function initApiSecurity() {
   });
 
   if (!response.ok) {
-    throw new Error('Unable to initialize security tokens.');
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(payload.error || 'Unable to initialize security tokens.');
   }
 
   const payload = await response.json();

@@ -38,10 +38,44 @@ export const SESSION_COOKIE = '__session';
 export const CSRF_COOKIE = 'csrf_token';
 export const SESSION_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 5; // 5 days
 
-export const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:8787,http://127.0.0.1:8787,http://localhost:5173,http://localhost:4173')
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+function normalizeOrigin(value) {
+  const trimmed = value.trim().replace(/^['"]|['"]$/g, '');
+  if (!trimmed) {
+    return null;
+  }
+
+  try {
+    return new URL(trimmed).origin;
+  } catch {
+    return trimmed;
+  }
+}
+
+function collectAllowedOrigins() {
+  const origins = new Set(
+    (process.env.ALLOWED_ORIGINS || 'http://localhost:8787,http://127.0.0.1:8787,http://localhost:5173,http://localhost:4173')
+      .split(',')
+      .map(normalizeOrigin)
+      .filter(Boolean),
+  );
+
+  const appUrl = process.env.APP_URL?.trim();
+  if (appUrl) {
+    const appOrigin = normalizeOrigin(appUrl);
+    if (appOrigin) {
+      origins.add(appOrigin);
+    }
+  }
+
+  const vercelUrl = process.env.VERCEL_URL?.trim();
+  if (vercelUrl) {
+    origins.add(`https://${vercelUrl.replace(/^https?:\/\//, '')}`);
+  }
+
+  return [...origins];
+}
+
+export const ALLOWED_ORIGINS = collectAllowedOrigins();
 
 const parsedAppUrl = new URL(APP_URL);
 export const CANONICAL_HOST = parsedAppUrl.host;
