@@ -1,10 +1,9 @@
 import express from 'express';
 import { Readable } from 'stream';
 import { get, put } from '@vercel/blob';
-import { insertBlobRecord } from '../db/blobs.js';
-import { isBlobStorageEnabled, isDatabaseEnabled } from '../db/index.js';
-import { getBlobClientOptions } from '../storage/blobClient.js';
-import { updateProfileAvatar } from '../db/userProfiles.js';
+import { isBlobStorageEnabled, getBlobClientOptions } from '../storage/blobClient.js';
+import { updateUserAvatar } from '../utils/users.js';
+import { canViewPathname } from '../utils/blobAccess.js';
 
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
@@ -15,18 +14,6 @@ function sanitizeFilename(name = 'avatar') {
 
 function buildAvatarPathname(userId, filename) {
   return `avatars/${userId}/${Date.now()}-${sanitizeFilename(filename)}`;
-}
-
-function canViewAvatar({ auth, pathname }) {
-  if (!pathname || typeof pathname !== 'string') {
-    return false;
-  }
-
-  if (auth.role === 'admin') {
-    return pathname.startsWith('avatars/');
-  }
-
-  return pathname.startsWith(`avatars/${auth.id}/`);
 }
 
 export function registerAvatarRoutes(app, { csrfProtection, requireAuth }) {
@@ -62,28 +49,12 @@ export function registerAvatarRoutes(app, { csrfProtection, requireAuth }) {
           addRandomSuffix: false,
         }));
 
-        let record = null;
-        if (isDatabaseEnabled()) {
-          record = await insertBlobRecord({
-            pathname: blob.pathname || pathname,
-            url: blob.url,
-            contentType,
-            sizeBytes: req.body.length,
-            access: 'private',
-            uploadedBy: req.auth.id,
-            entityType: 'avatar',
-            entityId: req.auth.id,
-          });
-        }
-
-        await updateProfileAvatar(req.auth.id, blob.pathname || pathname);
+        await updateUserAvatar(req.auth.id, blob.pathname || pathname);
 
         return res.json({
           url: blob.url,
           pathname: blob.pathname || pathname,
           contentType: blob.contentType || contentType,
-          id: record?.id || null,
-          storedInDatabase: Boolean(record),
         });
       } catch (error) {
         return res.status(500).json({ error: error.message || 'Avatar upload failed.' });
@@ -98,7 +69,7 @@ export function registerAvatarRoutes(app, { csrfProtection, requireAuth }) {
 
     const pathname = typeof req.query.pathname === 'string' ? req.query.pathname : '';
 
-    if (!canViewAvatar({ auth: req.auth, pathname })) {
+    if (!canViewPathname(req.auth, pathname)) {
       return res.status(403).json({ error: 'Not allowed to view this file.' });
     }
 

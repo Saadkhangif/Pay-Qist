@@ -43,7 +43,7 @@ export default function AvatarUpload({ initialPathname = '', onUploaded }) {
       <div>
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">Profile photo</h2>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Upload a private avatar stored in Vercel Blob and linked in your database record.
+          Upload a private avatar stored in Vercel Blob and linked to your profile.
         </p>
       </div>
 

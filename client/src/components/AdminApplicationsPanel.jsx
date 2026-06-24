@@ -10,7 +10,7 @@ import { formatCurrency } from '../lib/currency';
 function resolveImageSrc(value) {
   if (!value) return null;
   if (value.startsWith('data:') || value.startsWith('http')) return value;
-  if (value.startsWith('/api/uploads/')) return value;
+  if (value.startsWith('/api/blobs')) return value;
   return blobFileUrl(value);
 }
 

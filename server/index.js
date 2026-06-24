@@ -16,7 +16,6 @@ import {
   roleUpdateSchema,
   signupSchema,
   validateBody,
-  commentSchema,
 } from './validation/schemas.js';
 import {
   COOKIE_OPTIONS,
@@ -26,29 +25,22 @@ import {
   SESSION_MAX_AGE_MS,
 } from './config.js';
 import { userFromRecord } from './utils/roles.js';
-import { createSessionToken, verifySessionToken } from './utils/session.js';
+import { createSessionToken } from './utils/session.js';
 import {
   authenticate,
   createUser,
   getUserById,
   updateUserProfile,
   listUsers,
+  updateUserRole,
 } from './utils/users.js';
-import {
-  getProfileById,
-  upsertProfile,
-  listProfiles,
-  updateProfileRole,
-} from './db/userProfiles.js';
 import { seedProducts } from './data/seedProducts.js';
 import { imageUpload } from './middleware/upload.js';
-import { uploadFileToBlobAndDb, getStorageStatus, streamBlobToResponse } from './storage/blob.js';
-import { getBlobById, getBlobByPathname } from './db/blobs.js';
-import { isDatabaseEnabled } from './db/index.js';
-import { createComment, listComments } from './db/comments.js';
+import { uploadFileToBlob, getStorageStatus, streamBlobToResponse } from './storage/blob.js';
 import { registerAvatarRoutes } from './routes/avatar.js';
 import { registerBlobUploadRoutes } from './routes/blobUpload.js';
 import { persistApplicationImages, resolvePersonImageUrls } from './utils/applicationImages.js';
+import { canViewPathname } from './utils/blobAccess.js';
 
 const products = [...seedProducts];
 const orders = [];
@@ -78,42 +70,6 @@ function clearSession(res) {
   res.clearCookie(SESSION_COOKIE, COOKIE_OPTIONS);
 }
 
-function canViewBlob(record, auth) {
-  if (!record) {
-    return false;
-  }
-
-  if (auth.role === 'admin') {
-    return true;
-  }
-
-  return record.uploaded_by === auth.id;
-}
-
-async function serveAuthorizedBlob(req, res, record) {
-  if (!record) {
-    return res.status(404).json({ error: 'File not found.' });
-  }
-
-  if (!canViewBlob(record, req.auth)) {
-    return res.status(403).json({ error: 'Not allowed to view this file.' });
-  }
-
-  if (record.access === 'public') {
-    return res.redirect(record.url);
-  }
-
-  try {
-    const streamed = await streamBlobToResponse(res, record.pathname, 'private');
-    if (!streamed) {
-      return res.status(404).send('Not found');
-    }
-    return undefined;
-  } catch (error) {
-    return res.status(500).json({ error: error.message || 'Unable to load file.' });
-  }
-}
-
 app.get('/api/csrf-token', (req, res) => {
   const csrfToken = issueCsrfToken(res);
   res.json({ csrfToken });
@@ -125,32 +81,6 @@ app.get('/api/health', (req, res) => {
     storage: getStorageStatus(),
     auth: { mode: 'session' },
   });
-});
-
-app.get('/api/comments', async (req, res) => {
-  if (!isDatabaseEnabled()) {
-    return res.status(503).json({ error: 'Database is not configured.' });
-  }
-
-  try {
-    const rows = await listComments();
-    return res.json({ comments: rows.map((row) => row.comment) });
-  } catch (error) {
-    return res.status(500).json({ error: error.message || 'Unable to load comments.' });
-  }
-});
-
-app.post('/api/comments', contactRateLimiter, validateBody(commentSchema), async (req, res) => {
-  if (!isDatabaseEnabled()) {
-    return res.status(503).json({ error: 'Database is not configured.' });
-  }
-
-  try {
-    const saved = await createComment(req.body.comment);
-    return res.status(201).json({ comment: saved });
-  } catch (error) {
-    return res.status(500).json({ error: error.message || 'Unable to save comment.' });
-  }
 });
 
 app.get('/api/storage/status', requireAuth, requireAdmin, (req, res) => {
@@ -172,7 +102,7 @@ app.post(
     const folder = req.body.folder || (entityType ? `${entityType}s` : 'uploads');
 
     try {
-      const result = await uploadFileToBlobAndDb({
+      const result = await uploadFileToBlob({
         buffer: req.file.buffer,
         contentType: req.file.mimetype,
         filename: req.file.originalname,
@@ -190,43 +120,6 @@ app.post(
   },
 );
 
-app.get('/api/uploads/:id', requireAuth, async (req, res) => {
-  if (!isDatabaseEnabled()) {
-    return res.status(503).json({ error: 'Database is not configured.' });
-  }
-
-  const record = await getBlobById(req.params.id);
-
-  if (!record) {
-    return res.status(404).json({ error: 'File record not found.' });
-  }
-
-  if (!canViewBlob(record, req.auth)) {
-    return res.status(403).json({ error: 'Not allowed to view this file.' });
-  }
-
-  return res.json({
-    id: record.id,
-    url: record.url,
-    pathname: record.pathname,
-    contentType: record.content_type,
-    sizeBytes: record.size_bytes,
-    access: record.access,
-    entityType: record.entity_type,
-    entityId: record.entity_id,
-    createdAt: record.created_at,
-  });
-});
-
-app.get('/api/uploads/:id/file', requireAuth, async (req, res) => {
-  if (!isDatabaseEnabled()) {
-    return res.status(503).json({ error: 'Database is not configured.' });
-  }
-
-  const record = await getBlobById(req.params.id);
-  return serveAuthorizedBlob(req, res, record);
-});
-
 app.get('/api/blobs', requireAuth, async (req, res) => {
   const pathname = req.query.pathname;
 
@@ -234,12 +127,19 @@ app.get('/api/blobs', requireAuth, async (req, res) => {
     return res.status(400).json({ error: 'Missing pathname' });
   }
 
-  if (!isDatabaseEnabled()) {
-    return res.status(503).json({ error: 'Database is not configured.' });
+  if (!canViewPathname(req.auth, pathname)) {
+    return res.status(403).json({ error: 'Not allowed to view this file.' });
   }
 
-  const record = await getBlobByPathname(pathname);
-  return serveAuthorizedBlob(req, res, record);
+  try {
+    const streamed = await streamBlobToResponse(res, pathname, 'private');
+    if (!streamed) {
+      return res.status(404).send('Not found');
+    }
+    return undefined;
+  } catch (error) {
+    return res.status(500).json({ error: error.message || 'Unable to load file.' });
+  }
 });
 
 app.get('/api/auth/me', async (req, res) => {
@@ -281,7 +181,7 @@ app.post('/api/auth/logout', (req, res) => {
 
 app.put('/api/auth/profile', requireAuth, validateBody(profileSchema), async (req, res) => {
   try {
-    const user = await upsertProfile(req.auth.id, req.body);
+    const user = updateUserProfile(req.auth.id, req.body);
     return res.json({ user: userFromRecord(user) });
   } catch (error) {
     return res.status(400).json({ error: error.message || 'Unable to update profile.' });
@@ -407,7 +307,7 @@ app.post('/api/checkout', requireAuth, validateBody(checkoutSchema), async (req,
   }
 
   const { cart, paymentMethod = 'card', paymentReference = '' } = req.body;
-  const user = (await getProfileById(req.auth.id)) || getUserById(req.auth.id);
+  const user = getUserById(req.auth.id);
 
   if (!user) {
     return res.status(401).json({ error: 'User not found.' });
@@ -443,7 +343,7 @@ app.post('/api/applications/submit', requireAuth, validateBody(applicationSubmit
   }
 
   const { cart, paymentMethod = 'card', paymentReference = '', applicant, referral } = req.body;
-  const user = (await getProfileById(req.auth.id)) || getUserById(req.auth.id);
+  const user = getUserById(req.auth.id);
 
   if (!user) {
     return res.status(401).json({ error: 'User not found.' });
@@ -574,9 +474,7 @@ app.post('/api/contact', contactRateLimiter, validateBody(contactSchema), (req, 
 });
 
 app.get('/api/users', requireAuth, requireAdmin, async (req, res) => {
-  const profiles = await listProfiles();
-  const users = profiles.length ? profiles : listUsers();
-  res.json(users.map((entry) => userFromRecord(entry)));
+  res.json(listUsers().map((entry) => userFromRecord(entry)));
 });
 
 app.put(
@@ -586,7 +484,7 @@ app.put(
   validateBody(roleUpdateSchema),
   async (req, res) => {
     try {
-      const user = await updateProfileRole(req.params.id, req.body.role, req.auth.id);
+      const user = updateUserRole(req.params.id, req.body.role, req.auth.id);
       res.json({ success: true, role: user.role });
     } catch (error) {
       res.status(404).json({ error: error.message || 'User not found.' });
@@ -642,10 +540,8 @@ async function startServer() {
   app.listen(PORT, () => {
     console.log(`Pay Qist running at http://localhost:${PORT}`);
     const storage = getStorageStatus();
-    if (storage.blob && storage.database) {
-      console.log('Vercel Blob + Neon Postgres storage is configured.');
-    } else if (storage.blob || storage.database) {
-      console.log('Partial storage config:', storage);
+    if (storage.blob) {
+      console.log('Vercel Blob storage is configured.');
     }
   });
 }

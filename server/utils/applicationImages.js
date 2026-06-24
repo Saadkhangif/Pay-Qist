@@ -1,5 +1,5 @@
-import { uploadFileToBlobAndDb } from '../storage/blob.js';
-import { isBlobStorageEnabled, isDatabaseEnabled } from '../db/index.js';
+import { uploadFileToBlob } from '../storage/blob.js';
+import { isBlobStorageEnabled } from '../storage/blobClient.js';
 
 export const APPLICATION_IMAGE_FIELDS = ['photo', 'idFront', 'idBack'];
 
@@ -32,7 +32,7 @@ async function persistPersonImages(person, { applicationId, uploadedBy, role }) 
       }
 
       const { contentType, buffer } = parseDataUrl(value);
-      const upload = await uploadFileToBlobAndDb({
+      const upload = await uploadFileToBlob({
         buffer,
         contentType,
         filename: `${role}-${field}.${extensionForContentType(contentType)}`,
@@ -43,11 +43,11 @@ async function persistPersonImages(person, { applicationId, uploadedBy, role }) 
         entityId: applicationId,
       });
 
-      if (!upload.id) {
-        throw new Error('Unable to store application image metadata.');
+      if (!upload.pathname) {
+        throw new Error('Unable to store application image.');
       }
 
-      persisted[field] = upload.id;
+      persisted[field] = upload.pathname;
     }),
   );
 
@@ -55,7 +55,7 @@ async function persistPersonImages(person, { applicationId, uploadedBy, role }) 
 }
 
 export async function persistApplicationImages(applicant, referral, { applicationId, uploadedBy }) {
-  if (!isBlobStorageEnabled() || !isDatabaseEnabled()) {
+  if (!isBlobStorageEnabled()) {
     return { applicant, referral };
   }
 
@@ -88,12 +88,12 @@ export function resolvePersonImageUrls(person) {
       continue;
     }
 
-    if (value.startsWith('/api/uploads/')) {
+    if (value.startsWith('/api/blobs')) {
       resolved[field] = value;
       continue;
     }
 
-    resolved[field] = `/api/uploads/${value}/file`;
+    resolved[field] = `/api/blobs?pathname=${encodeURIComponent(value)}`;
   }
 
   return resolved;

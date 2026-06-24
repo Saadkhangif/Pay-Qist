@@ -1,6 +1,6 @@
 import express from 'express';
-import { uploadFileToBlobAndDb } from '../storage/blob.js';
-import { isBlobStorageEnabled } from '../db/index.js';
+import { uploadFileToBlob } from '../storage/blob.js';
+import { isBlobStorageEnabled } from '../storage/blobClient.js';
 import { MAX_UPLOAD_BYTES } from '../middleware/upload.js';
 
 export function registerBlobUploadRoutes(app, { csrfProtection, requireAuth }) {
@@ -38,7 +38,7 @@ export function registerBlobUploadRoutes(app, { csrfProtection, requireAuth }) {
       const contentType = req.headers['content-type'] || 'application/octet-stream';
 
       try {
-        const result = await uploadFileToBlobAndDb({
+        const result = await uploadFileToBlob({
           buffer: req.body,
           contentType,
           filename,

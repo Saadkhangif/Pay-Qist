@@ -1,8 +1,6 @@
 import { Readable } from 'node:stream';
 import { put, del, get } from '@vercel/blob';
-import { insertBlobRecord } from '../db/blobs.js';
-import { isBlobStorageEnabled, isDatabaseEnabled } from '../db/index.js';
-import { getBlobClientOptions } from './blobClient.js';
+import { isBlobStorageEnabled, getBlobClientOptions } from './blobClient.js';
 
 function sanitizeFilename(name = 'file') {
   return name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 120);
@@ -15,11 +13,7 @@ function buildPathname({ folder, filename, userId }) {
   return `${prefix}/${owner}${Date.now()}-${safeName}`;
 }
 
-/**
- * Upload a file to Vercel Blob and persist metadata in Neon Postgres.
- * Blob stores the file; the database stores the URL + metadata for lookups.
- */
-export async function uploadFileToBlobAndDb({
+export async function uploadFileToBlob({
   buffer,
   contentType,
   filename,
@@ -39,26 +33,10 @@ export async function uploadFileToBlobAndDb({
     contentType: contentType || 'application/octet-stream',
   }));
 
-  let record = null;
-  if (isDatabaseEnabled()) {
-    record = await insertBlobRecord({
-      pathname: blob.pathname || pathname,
-      url: blob.url,
-      contentType: contentType || null,
-      sizeBytes: buffer.length,
-      access,
-      uploadedBy,
-      entityType,
-      entityId,
-    });
-  }
-
   return {
-    id: record?.id || null,
     url: blob.url,
     pathname: blob.pathname || pathname,
     access,
-    storedInDatabase: Boolean(record),
   };
 }
 
@@ -70,10 +48,6 @@ export async function deleteBlobByUrl(url) {
   await del(url, getBlobClientOptions());
 }
 
-/**
- * Stream a blob from Vercel Blob storage to an Express response.
- * Required for private blobs, which cannot be served directly by URL.
- */
 export async function streamBlobToResponse(res, pathnameOrUrl, access) {
   if (!isBlobStorageEnabled()) {
     throw new Error('Blob storage is not configured.');
@@ -113,6 +87,5 @@ export async function streamBlobToResponse(res, pathnameOrUrl, access) {
 export function getStorageStatus() {
   return {
     blob: isBlobStorageEnabled(),
-    database: isDatabaseEnabled(),
   };
 }

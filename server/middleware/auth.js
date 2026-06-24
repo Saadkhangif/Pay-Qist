@@ -2,8 +2,6 @@ import { SESSION_COOKIE } from '../config.js';
 import { verifySessionToken } from '../utils/session.js';
 import { getUserById } from '../utils/users.js';
 import { normalizeRole } from '../utils/roles.js';
-import { isDatabaseEnabled } from '../db/index.js';
-import { getProfileById } from '../db/userProfiles.js';
 
 function profileFromSession(decoded) {
   return {
@@ -26,23 +24,6 @@ async function resolveSessionAuth(req) {
   }
 
   const decoded = verifySessionToken(sessionToken);
-
-  if (isDatabaseEnabled()) {
-    const profile = await getProfileById(decoded.id);
-    if (!profile) {
-      return null;
-    }
-
-    return {
-      id: profile.id,
-      uid: profile.id,
-      email: profile.email,
-      name: profile.name,
-      role: normalizeRole(profile.role),
-      profile,
-    };
-  }
-
   const user = getUserById(decoded.id);
   const profile = user || profileFromSession(decoded);
 

@@ -170,9 +170,8 @@ export async function uploadBlobFile(file, options = {}) {
   return payload;
 }
 
-export function blobFileUrl(id) {
-  if (!id) return null;
-  return `${API_BASE_URL}/api/uploads/${id}/file`;
+export function blobFileUrl(pathname) {
+  return blobPathnameUrl(pathname);
 }
 
 export function blobPathnameUrl(pathname) {
