@@ -1,11 +1,11 @@
-import './server/loadEnv.js';
+import './loadEnv.js';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { applySecurityMiddleware, authRateLimiter, contactRateLimiter } from './server/middleware/security.js';
-import { csrfProtection, issueCsrfToken } from './server/middleware/csrf.js';
-import { requireAuth, requireAdmin, getAuthenticatedProfile } from './server/middleware/auth.js';
+import { applySecurityMiddleware, authRateLimiter, contactRateLimiter } from './middleware/security.js';
+import { csrfProtection, issueCsrfToken } from './middleware/csrf.js';
+import { requireAuth, requireAdmin, getAuthenticatedProfile } from './middleware/auth.js';
 import {
   applicationSubmitSchema,
   checkoutSchema,
@@ -17,44 +17,45 @@ import {
   signupSchema,
   validateBody,
   commentSchema,
-} from './server/validation/schemas.js';
+} from './validation/schemas.js';
 import {
   COOKIE_OPTIONS,
   IS_PRODUCTION,
   PORT,
   SESSION_COOKIE,
   SESSION_MAX_AGE_MS,
-} from './server/config.js';
-import { userFromRecord } from './server/utils/roles.js';
-import { createSessionToken, verifySessionToken } from './server/utils/session.js';
+} from './config.js';
+import { userFromRecord } from './utils/roles.js';
+import { createSessionToken, verifySessionToken } from './utils/session.js';
 import {
   authenticate,
   createUser,
   getUserById,
   updateUserProfile,
   listUsers,
-} from './server/utils/users.js';
+} from './utils/users.js';
 import {
   getProfileById,
   upsertProfile,
   listProfiles,
   updateProfileRole,
-} from './server/db/userProfiles.js';
-import { seedProducts } from './src/data/seedProducts.js';
-import { imageUpload } from './server/middleware/upload.js';
-import { uploadFileToBlobAndDb, getStorageStatus, streamBlobToResponse } from './server/storage/blob.js';
-import { getBlobById, getBlobByPathname } from './server/db/blobs.js';
-import { isDatabaseEnabled } from './server/db/index.js';
-import { createComment, listComments } from './server/db/comments.js';
-import { registerAvatarRoutes } from './server/routes/avatar.js';
-import { registerBlobUploadRoutes } from './server/routes/blobUpload.js';
-import { persistApplicationImages, resolvePersonImageUrls } from './server/utils/applicationImages.js';
+} from './db/userProfiles.js';
+import { seedProducts } from './data/seedProducts.js';
+import { imageUpload } from './middleware/upload.js';
+import { uploadFileToBlobAndDb, getStorageStatus, streamBlobToResponse } from './storage/blob.js';
+import { getBlobById, getBlobByPathname } from './db/blobs.js';
+import { isDatabaseEnabled } from './db/index.js';
+import { createComment, listComments } from './db/comments.js';
+import { registerAvatarRoutes } from './routes/avatar.js';
+import { registerBlobUploadRoutes } from './routes/blobUpload.js';
+import { persistApplicationImages, resolvePersonImageUrls } from './utils/applicationImages.js';
 
 const products = [...seedProducts];
 const orders = [];
 const payments = [];
 const applications = [];
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const clientRoot = path.join(__dirname, '../client');
 
 const app = express();
 applySecurityMiddleware(app);
@@ -610,7 +611,7 @@ app.use((err, req, res, _next) => {
 });
 
 function setupProductionStatic() {
-  const distPath = path.join(__dirname, 'dist');
+  const distPath = path.join(clientRoot, 'dist');
   app.use(express.static(distPath));
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) {
@@ -630,6 +631,8 @@ async function startServer() {
   } else {
     const { createServer } = await import('vite');
     const vite = await createServer({
+      configFile: path.join(clientRoot, 'vite.config.js'),
+      root: clientRoot,
       server: { middlewareMode: true },
       appType: 'spa',
     });
