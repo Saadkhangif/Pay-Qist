@@ -1,10 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { apiFetch, initApiSecurity } from '../lib/api';
-import {
-  isNeonAuthConfigured,
-  neonSignOut,
-  neonSignUp,
-} from '../lib/neonAuth';
 
 const AuthContext = createContext(null);
 
@@ -18,7 +13,7 @@ function buildUserProfile(user) {
     phone: user.phone || '',
     avatarPathname: user.avatarPathname || '',
     profileComplete: Boolean(user.profileComplete ?? (user.cnic && user.phone)),
-    provider: isNeonAuthConfigured ? 'neon' : 'local',
+    provider: 'local',
   };
 }
 
@@ -63,29 +58,6 @@ export function AuthProvider({ children }) {
 
   async function signup({ cnic, email, phone, password, confirmPassword }) {
     const normalizedEmail = email.trim().toLowerCase();
-
-    if (isNeonAuthConfigured) {
-      await neonSignUp({
-        email: normalizedEmail,
-        password,
-        name: normalizedEmail.split('@')[0] || 'Customer',
-      });
-
-      const profile = await apiFetch('/api/auth/profile', {
-        method: 'PUT',
-        body: JSON.stringify({
-          cnic: cnic.trim(),
-          email: normalizedEmail,
-          phone: phone.trim(),
-          password,
-          confirmPassword,
-        }),
-      });
-
-      const nextProfile = buildUserProfile(profile.user);
-      setUser(nextProfile);
-      return nextProfile;
-    }
 
     const payload = await apiFetch('/api/auth/signup', {
       method: 'POST',
@@ -135,9 +107,6 @@ export function AuthProvider({ children }) {
 
   async function logout() {
     await apiFetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
-    if (isNeonAuthConfigured) {
-      await neonSignOut().catch(() => {});
-    }
     setUser(null);
   }
 

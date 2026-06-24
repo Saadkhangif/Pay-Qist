@@ -6,8 +6,6 @@
   "scripts": {
     "dev": "NODE_ENV=development node server.js",
     "build": "vite build",
-    "db:init": "node scripts/init-db.mjs",
-    "auth:bootstrap-admin": "node scripts/bootstrap-admin.mjs",
     "env:pull": "vercel env pull .env.vercel.tmp --environment=development --yes && node scripts/merge-env.mjs .env.vercel.tmp",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -15,8 +13,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
-    "@neondatabase/neon-js": "^0.6.2-beta",
-    "@neondatabase/serverless": "^1.1.0",
     "@tanstack/react-query": "^5.50.0",
     "@vercel/blob": "^2.4.1",
     "clsx": "^2.1.1",
@@ -26,7 +22,6 @@
     "express": "^4.21.0",
     "express-rate-limit": "^7.4.0",
     "helmet": "^7.1.0",
-    "jose": "^6.2.3",
     "lucide-react": "^0.400.0",
     "multer": "^2.2.0",
     "react": "^19.0.0",

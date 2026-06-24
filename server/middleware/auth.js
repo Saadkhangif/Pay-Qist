@@ -2,63 +2,23 @@ import { SESSION_COOKIE } from '../config.js';
 import { verifySessionToken } from '../utils/session.js';
 import { getUserById } from '../utils/users.js';
 import { normalizeRole } from '../utils/roles.js';
-import { isNeonAuthEnabled, verifyNeonAuthToken } from '../utils/neonJwt.js';
 import { isDatabaseEnabled } from '../db/index.js';
-import { getOrCreateProfileFromNeon, getProfileById } from '../db/userProfiles.js';
+import { getProfileById } from '../db/userProfiles.js';
 
-function bearerToken(req) {
-  const header = req.headers.authorization;
-  if (!header?.startsWith('Bearer ')) {
-    return null;
-  }
-
-  return header.slice(7).trim();
-}
-
-async function resolveNeonAuth(req) {
-  const token = bearerToken(req);
-
-  if (!token || !isNeonAuthEnabled()) {
-    return null;
-  }
-
-  const payload = await verifyNeonAuthToken(token);
-  const userId = payload.sub;
-
-  if (!userId) {
-    return null;
-  }
-
-  const email =
-    typeof payload.email === 'string'
-      ? payload.email
-      : typeof payload.user_email === 'string'
-        ? payload.user_email
-        : '';
-  const name =
-    typeof payload.name === 'string'
-      ? payload.name
-      : typeof payload.user_name === 'string'
-        ? payload.user_name
-        : email.split('@')[0] || 'Customer';
-
-  const profile = await getOrCreateProfileFromNeon({
-    id: userId,
-    email,
-    name,
-  });
-
+function profileFromSession(decoded) {
   return {
-    id: profile.id,
-    uid: profile.id,
-    email: profile.email,
-    name: profile.name,
-    role: normalizeRole(profile.role),
-    profile,
+    id: decoded.id,
+    name: decoded.name || 'Customer',
+    email: decoded.email || '',
+    role: decoded.role || 'customer',
+    cnic: '',
+    phone: '',
+    avatarPathname: '',
+    profileComplete: false,
   };
 }
 
-async function resolveLegacyAuth(req) {
+async function resolveSessionAuth(req) {
   const sessionToken = req.cookies?.[SESSION_COOKIE];
 
   if (!sessionToken) {
@@ -67,7 +27,7 @@ async function resolveLegacyAuth(req) {
 
   const decoded = verifySessionToken(sessionToken);
 
-  if (isNeonAuthEnabled() && isDatabaseEnabled()) {
+  if (isDatabaseEnabled()) {
     const profile = await getProfileById(decoded.id);
     if (!profile) {
       return null;
@@ -84,33 +44,21 @@ async function resolveLegacyAuth(req) {
   }
 
   const user = getUserById(decoded.id);
-
-  if (!user) {
-    return null;
-  }
+  const profile = user || profileFromSession(decoded);
 
   return {
-    id: user.id,
-    uid: user.id,
-    email: user.email,
-    name: user.name,
-    role: normalizeRole(user.role),
-    profile: user,
+    id: profile.id,
+    uid: profile.id,
+    email: profile.email,
+    name: profile.name,
+    role: normalizeRole(profile.role),
+    profile,
   };
 }
 
 export async function resolveRequestAuth(req) {
   try {
-    const neonAuth = await resolveNeonAuth(req);
-    if (neonAuth) {
-      return neonAuth;
-    }
-  } catch {
-    // Fall through to the app session cookie when the Neon bearer token is stale.
-  }
-
-  try {
-    return await resolveLegacyAuth(req);
+    return await resolveSessionAuth(req);
   } catch {
     return null;
   }

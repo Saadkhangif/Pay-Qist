@@ -43,8 +43,6 @@ import {
 import { seedProducts } from './src/data/seedProducts.js';
 import { imageUpload } from './server/middleware/upload.js';
 import { uploadFileToBlobAndDb, getStorageStatus, streamBlobToResponse } from './server/storage/blob.js';
-import { isNeonAuthEnabled } from './server/utils/neonJwt.js';
-import { signInWithNeonAuth } from './server/utils/neonAuthServer.js';
 import { getBlobById, getBlobByPathname } from './server/db/blobs.js';
 import { isDatabaseEnabled } from './server/db/index.js';
 import { createComment, listComments } from './server/db/comments.js';
@@ -124,7 +122,7 @@ app.get('/api/health', (req, res) => {
   res.json({
     ok: true,
     storage: getStorageStatus(),
-    auth: { neon: isNeonAuthEnabled() },
+    auth: { mode: 'session' },
   });
 });
 
@@ -254,12 +252,6 @@ app.get('/api/auth/me', async (req, res) => {
 });
 
 app.post('/api/auth/signup', authRateLimiter, validateBody(signupSchema), (req, res) => {
-  if (isNeonAuthEnabled()) {
-    return res.status(400).json({
-      error: 'Sign up is handled by Neon Auth. Use the in-app signup flow.',
-    });
-  }
-
   try {
     const user = createUser(req.body);
     setSessionCookie(res, user);
@@ -269,19 +261,8 @@ app.post('/api/auth/signup', authRateLimiter, validateBody(signupSchema), (req, 
   }
 });
 
-app.post('/api/auth/login', authRateLimiter, validateBody(loginSchema), async (req, res) => {
+app.post('/api/auth/login', authRateLimiter, validateBody(loginSchema), (req, res) => {
   const { email, password } = req.body;
-
-  if (isNeonAuthEnabled()) {
-    try {
-      const profile = await signInWithNeonAuth({ email, password });
-      setSessionCookie(res, profile);
-      return res.json({ user: userFromRecord(profile) });
-    } catch (error) {
-      return res.status(401).json({ error: error.message || 'Invalid email or password.' });
-    }
-  }
-
   const user = authenticate(email, password);
 
   if (!user) {

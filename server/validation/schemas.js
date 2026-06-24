@@ -46,7 +46,7 @@ export const profileSchema = z
 
 export const loginSchema = z.object({
   email: emailSchema,
-  password: z.string().min(1, 'Password is required.').max(128),
+  password: z.string().trim().min(1, 'Password is required.').max(128),
 });
 
 export const roleUpdateSchema = z.object({
