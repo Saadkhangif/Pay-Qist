@@ -400,6 +400,12 @@
     scroll-behavior: smooth;
   }
 
+  .auth-modal-compact-hide {
+    @media (max-height: 600px) {
+      display: none;
+    }
+  }
+
   html.is-scrolling .animate-glow-pulse,
   html.is-scrolling .animate-float,
   html.is-scrolling .animate-float-delayed,

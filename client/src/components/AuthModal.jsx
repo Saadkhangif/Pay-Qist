@@ -83,8 +83,8 @@ function Spinner() {
 
 function LoginPreviewCard() {
   return (
-    <div className="relative mx-auto w-full max-w-[19rem]">
-      <div className="overflow-hidden rounded-[1.75rem] border border-white/30 bg-white/15 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.18)] backdrop-blur-xl">
+    <div className="relative mx-auto w-full max-w-full md:max-w-[16rem] lg:max-w-[19rem]">
+      <div className="overflow-hidden rounded-[1.75rem] border border-white/30 bg-white/15 p-3 shadow-[0_20px_50px_rgba(0,0,0,0.18)] backdrop-blur-xl md:p-3.5 lg:p-4">
         <div className="mb-3 flex items-center justify-between">
           <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-100/90">After you sign in</p>
           <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] font-bold text-emerald-50">Live</span>
@@ -288,14 +288,14 @@ export default function AuthModal() {
 
       <div className="pointer-events-none absolute inset-0 mesh-bg opacity-60" />
 
-      <div className="relative flex h-full max-h-[100dvh] items-end justify-center p-0 sm:items-center sm:p-4 lg:p-6">
+      <div className="relative flex h-full max-h-[100dvh] items-center justify-center p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-[max(0.75rem,env(safe-area-inset-top))] xs:p-4 sm:p-6">
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="auth-modal-title"
-          className="animate-fade-up scroll-touch relative flex max-h-[min(92dvh,100svh)] w-full max-w-5xl flex-col overflow-y-auto overscroll-contain rounded-t-[1.75rem] border border-white/20 border-b-0 bg-white/95 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_40px_rgba(15,157,88,0.12)] dark:border-emerald-500/20 dark:bg-surface-raised/95 dark:shadow-[0_-8px_40px_rgba(0,0,0,0.45)] sm:max-h-[calc(100dvh-2rem)] sm:rounded-[2rem] sm:border-b sm:pb-0 sm:shadow-[0_32px_80px_rgba(15,157,88,0.18)] lg:max-h-[calc(100dvh-3rem)] lg:rounded-[2.5rem] dark:sm:shadow-[0_32px_80px_rgba(0,0,0,0.55)]"
+          className="animate-fade-up relative flex min-h-0 w-full max-w-[min(100%,42rem)] max-h-[calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-1.5rem)] flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/95 shadow-[0_32px_80px_rgba(15,157,88,0.18)] dark:border-emerald-500/20 dark:bg-surface-raised/95 dark:shadow-[0_32px_80px_rgba(0,0,0,0.55)] sm:rounded-[2rem] md:max-w-[min(100%,56rem)] lg:max-w-5xl lg:rounded-[2.5rem]"
         >
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-1 rounded-t-[1.75rem] bg-gradient-to-r from-brand-500 via-emerald-400 to-teal-400 sm:rounded-t-[2rem] lg:rounded-t-[2.5rem]" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-brand-500 via-emerald-400 to-teal-400 sm:rounded-t-[2rem] lg:rounded-t-[2.5rem]" />
 
           <button
             type="button"
@@ -308,16 +308,16 @@ export default function AuthModal() {
             </svg>
           </button>
 
-          <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
-            {/* Visual panel — desktop only; tablets use the compact mobile layout */}
-            <div className="relative hidden min-h-[420px] overflow-hidden lg:flex lg:flex-col lg:justify-between xl:min-h-[520px]">
+          <div className="grid min-h-0 min-w-0 flex-1 overflow-hidden md:grid-cols-[1fr_1fr] lg:grid-cols-[1.05fr_0.95fr]">
+            {/* Visual panel — tablets and desktop */}
+            <div className="relative hidden min-h-0 min-w-0 flex-col justify-between overflow-hidden md:flex">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-600 via-brand-500 to-emerald-600" />
             <div className="pointer-events-none absolute inset-0 grid-pattern opacity-20" />
             <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-white/15 blur-3xl animate-glow-pulse" />
             <div className="pointer-events-none absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-emerald-300/25 blur-3xl" />
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.22),transparent_50%),radial-gradient(circle_at_85%_75%,rgba(255,255,255,0.12),transparent_45%)]" />
 
-            <div className="relative p-6 pb-0 md:p-8 lg:p-10">
+            <div className="relative p-5 pb-0 md:p-6 lg:p-10">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-200 opacity-75" />
@@ -325,17 +325,17 @@ export default function AuthModal() {
                 </span>
                 Member access
               </div>
-              <h2 className="mt-4 max-w-xs text-2xl font-extrabold leading-[1.12] tracking-tight text-white md:mt-5 md:text-3xl">
+              <h2 className="mt-3 max-w-xs text-xl font-extrabold leading-[1.12] tracking-tight text-white md:mt-4 md:text-2xl lg:mt-5 lg:text-3xl">
                 Everything you need,{' '}
                 <span className="text-emerald-100">waiting inside.</span>
               </h2>
             </div>
 
-            <div className="relative flex flex-1 items-center justify-center px-6 py-4 md:px-8 lg:px-10 lg:py-6">
+            <div className="relative flex min-w-0 flex-1 items-center justify-center overflow-visible px-4 py-3 md:px-6 lg:px-10 lg:py-6">
               <LoginPreviewCard />
             </div>
 
-            <div className="relative space-y-3 p-6 pt-0 md:space-y-4 md:p-8 lg:p-10">
+            <div className="relative space-y-2 p-5 pt-0 md:space-y-3 md:p-6 lg:space-y-4 lg:p-10">
               <div className="flex flex-wrap gap-2">
                 {trustPills.map(({ icon: Icon, label }) => (
                   <span
@@ -356,11 +356,11 @@ export default function AuthModal() {
           </div>
 
           {/* Form panel */}
-          <div className="relative px-4 py-5 pt-12 sm:px-6 sm:py-7 sm:pt-14 lg:px-10 lg:py-10">
+          <div className="relative flex min-h-0 min-w-0 flex-col overflow-y-auto overscroll-contain scroll-touch scroll-pb-4 px-4 py-5 pt-12 sm:px-6 sm:py-7 sm:pt-14 lg:px-10 lg:py-10">
             <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-brand-500/10 blur-2xl dark:bg-brand-500/15" />
 
-            {/* Mobile & tablet accent strip */}
-            <div className="relative mb-4 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-emerald-600 p-3.5 sm:mb-5 sm:p-4 lg:hidden">
+            {/* Mobile accent strip — hidden on md+ and short viewports */}
+            <div className="auth-modal-compact-hide relative mb-3 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-emerald-600 p-3 sm:mb-4 sm:p-3.5 md:hidden">
               <div className="pointer-events-none absolute inset-0 grid-pattern opacity-20" />
               <p className="relative text-[11px] font-bold uppercase tracking-wider text-emerald-100/90 sm:text-xs">
                 Member access
@@ -381,8 +381,8 @@ export default function AuthModal() {
               </div>
             </div>
 
-            <div className="relative mx-auto w-full max-w-md">
-              <div className="mb-5 text-center sm:mb-6 lg:mb-8 lg:text-left">
+            <div className="relative mx-auto min-w-0 w-full max-w-md">
+              <div className="mb-4 text-center sm:mb-5 lg:mb-8 lg:text-left">
                 <div className="relative mx-auto mb-3 flex h-14 w-14 items-center justify-center sm:mb-4 sm:h-16 sm:w-16 lg:mx-0">
                   <div className="absolute inset-0 animate-pulse-soft rounded-full bg-brand-500/15" />
                   <div className="absolute inset-1 rounded-full bg-gradient-to-br from-brand-500/20 to-emerald-400/10 blur-sm" />
@@ -418,7 +418,7 @@ export default function AuthModal() {
               ) : null}
 
               <div className="trust-glass-panel !rounded-2xl !p-4 sm:!rounded-[1.75rem] sm:!p-5 lg:!p-6">
-                <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
+                <form onSubmit={handleLogin} className="space-y-3 sm:space-y-4 lg:space-y-5">
                   <FormField
                     id="auth-email"
                     label="Email address"
@@ -495,7 +495,7 @@ export default function AuthModal() {
                   </button>
                 </p>
 
-                <div className="mt-3 flex flex-col gap-2 sm:mt-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">
+                <div className="mt-3 flex min-w-0 flex-col gap-2 sm:mt-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">
                   <a
                     href={CONTACT_WHATSAPP_URL}
                     target="_blank"
@@ -507,10 +507,10 @@ export default function AuthModal() {
                   </a>
                   <a
                     href={`mailto:${CONTACT_EMAIL}`}
-                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-600 transition active:scale-[0.98] sm:w-auto sm:max-w-full sm:text-[11px] sm:hover:-translate-y-0.5 sm:hover:border-brand-200 sm:hover:text-brand-700 sm:hover:shadow-md dark:border-emerald-500/15 dark:bg-surface-overlay dark:text-slate-300"
+                    className="inline-flex min-h-11 min-w-0 w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-600 transition active:scale-[0.98] sm:w-auto sm:max-w-full sm:text-[11px] sm:hover:-translate-y-0.5 sm:hover:border-brand-200 sm:hover:text-brand-700 sm:hover:shadow-md dark:border-emerald-500/15 dark:bg-surface-overlay dark:text-slate-300"
                   >
                     <Mail className="h-3.5 w-3.5 shrink-0 text-red-500" />
-                    <span className="truncate">{CONTACT_EMAIL.toLowerCase()}</span>
+                    <span className="min-w-0 truncate">{CONTACT_EMAIL.toLowerCase()}</span>
                   </a>
                 </div>
               </div>
