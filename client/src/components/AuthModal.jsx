@@ -311,77 +311,77 @@ export default function AuthModal() {
           <div className="grid min-h-0 min-w-0 flex-1 overflow-hidden md:grid-cols-[1fr_1fr] lg:grid-cols-[1.05fr_0.95fr]">
             {/* Visual panel — tablets and desktop */}
             <div className="relative hidden min-h-0 min-w-0 flex-col justify-between overflow-hidden md:flex">
-            <div className="absolute inset-0 bg-gradient-to-br from-brand-600 via-brand-500 to-emerald-600" />
-            <div className="pointer-events-none absolute inset-0 grid-pattern opacity-20" />
-            <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-white/15 blur-3xl animate-glow-pulse" />
-            <div className="pointer-events-none absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-emerald-300/25 blur-3xl" />
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.22),transparent_50%),radial-gradient(circle_at_85%_75%,rgba(255,255,255,0.12),transparent_45%)]" />
-
-            <div className="relative p-5 pb-0 md:p-6 lg:p-10">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-200 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
-                </span>
-                Member access
-              </div>
-              <h2 className="mt-3 max-w-xs text-xl font-extrabold leading-[1.12] tracking-tight text-white md:mt-4 md:text-2xl lg:mt-5 lg:text-3xl">
-                Everything you need,{' '}
-                <span className="text-emerald-100">waiting inside.</span>
-              </h2>
-            </div>
-
-            <div className="relative flex min-w-0 flex-1 items-center justify-center overflow-visible px-4 py-3 md:px-6 lg:px-10 lg:py-6">
-              <LoginPreviewCard />
-            </div>
-
-            <div className="relative space-y-2 p-5 pt-0 md:space-y-3 md:p-6 lg:space-y-4 lg:p-10">
-              <div className="flex flex-wrap gap-2">
-                {trustPills.map(({ icon: Icon, label }) => (
-                  <span
-                    key={label}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm"
-                  >
-                    <Icon className="h-3.5 w-3.5 text-emerald-100" aria-hidden="true" />
-                    {label}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex items-start gap-2 text-xs text-brand-50/75">
-                <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                <span>{CONTACT_ADDRESS}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Form panel */}
-          <div className="relative flex min-h-0 min-w-0 flex-col overflow-y-auto overscroll-contain scroll-touch scroll-pb-4 px-4 py-5 pt-12 sm:px-6 sm:py-7 sm:pt-14 lg:px-10 lg:py-10">
-            <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-brand-500/10 blur-2xl dark:bg-brand-500/15" />
-
-            {/* Mobile accent strip — hidden on md+ and short viewports */}
-            <div className="auth-modal-compact-hide relative mb-3 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-emerald-600 p-3 sm:mb-4 sm:p-3.5 md:hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-brand-600 via-brand-500 to-emerald-600" />
               <div className="pointer-events-none absolute inset-0 grid-pattern opacity-20" />
-              <p className="relative text-[11px] font-bold uppercase tracking-wider text-emerald-100/90 sm:text-xs">
-                Member access
-              </p>
-              <p className="relative mt-1 text-sm font-extrabold leading-snug text-white sm:text-base">
-                Unlock checkout, orders &amp; installments
-              </p>
-              <div className="relative mt-3 flex flex-wrap gap-1.5">
-                {trustPills.map(({ icon: Icon, label }) => (
-                  <span
-                    key={label}
-                    className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm sm:text-[11px]"
-                  >
-                    <Icon className="h-3 w-3 text-emerald-100" aria-hidden="true" />
-                    {label}
+              <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-white/15 blur-3xl animate-glow-pulse" />
+              <div className="pointer-events-none absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-emerald-300/25 blur-3xl" />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.22),transparent_50%),radial-gradient(circle_at_85%_75%,rgba(255,255,255,0.12),transparent_45%)]" />
+
+              <div className="relative p-5 pb-0 md:p-6 lg:p-10">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-200 opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
                   </span>
-                ))}
+                  Member access
+                </div>
+                <h2 className="mt-3 max-w-xs text-xl font-extrabold leading-[1.12] tracking-tight text-white md:mt-4 md:text-2xl lg:mt-5 lg:text-3xl">
+                  Everything you need,{' '}
+                  <span className="text-emerald-100">waiting inside.</span>
+                </h2>
+              </div>
+
+              <div className="relative flex min-w-0 flex-1 items-center justify-center overflow-visible px-4 py-3 md:px-6 lg:px-10 lg:py-6">
+                <LoginPreviewCard />
+              </div>
+
+              <div className="relative space-y-2 p-5 pt-0 md:space-y-3 md:p-6 lg:space-y-4 lg:p-10">
+                <div className="flex flex-wrap gap-2">
+                  {trustPills.map(({ icon: Icon, label }) => (
+                    <span
+                      key={label}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm"
+                    >
+                      <Icon className="h-3.5 w-3.5 text-emerald-100" aria-hidden="true" />
+                      {label}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex items-start gap-2 text-xs text-brand-50/75">
+                  <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  <span>{CONTACT_ADDRESS}</span>
+                </div>
               </div>
             </div>
 
-            <div className="relative mx-auto min-w-0 w-full max-w-md">
+            {/* Form panel */}
+            <div className="relative flex min-h-0 min-w-0 flex-col overflow-y-auto overscroll-contain scroll-touch scroll-pb-4 px-4 py-5 pt-12 sm:px-6 sm:py-7 sm:pt-14 lg:px-10 lg:py-10">
+              <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-brand-500/10 blur-2xl dark:bg-brand-500/15" />
+
+              {/* Mobile accent strip — hidden on md+ and short viewports */}
+              <div className="auth-modal-compact-hide relative mb-3 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-emerald-600 p-3 sm:mb-4 sm:p-3.5 md:hidden">
+                <div className="pointer-events-none absolute inset-0 grid-pattern opacity-20" />
+                <p className="relative text-[11px] font-bold uppercase tracking-wider text-emerald-100/90 sm:text-xs">
+                  Member access
+                </p>
+                <p className="relative mt-1 text-sm font-extrabold leading-snug text-white sm:text-base">
+                  Unlock checkout, orders &amp; installments
+                </p>
+                <div className="relative mt-3 flex flex-wrap gap-1.5">
+                  {trustPills.map(({ icon: Icon, label }) => (
+                    <span
+                      key={label}
+                      className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm sm:text-[11px]"
+                    >
+                      <Icon className="h-3 w-3 text-emerald-100" aria-hidden="true" />
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="relative mx-auto min-w-0 w-full max-w-md">
               <div className="mb-4 text-center sm:mb-5 lg:mb-8 lg:text-left">
                 <div className="relative mx-auto mb-3 flex h-14 w-14 items-center justify-center sm:mb-4 sm:h-16 sm:w-16 lg:mx-0">
                   <div className="absolute inset-0 animate-pulse-soft rounded-full bg-brand-500/15" />
