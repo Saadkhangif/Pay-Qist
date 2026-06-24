@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { apiFetch, initApiSecurity } from '../lib/api';
 import {
   isNeonAuthConfigured,
-  neonGetSession,
   neonSignOut,
   neonSignUp,
 } from '../lib/neonAuth';
@@ -23,11 +22,6 @@ function buildUserProfile(user) {
   };
 }
 
-async function fetchAppUser() {
-  const payload = await apiFetch('/api/auth/me');
-  return buildUserProfile(payload.user);
-}
-
 export function AuthProvider({ children }) {
   const [users, setUsers] = useState([]);
   const [user, setUser] = useState(null);
@@ -39,20 +33,6 @@ export function AuthProvider({ children }) {
     async function bootstrapAuth() {
       try {
         await initApiSecurity();
-
-        if (isNeonAuthConfigured) {
-          const session = await neonGetSession();
-          if (!session?.user) {
-            if (!cancelled) setUser(null);
-            return;
-          }
-
-          const profile = await fetchAppUser().catch(() => null);
-          if (!cancelled) {
-            setUser(profile);
-          }
-          return;
-        }
 
         const payload = await apiFetch('/api/auth/me').catch(() => null);
         if (!cancelled) {

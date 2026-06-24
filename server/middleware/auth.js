@@ -106,7 +106,7 @@ export async function resolveRequestAuth(req) {
       return neonAuth;
     }
   } catch {
-    return null;
+    // Fall through to the app session cookie when the Neon bearer token is stale.
   }
 
   try {
