@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Mail, Phone } from 'lucide-react';
 import { apiFetch } from '../lib/api';
+import CommentForm from '../components/CommentForm';
 import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from '../lib/contact';
 
 export default function ContactUsPage() {
@@ -112,6 +113,8 @@ export default function ContactUsPage() {
             </button>
           </form>
         )}
+
+        <CommentForm />
       </div>
     </div>
   );
