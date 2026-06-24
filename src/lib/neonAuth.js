@@ -10,15 +10,28 @@ export async function getNeonSessionToken() {
     return null;
   }
 
+  if (typeof authClient.token === 'function') {
+    const result = await authClient.token();
+    const jwt = result?.data?.token || result?.token;
+    if (jwt) {
+      return jwt;
+    }
+  }
+
   if (typeof authClient.getJWTToken === 'function') {
     const token = await authClient.getJWTToken();
-    if (token) {
+    if (token?.includes?.('.')) {
       return token;
     }
   }
 
   const { data } = await authClient.getSession();
-  return data?.session?.token || null;
+  const sessionToken = data?.session?.token;
+  if (sessionToken?.includes?.('.')) {
+    return sessionToken;
+  }
+
+  return null;
 }
 
 export async function neonSignIn({ email, password }) {

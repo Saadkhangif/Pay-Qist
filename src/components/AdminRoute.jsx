@@ -9,7 +9,7 @@ export default function AdminRoute({ isLoading }) {
   }
 
   if (!user || !isAdmin) {
-    return <Navigate to="/home" replace state={{ openAuth: 'login' }} />;
+    return <Navigate to="/home" replace state={{ openAuth: 'login', returnTo: '/admin' }} />;
   }
 
   // If they are the admin, allow them through to the nested routes
