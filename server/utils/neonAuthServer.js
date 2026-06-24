@@ -48,9 +48,10 @@ export async function signInWithNeonAuth({ email, password }) {
   cookieJar.clear();
 
   const normalizedEmail = email.trim().toLowerCase();
+  const normalizedPassword = password.trim();
   const { response, payload } = await neonAuthRequest('/sign-in/email', {
     method: 'POST',
-    body: { email: normalizedEmail, password },
+    body: { email: normalizedEmail, password: normalizedPassword },
   });
 
   if (!response.ok) {

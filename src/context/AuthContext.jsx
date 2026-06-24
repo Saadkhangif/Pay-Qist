@@ -125,7 +125,7 @@ export function AuthProvider({ children }) {
       method: 'POST',
       body: JSON.stringify({
         email: normalizedEmail,
-        password,
+        password: password.trim(),
       }),
     });
     const profile = buildUserProfile(payload.user);

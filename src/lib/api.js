@@ -1,5 +1,3 @@
-import { getNeonSessionToken } from './neonAuth.js';
-
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 const CSRF_COOKIE_NAME = 'csrf_token';
 
@@ -13,11 +11,6 @@ async function getAuthHeaders(isMutation) {
     if (token) {
       headers['X-CSRF-Token'] = token;
     }
-  }
-
-  const bearer = await getNeonSessionToken();
-  if (bearer) {
-    headers.Authorization = `Bearer ${bearer}`;
   }
 
   return headers;
