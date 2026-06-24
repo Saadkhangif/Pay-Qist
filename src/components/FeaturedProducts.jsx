@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { useStore } from '../context/StoreContext';
+import { useProducts } from '../hooks/useStoreQueries';
 import { formatCurrency, getDownPayment, getMonthlyInstallment } from '../lib/currency';
 import SectionHeading from './SectionHeading';
 
 export default function FeaturedProducts() {
-  const { products = [] } = useStore();
+  const { data: products = [] } = useProducts();
   const featuredProducts = useMemo(() => products.filter((p) => p.featured).slice(0, 6), [products]);
 
   return (

@@ -2,12 +2,15 @@
 import { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import StatusPill from '../components/StatusPill';
-import { useStore } from '../context/StoreContext';
+import { useCartItems, useCartStore } from '../stores/cartStore';
 import { formatCurrency, getDownPayment, getMonthlyInstallment } from '../lib/currency';
 
 export default function CartPage() {
   const navigate = useNavigate();
-  const { cart = [], removeFromCart, updateCartMonths, clearCart } = useStore();
+  const cart = useCartItems();
+  const removeFromCart = useCartStore((state) => state.removeFromCart);
+  const updateCartMonths = useCartStore((state) => state.updateCartMonths);
+  const clearCart = useCartStore((state) => state.clearCart);
 
   // Calculate the total cart values dynamically
   const subtotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);

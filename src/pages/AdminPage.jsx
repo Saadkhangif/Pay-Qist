@@ -12,12 +12,22 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import VirtualList from '../components/VirtualList';
 import AdminApplicationsPanel from '../components/AdminApplicationsPanel';
 import SectionHeading from '../components/SectionHeading';
 import StatusPill from '../components/StatusPill';
 import { useAuth } from '../context/AuthContext';
-import { useStore } from '../context/StoreContext';
-import { apiFetch } from '../lib/api';
+import {
+  useAddProduct,
+  useApplications,
+  useOrders,
+  usePayments,
+  useProducts,
+  useRemoveProduct,
+  useUpdateProduct,
+  uploadProductImage,
+} from '../hooks/useStoreQueries';
 import { formatCurrency } from '../lib/currency';
 
 const emptyForm = {
@@ -147,7 +157,13 @@ function EmptyState({ icon: Icon, title, description }) {
 
 export default function AdminPage() {
   const { user, users, updateUserRole, removeUserRole } = useAuth();
-  const { products, orders, payments, addProduct, updateProduct, removeProduct, stats, uploadProductImage } = useStore();
+  const { data: products = [] } = useProducts();
+  const { data: orders = [] } = useOrders();
+  const { data: payments = [] } = usePayments();
+  const { data: applications = [] } = useApplications();
+  const { mutateAsync: addProduct } = useAddProduct();
+  const { mutateAsync: updateProduct } = useUpdateProduct();
+  const { mutateAsync: removeProduct } = useRemoveProduct();
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
   const [tab, setTab] = useState(VALID_TABS.includes(tabParam) ? tabParam : 'overview');
@@ -160,11 +176,22 @@ export default function AdminPage() {
   const [busy, setBusy] = useState(false);
   const [savingUserId, setSavingUserId] = useState('');
   const [productSearch, setProductSearch] = useState('');
+  const debouncedProductSearch = useDebouncedValue(productSearch, 200);
   const [productCategory, setProductCategory] = useState('all');
   const [userSearch, setUserSearch] = useState('');
+  const debouncedUserSearch = useDebouncedValue(userSearch, 200);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [applicationCount, setApplicationCount] = useState(0);
-  const [latestApplication, setLatestApplication] = useState(null);
+
+  const stats = useMemo(
+    () => ({
+      totalProducts: products.length,
+      totalOrders: orders.length,
+      totalPayments: payments.length,
+    }),
+    [orders.length, payments.length, products.length],
+  );
+
+  const latestApplication = applications[0] || null;
 
   useEffect(() => {
     if (tabParam && VALID_TABS.includes(tabParam) && tabParam !== tab) {
@@ -172,24 +199,12 @@ export default function AdminPage() {
     }
   }, [tabParam, tab]);
 
-  useEffect(() => {
-    if (user?.role !== 'admin') return;
-
-    apiFetch('/api/applications')
-      .then((payload) => {
-        const list = Array.isArray(payload) ? payload : [];
-        setApplicationCount(list.length);
-        setLatestApplication(list[0] || null);
-      })
-      .catch(() => {});
-  }, [user]);
-
   const sortedOrders = useMemo(() => [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)), [orders]);
   const sortedPayments = useMemo(() => [...payments].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)), [payments]);
   const featuredCount = useMemo(() => products.filter((p) => p.featured).length, [products]);
 
   const filteredProducts = useMemo(() => {
-    const query = productSearch.trim().toLowerCase();
+    const query = debouncedProductSearch.trim().toLowerCase();
     return products.filter((product) => {
       const matchesCategory = productCategory === 'all' || product.category === productCategory;
       const matchesSearch =
@@ -199,10 +214,10 @@ export default function AdminPage() {
         product.category?.toLowerCase().includes(query);
       return matchesCategory && matchesSearch;
     });
-  }, [products, productCategory, productSearch]);
+  }, [products, productCategory, debouncedProductSearch]);
 
   const filteredUsers = useMemo(() => {
-    const query = userSearch.trim().toLowerCase();
+    const query = debouncedUserSearch.trim().toLowerCase();
     if (!query) return users;
     return users.filter(
       (account) =>
@@ -210,7 +225,7 @@ export default function AdminPage() {
         account.email?.toLowerCase().includes(query) ||
         account.role?.toLowerCase().includes(query),
     );
-  }, [users, userSearch]);
+  }, [users, debouncedUserSearch]);
 
   const [previewObjectUrl, setPreviewObjectUrl] = useState('');
 
@@ -268,7 +283,7 @@ export default function AdminPage() {
       }
 
       if (editingId) {
-        await updateProduct(editingId, payload);
+        await updateProduct({ productId: editingId, updates: payload });
         showMessage('Product updated successfully.');
       } else {
         await addProduct(payload);
@@ -334,7 +349,7 @@ export default function AdminPage() {
     products: products.length,
     users: users.length,
     orders: orders.length,
-    applications: applicationCount,
+    applications: applications.length,
     payments: payments.length,
   };
 
@@ -771,49 +786,54 @@ export default function AdminPage() {
           ) : null}
 
           {tab === 'orders' ? (
-            <div className="space-y-4">
+            <div>
               {sortedOrders.length ? (
-                sortedOrders.map((order) => (
-                  <article key={order.id} className="admin-panel p-6">
-                    <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-                      <div className="product-image-well-sm h-28 w-full shrink-0 sm:w-36">
-                        <img
-                          src={order.productImage}
-                          alt={order.productTitle}
-                          loading="lazy"
-                          decoding="async"
-                          className="product-image h-full w-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1 space-y-3">
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">{order.productTitle}</h3>
-                            <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-400">
-                              {order.userName} · {order.userEmail}
-                            </p>
-                          </div>
-                          <StatusPill variant="light" tone="success">
-                            {order.paymentStatus}
-                          </StatusPill>
+                <VirtualList
+                  items={sortedOrders}
+                  estimateSize={240}
+                  getItemKey={(order) => order.id}
+                  renderItem={(order) => (
+                    <article className="admin-panel mb-4 p-6">
+                      <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+                        <div className="product-image-well-sm h-28 w-full shrink-0 sm:w-36">
+                          <img
+                            src={order.productImage}
+                            alt={order.productTitle}
+                            loading="lazy"
+                            decoding="async"
+                            className="product-image h-full w-full object-cover"
+                          />
                         </div>
-                        <div className="grid gap-3 sm:grid-cols-4">
-                          {[
-                            ['Plan', `${order.installmentMonths} months`],
-                            ['Monthly', formatCurrency(order.monthlyPayment)],
-                            ['Down payment', formatCurrency(order.downPayment)],
-                            ['Method', order.paymentMethod],
-                          ].map(([label, value]) => (
-                            <div key={label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
-                              <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
-                              <p className="mt-1 text-lg font-black text-slate-900 dark:text-white">{value}</p>
+                        <div className="flex-1 space-y-3">
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                              <h3 className="text-xl font-bold text-slate-900 dark:text-white">{order.productTitle}</h3>
+                              <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-400">
+                                {order.userName} · {order.userEmail}
+                              </p>
                             </div>
-                          ))}
+                            <StatusPill variant="light" tone="success">
+                              {order.paymentStatus}
+                            </StatusPill>
+                          </div>
+                          <div className="grid gap-3 sm:grid-cols-4">
+                            {[
+                              ['Plan', `${order.installmentMonths} months`],
+                              ['Monthly', formatCurrency(order.monthlyPayment)],
+                              ['Down payment', formatCurrency(order.downPayment)],
+                              ['Method', order.paymentMethod],
+                            ].map(([label, value]) => (
+                              <div key={label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+                                <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
+                                <p className="mt-1 text-lg font-black text-slate-900 dark:text-white">{value}</p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </article>
-                ))
+                    </article>
+                  )}
+                />
               ) : (
                 <EmptyState
                   icon={ShoppingCart}
@@ -827,43 +847,48 @@ export default function AdminPage() {
           {tab === 'applications' ? <AdminApplicationsPanel /> : null}
 
           {tab === 'payments' ? (
-            <div className="space-y-4">
+            <div>
               {sortedPayments.length ? (
-                sortedPayments.map((payment) => (
-                  <article key={payment.id} className="admin-panel p-6">
-                    <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-                      <div className="grid h-28 w-full place-items-center rounded-2xl border border-emerald-100 bg-emerald-50 text-sm font-bold uppercase tracking-wider text-emerald-600 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400 sm:w-36">
-                        Payment
-                      </div>
-                      <div className="flex-1 space-y-3">
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">{payment.orderTitle}</h3>
-                            <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-400">
-                              {payment.userName} · {payment.userEmail}
-                            </p>
-                          </div>
-                          <StatusPill variant="light" tone="success">
-                            {payment.paymentStatus}
-                          </StatusPill>
+                <VirtualList
+                  items={sortedPayments}
+                  estimateSize={220}
+                  getItemKey={(payment) => payment.id}
+                  renderItem={(payment) => (
+                    <article className="admin-panel mb-4 p-6">
+                      <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+                        <div className="grid h-28 w-full place-items-center rounded-2xl border border-emerald-100 bg-emerald-50 text-sm font-bold uppercase tracking-wider text-emerald-600 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400 sm:w-36">
+                          Payment
                         </div>
-                        <div className="grid gap-3 sm:grid-cols-4">
-                          {[
-                            ['Amount', formatCurrency(payment.amount)],
-                            ['Method', payment.paymentMethod],
-                            ['Reference', payment.paymentReference || 'n/a'],
-                            ['Date', new Date(payment.createdAt).toLocaleDateString()],
-                          ].map(([label, value]) => (
-                            <div key={label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
-                              <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
-                              <p className="mt-1 text-lg font-black text-slate-900 dark:text-white">{value}</p>
+                        <div className="flex-1 space-y-3">
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                              <h3 className="text-xl font-bold text-slate-900 dark:text-white">{payment.orderTitle}</h3>
+                              <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-400">
+                                {payment.userName} · {payment.userEmail}
+                              </p>
                             </div>
-                          ))}
+                            <StatusPill variant="light" tone="success">
+                              {payment.paymentStatus}
+                            </StatusPill>
+                          </div>
+                          <div className="grid gap-3 sm:grid-cols-4">
+                            {[
+                              ['Amount', formatCurrency(payment.amount)],
+                              ['Method', payment.paymentMethod],
+                              ['Reference', payment.paymentReference || 'n/a'],
+                              ['Date', new Date(payment.createdAt).toLocaleDateString()],
+                            ].map(([label, value]) => (
+                              <div key={label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+                                <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
+                                <p className="mt-1 text-lg font-black text-slate-900 dark:text-white">{value}</p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </article>
-                ))
+                    </article>
+                  )}
+                />
               ) : (
                 <EmptyState
                   icon={CreditCard}

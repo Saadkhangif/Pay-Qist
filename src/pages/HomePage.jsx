@@ -1,16 +1,17 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ApplicationSuccessBanner from '../components/ApplicationSuccessBanner';
 import Hero from '../components/Hero';
 import TrustStatistics from '../components/TrustStatistics';
 import Categories from '../components/Categories';
 import FeaturedProducts from '../components/FeaturedProducts';
-import EmiCalculator from '../components/EmiCalculator';
 import HowItWorks from '../components/HowItWorks';
 import Features from '../components/Features';
 import PartnerBrands from '../components/PartnerBrands';
 import Newsletter from '../components/Newsletter';
-import Faq from '../components/Faq';
+
+const EmiCalculator = lazy(() => import('../components/EmiCalculator'));
+const Faq = lazy(() => import('../components/Faq'));
 
 export default function HomePage() {
   const location = useLocation();
@@ -36,12 +37,16 @@ export default function HomePage() {
       <TrustStatistics />
       <Categories />
       <FeaturedProducts />
-      <EmiCalculator />
+      <Suspense fallback={null}>
+        <EmiCalculator />
+      </Suspense>
       <HowItWorks />
       <Features />
       <PartnerBrands />
       <Newsletter />
-      <Faq />
+      <Suspense fallback={null}>
+        <Faq />
+      </Suspense>
     </div>
   );
 }

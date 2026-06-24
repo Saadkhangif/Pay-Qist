@@ -1,7 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ChevronDown, ClipboardList, Search } from 'lucide-react';
 import StatusPill from './StatusPill';
+import VirtualList from './VirtualList';
 import { apiFetch, blobFileUrl } from '../lib/api';
+import { useApplications } from '../hooks/useStoreQueries';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { formatCurrency } from '../lib/currency';
 
 function resolveImageSrc(value) {
@@ -95,7 +98,7 @@ function ApplicationCard({ summary }) {
   }
 
   return (
-    <article className="admin-panel overflow-hidden">
+    <article className="admin-panel mb-4 overflow-hidden">
       <button
         type="button"
         onClick={toggleExpanded}
@@ -200,35 +203,12 @@ function EmptyState() {
 }
 
 export default function AdminApplicationsPanel() {
-  const [applications, setApplications] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: applications = [], isLoading, error: queryError } = useApplications();
   const [search, setSearch] = useState('');
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadApplications() {
-      setLoading(true);
-      setError('');
-      try {
-        const payload = await apiFetch('/api/applications');
-        if (!cancelled) setApplications(Array.isArray(payload) ? payload : []);
-      } catch (err) {
-        if (!cancelled) setError(err.message || 'Unable to load applications.');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    loadApplications();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const debouncedSearch = useDebouncedValue(search, 200);
 
   const filteredApplications = useMemo(() => {
-    const query = search.trim().toLowerCase();
+    const query = debouncedSearch.trim().toLowerCase();
     if (!query) return applications;
 
     return applications.filter(
@@ -240,7 +220,7 @@ export default function AdminApplicationsPanel() {
         entry.referralPhone?.includes(query) ||
         entry.userName?.toLowerCase().includes(query),
     );
-  }, [applications, search]);
+  }, [applications, debouncedSearch]);
 
   return (
     <div className="space-y-4">
@@ -257,16 +237,21 @@ export default function AdminApplicationsPanel() {
         </div>
       </div>
 
-      {error ? (
+      {queryError ? (
         <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
-          {error}
+          {queryError.message || 'Unable to load applications.'}
         </div>
       ) : null}
 
-      {loading ? (
+      {isLoading ? (
         <div className="admin-panel p-8 text-center text-sm text-slate-500 dark:text-slate-400">Loading applications...</div>
       ) : filteredApplications.length ? (
-        filteredApplications.map((summary) => <ApplicationCard key={summary.id} summary={summary} />)
+        <VirtualList
+          items={filteredApplications}
+          estimateSize={160}
+          getItemKey={(summary) => summary.id}
+          renderItem={(summary) => <ApplicationCard summary={summary} />}
+        />
       ) : (
         <EmptyState />
       )}

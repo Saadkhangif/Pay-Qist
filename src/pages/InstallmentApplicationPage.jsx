@@ -3,7 +3,8 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, CreditCard, Shield, Sparkles, Wallet } from 'lucide-react';
 import InstallmentApplicationForm from '../components/InstallmentApplicationForm';
 import { useAuth } from '../context/AuthContext';
-import { useStore } from '../context/StoreContext';
+import { useCartItems } from '../stores/cartStore';
+import { useSubmitInstallmentApplication } from '../hooks/useStoreQueries';
 import { validateApplicationForm } from '../lib/validation/applicationSchemas';
 import { formatCurrency, getDownPayment, getMonthlyInstallment } from '../lib/currency';
 
@@ -23,7 +24,8 @@ const steps = [
 export default function InstallmentApplicationPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { cart = [], submitInstallmentApplication } = useStore();
+  const cart = useCartItems();
+  const { mutateAsync: submitInstallmentApplication } = useSubmitInstallmentApplication();
   const [paymentMethod, setPaymentMethod] = useState('Credit Card');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

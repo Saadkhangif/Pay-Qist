@@ -1,11 +1,56 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Search, Sparkles } from 'lucide-react';
-import { useStore } from '../context/StoreContext';
+import VirtualProductGrid from '../components/VirtualProductGrid';
+import { useProducts } from '../hooks/useStoreQueries';
 import { formatCurrency, getDownPayment, getMonthlyInstallment } from '../lib/currency';
 
+function ProductCard({ product }) {
+  const downPayment = getDownPayment(product.price);
+  const monthly = getMonthlyInstallment(product.price, 12);
+
+  return (
+    <article className="surface-card group flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-brand-200/60 hover:shadow-card-hover dark:hover:border-brand-500/40">
+      <Link to={`/product/${product.id}`} className="product-image-well relative block aspect-[4/3]">
+        <img
+          src={product.imageUrl}
+          alt={product.title}
+          loading="lazy"
+          decoding="async"
+          className="product-image h-full w-full group-hover:scale-105"
+        />
+      </Link>
+
+      <div className="flex flex-1 flex-col p-6">
+        <Link to={`/product/${product.id}`}>
+          <span className="text-xs font-bold uppercase tracking-wider text-brand-500">
+            {product.category || 'Electronics'}
+          </span>
+          <h3 className="mt-1 line-clamp-2 text-lg font-bold text-slate-900 transition-colors group-hover:text-brand-600 dark:text-slate-100 dark:group-hover:text-brand-400">
+            {product.title}
+          </h3>
+        </Link>
+        <div className="mt-1 text-sm font-medium text-slate-400 line-through decoration-slate-300">
+          Total: {formatCurrency(product.price)}
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-brand-500/10 bg-brand-500/5 p-4">
+          <div className="flex items-end gap-1">
+            <span className="text-xl font-black text-brand-500">{formatCurrency(monthly)}</span>
+            <span className="mb-0.5 text-sm font-medium text-slate-500">/mo</span>
+          </div>
+          <div className="mt-2 flex items-center justify-between">
+            <div className="text-xs font-bold uppercase tracking-wide text-brand-500/70">× 12 Months</div>
+            <div className="text-xs font-bold text-slate-500">Upfront: {formatCurrency(downPayment)}</div>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export default function ProductsPage() {
-  const { products = [] } = useStore();
+  const { data: products = [] } = useProducts();
   const [searchParams] = useSearchParams();
   const categoryFromUrl = searchParams.get('category');
   const [activeCategory, setActiveCategory] = useState(categoryFromUrl || 'All');
@@ -48,7 +93,7 @@ export default function ProductsPage() {
         </div>
       </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:justify-start">
+      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:justify-start">
         {categories.map((category) => (
           <button
             key={category}
@@ -66,63 +111,12 @@ export default function ProductsPage() {
       </div>
 
       {displayedProducts.length > 0 ? (
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {displayedProducts.map((product) => {
-            const downPayment = getDownPayment(product.price);
-            const monthly = getMonthlyInstallment(product.price, 12);
-
-            return (
-              <article
-                key={product.id}
-                className="surface-card group flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-brand-200/60 hover:shadow-card-hover dark:hover:border-brand-500/40"
-              >
-                <Link
-                  to={`/product/${product.id}`}
-                  className="product-image-well relative block aspect-[4/3]"
-                >
-                  <img
-                    src={product.imageUrl}
-                    alt={product.title}
-                    loading="lazy"
-                    decoding="async"
-                    className="product-image h-full w-full group-hover:scale-105"
-                  />
-                </Link>
-
-                <div className="flex flex-1 flex-col p-6">
-                  <Link to={`/product/${product.id}`}>
-                    <span className="text-xs font-bold uppercase tracking-wider text-brand-500">
-                      {product.category || 'Electronics'}
-                    </span>
-                    <h3 className="mt-1 line-clamp-2 text-lg font-bold text-slate-900 transition-colors group-hover:text-brand-600 dark:text-slate-100 dark:group-hover:text-brand-400">
-                      {product.title}
-                    </h3>
-                  </Link>
-                  <div className="mt-1 text-sm font-medium text-slate-400 line-through decoration-slate-300">
-                    Total: {formatCurrency(product.price)}
-                  </div>
-
-                  <div className="mt-4 rounded-2xl border border-brand-500/10 bg-brand-500/5 p-4">
-                    <div className="flex items-end gap-1">
-                      <span className="text-xl font-black text-brand-500">{formatCurrency(monthly)}</span>
-                      <span className="mb-0.5 text-sm font-medium text-slate-500">/mo</span>
-                    </div>
-                    <div className="mt-2 flex items-center justify-between">
-                      <div className="text-xs font-bold uppercase tracking-wide text-brand-500/70">
-                        × 12 Months
-                      </div>
-                      <div className="text-xs font-bold text-slate-500">
-                        Upfront: {formatCurrency(downPayment)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
+        <VirtualProductGrid
+          products={displayedProducts}
+          renderProduct={(product) => <ProductCard key={product.id} product={product} />}
+        />
       ) : (
-        <div className="surface-card flex flex-col items-center justify-center px-4 py-24 text-center">
+        <div className="surface-card mt-8 flex flex-col items-center justify-center px-4 py-24 text-center">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 text-brand-500">
             <Search className="h-8 w-8" />
           </div>

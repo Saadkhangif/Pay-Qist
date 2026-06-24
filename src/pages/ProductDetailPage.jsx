@@ -1,12 +1,14 @@
 import { useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useStore } from '../context/StoreContext';
+import { useProducts } from '../hooks/useStoreQueries';
+import { useCartStore } from '../stores/cartStore';
 import { formatCurrency, getDownPayment, getMonthlyInstallment } from '../lib/currency';
 
 export default function ProductDetailPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
-  const { products = [], addToCart } = useStore();
+  const { data: products = [] } = useProducts();
+  const addToCart = useCartStore((state) => state.addToCart);
   
   // State for interactive UI
   const [selectedMonths, setSelectedMonths] = useState(12);

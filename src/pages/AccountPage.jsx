@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ClipboardList, Package, ShoppingBag, User } from 'lucide-react';
-import ApplicationSuccessBanner from '../components/ApplicationSuccessBanner';
+import VirtualList from '../components/VirtualList';
 import AvatarUpload from '../components/AvatarUpload';
 import SectionHeading from '../components/SectionHeading';
 import StatusPill from '../components/StatusPill';
-import { useStore } from '../context/StoreContext';
+import { useOrders, usePayments } from '../hooks/useStoreQueries';
 import { useAuth } from '../context/AuthContext';
 import { apiFetch } from '../lib/api';
 import { formatCurrency } from '../lib/currency';
@@ -35,7 +35,8 @@ export default function AccountPage() {
   const navigate = useNavigate();
   const { user, updateAvatarPathname } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { orders = [], payments = [] } = useStore();
+  const { data: orders = [] } = useOrders();
+  const { data: payments = [] } = usePayments();
   const [applications, setApplications] = useState([]);
   const [loadingApplications, setLoadingApplications] = useState(true);
   const [applicationsError, setApplicationsError] = useState('');
@@ -139,84 +140,90 @@ export default function AccountPage() {
       </div>
 
       {activeTab === 'orders' ? (
-        <div className="mt-8 space-y-4">
+        <div className="mt-8">
           {sortedOrders.length ? (
-            sortedOrders.map((order) => {
-              const payment = paymentsByOrderId.get(order.id);
+            <VirtualList
+              items={sortedOrders}
+              estimateSize={280}
+              className="space-y-4"
+              getItemKey={(order) => order.id}
+              renderItem={(order) => {
+                const payment = paymentsByOrderId.get(order.id);
 
-              return (
-                <article key={order.id} className="surface-card p-5 sm:p-6">
-                  <div className="flex flex-col gap-5 sm:flex-row">
-                    <div className="product-image-well-sm h-32 w-full shrink-0 sm:w-36">
-                      {order.productImage ? (
-                        <img
-                          src={order.productImage}
-                          alt={order.productTitle}
-                          loading="lazy"
-                          decoding="async"
-                          className="product-image h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-brand-500">
-                          <Package className="h-8 w-8" />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="min-w-0 flex-1 space-y-3">
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <h2 className="text-xl font-bold text-slate-900 dark:text-white">{order.productTitle}</h2>
-                          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                            Placed {formatDate(order.createdAt)} · Qty {order.quantity}
-                          </p>
-                        </div>
-                        <StatusPill tone={statusTone(order.paymentStatus)} variant="light">
-                          {order.paymentStatus}
-                        </StatusPill>
+                return (
+                  <article className="surface-card mb-4 p-5 sm:p-6">
+                    <div className="flex flex-col gap-5 sm:flex-row">
+                      <div className="product-image-well-sm h-32 w-full shrink-0 sm:w-36">
+                        {order.productImage ? (
+                          <img
+                            src={order.productImage}
+                            alt={order.productTitle}
+                            loading="lazy"
+                            decoding="async"
+                            className="product-image h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-brand-500">
+                            <Package className="h-8 w-8" />
+                          </div>
+                        )}
                       </div>
 
-                      <div className="grid gap-3 sm:grid-cols-3">
-                        <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-surface-overlay/60">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Down payment</p>
-                          <p className="mt-1 font-bold text-slate-900 dark:text-white">
-                            {formatCurrency(order.downPayment)}
-                          </p>
+                      <div className="min-w-0 flex-1 space-y-3">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <h2 className="text-xl font-bold text-slate-900 dark:text-white">{order.productTitle}</h2>
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                              Placed {formatDate(order.createdAt)} · Qty {order.quantity}
+                            </p>
+                          </div>
+                          <StatusPill tone={statusTone(order.paymentStatus)} variant="light">
+                            {order.paymentStatus}
+                          </StatusPill>
                         </div>
-                        <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-surface-overlay/60">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Monthly</p>
-                          <p className="mt-1 font-bold text-brand-600 dark:text-brand-300">
-                            {formatCurrency(order.monthlyPayment)}
-                          </p>
+
+                        <div className="grid gap-3 sm:grid-cols-3">
+                          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-surface-overlay/60">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Down payment</p>
+                            <p className="mt-1 font-bold text-slate-900 dark:text-white">
+                              {formatCurrency(order.downPayment)}
+                            </p>
+                          </div>
+                          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-surface-overlay/60">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Monthly</p>
+                            <p className="mt-1 font-bold text-brand-600 dark:text-brand-300">
+                              {formatCurrency(order.monthlyPayment)}
+                            </p>
+                          </div>
+                          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-surface-overlay/60">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Plan</p>
+                            <p className="mt-1 font-bold text-slate-900 dark:text-white">
+                              {order.installmentMonths} months
+                            </p>
+                          </div>
                         </div>
-                        <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-surface-overlay/60">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Plan</p>
-                          <p className="mt-1 font-bold text-slate-900 dark:text-white">
-                            {order.installmentMonths} months
+
+                        {payment ? (
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Down payment paid via {payment.paymentMethod} · {formatCurrency(payment.amount)}
                           </p>
-                        </div>
+                        ) : null}
+
+                        {order.applicationId ? (
+                          <button
+                            type="button"
+                            className="text-sm font-semibold text-brand-600 hover:underline dark:text-brand-300"
+                            onClick={() => switchTab('applications')}
+                          >
+                            View linked application →
+                          </button>
+                        ) : null}
                       </div>
-
-                      {payment ? (
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                          Down payment paid via {payment.paymentMethod} · {formatCurrency(payment.amount)}
-                        </p>
-                      ) : null}
-
-                      {order.applicationId ? (
-                        <button
-                          type="button"
-                          className="text-sm font-semibold text-brand-600 hover:underline dark:text-brand-300"
-                          onClick={() => switchTab('applications')}
-                        >
-                          View linked application →
-                        </button>
-                      ) : null}
                     </div>
-                  </div>
-                </article>
-              );
-            })
+                  </article>
+                );
+              }}
+            />
           ) : (
             <div className="surface-card p-10 text-center">
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-600 dark:text-brand-300">

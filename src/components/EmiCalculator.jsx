@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
@@ -45,7 +45,20 @@ function WhatsAppIcon({ className = 'h-5 w-5' }) {
   );
 }
 
-function SliderField({ id, label, hint, value, onChange, min, max, step, prefix, accent = 'brand' }) {
+const SliderField = memo(function SliderField({
+  id,
+  label,
+  hint,
+  value,
+  onNumberChange,
+  onRangeInput,
+  onRangeCommit,
+  min,
+  max,
+  step,
+  prefix,
+  accent = 'brand',
+}) {
   const pct = max > min ? ((value - min) / (max - min)) * 100 : 0;
   const trackClass =
     accent === 'emerald'
@@ -79,7 +92,7 @@ function SliderField({ id, label, hint, value, onChange, min, max, step, prefix,
           max={max}
           step={step}
           value={value}
-          onChange={onChange}
+          onChange={onNumberChange}
           className={`input w-full py-3 text-lg font-bold tabular-nums ${prefix ? 'pl-12' : ''}`}
         />
       </div>
@@ -97,7 +110,10 @@ function SliderField({ id, label, hint, value, onChange, min, max, step, prefix,
           max={max}
           step={step}
           value={value}
-          onChange={onChange}
+          onInput={onRangeInput}
+          onChange={onRangeInput}
+          onPointerUp={onRangeCommit}
+          onKeyUp={onRangeCommit}
           aria-label={label}
           className="range-slider relative z-10 bg-transparent"
           style={{ background: 'transparent' }}
@@ -105,9 +121,9 @@ function SliderField({ id, label, hint, value, onChange, min, max, step, prefix,
       </div>
     </div>
   );
-}
+});
 
-function ResultTile({ label, value, icon: Icon, highlight = false }) {
+const ResultTile = memo(function ResultTile({ label, value, icon: Icon, highlight = false }) {
   return (
     <div
       className={`relative overflow-hidden rounded-2xl border p-4 transition-all duration-300 ${
@@ -134,9 +150,9 @@ function ResultTile({ label, value, icon: Icon, highlight = false }) {
       </p>
     </div>
   );
-}
+});
 
-function PaymentBreakdownBar({ advance, productPrice }) {
+const PaymentBreakdownBar = memo(function PaymentBreakdownBar({ advance, productPrice }) {
   const advancePct = productPrice > 0 ? Math.round((advance / productPrice) * 100) : 0;
   const financedPct = 100 - advancePct;
 
@@ -162,35 +178,73 @@ function PaymentBreakdownBar({ advance, productPrice }) {
       </div>
     </div>
   );
-}
+});
 
-export default function EmiCalculator() {
+const CalculatorActions = memo(function CalculatorActions() {
   const { user } = useAuth();
   const { openAuthModal } = useAuthModal();
-  const [productPrice, setProductPrice] = useState(150000);
-  const [advance, setAdvance] = useState(45000);
+
+  return (
+    <div className="mt-auto grid gap-3 sm:grid-cols-2">
+      {user ? (
+        <Link to="/account" className="button-secondary gap-2 py-3.5">
+          <User className="h-4 w-4" />
+          My Account
+        </Link>
+      ) : (
+        <button type="button" onClick={() => openAuthModal('login')} className="button-secondary gap-2 py-3.5">
+          <User className="h-4 w-4" />
+          Sign In
+        </button>
+      )}
+      <Link to="/products" className="button-primary gap-2 py-3.5">
+        <ShoppingBag className="h-4 w-4" />
+        Shop Now
+        <ArrowRight className="h-4 w-4" />
+      </Link>
+    </div>
+  );
+});
+
+export default function EmiCalculator() {
+  const [draftPrice, setDraftPrice] = useState(150000);
+  const [committedPrice, setCommittedPrice] = useState(150000);
+  const [draftAdvance, setDraftAdvance] = useState(45000);
+  const [committedAdvance, setCommittedAdvance] = useState(45000);
   const [months, setMonths] = useState(6);
   const [showDetails, setShowDetails] = useState(false);
-  const [installmentPulse, setInstallmentPulse] = useState(false);
 
   const plan = useMemo(
-    () => calculateInstallmentPlan(productPrice, advance, months),
-    [productPrice, advance, months],
+    () => calculateInstallmentPlan(committedPrice, committedAdvance, months),
+    [committedPrice, committedAdvance, months],
   );
 
-  const advancePercent = productPrice > 0 ? Math.round((advance / productPrice) * 100) : 0;
+  const advancePercent = committedPrice > 0 ? Math.round((draftAdvance / committedPrice) * 100) : 0;
   const whatsappMessage = encodeURIComponent(
-    `Hi Pay Qist, I calculated ${formatCurrency(plan.installment)}/month for ${months} months on a product priced at ${formatCurrency(productPrice)}.`,
+    `Hi Pay Qist, I calculated ${formatCurrency(plan.installment)}/month for ${months} months on a product priced at ${formatCurrency(committedPrice)}.`,
   );
-
-  useEffect(() => {
-    setInstallmentPulse(true);
-    const timer = setTimeout(() => setInstallmentPulse(false), 450);
-    return () => clearTimeout(timer);
-  }, [plan.installment, months, advance, productPrice]);
 
   function setAdvanceFromPreset(percent) {
-    setAdvance(Math.round((productPrice * percent) / 100));
+    const nextAdvance = Math.round((committedPrice * percent) / 100);
+    setDraftAdvance(nextAdvance);
+    setCommittedAdvance(nextAdvance);
+  }
+
+  function handlePriceNumberChange(event) {
+    const price = Math.max(0, Number(event.target.value) || 0);
+    setDraftPrice(price);
+    setCommittedPrice(price);
+    setDraftAdvance((current) => {
+      const next = Math.min(current, price);
+      setCommittedAdvance(next);
+      return next;
+    });
+  }
+
+  function handleAdvanceNumberChange(event) {
+    const next = Math.min(Math.max(0, Number(event.target.value) || 0), committedPrice);
+    setDraftAdvance(next);
+    setCommittedAdvance(next);
   }
 
   return (
@@ -255,14 +309,22 @@ export default function EmiCalculator() {
                 id="calc-product-price"
                 label="Product Price"
                 prefix="Rs."
-                value={productPrice}
+                value={draftPrice}
                 min={10000}
                 max={MAX_PRICE}
                 step={PRICE_STEP}
-                onChange={(e) => {
-                  const price = Math.max(0, Number(e.target.value) || 0);
-                  setProductPrice(price);
-                  setAdvance((current) => Math.min(current, price));
+                onNumberChange={handlePriceNumberChange}
+                onRangeInput={(event) => {
+                  const price = Math.max(0, Number(event.target.value) || 0);
+                  setDraftPrice(price);
+                }}
+                onRangeCommit={() => {
+                  setCommittedPrice(draftPrice);
+                  setDraftAdvance((current) => {
+                    const next = Math.min(current, draftPrice);
+                    setCommittedAdvance(next);
+                    return next;
+                  });
                 }}
               />
 
@@ -271,15 +333,19 @@ export default function EmiCalculator() {
                 label="Advance Payment"
                 hint={`${advancePercent}% down`}
                 prefix="Rs."
-                value={advance}
+                value={draftAdvance}
                 min={0}
-                max={productPrice || MAX_PRICE}
+                max={committedPrice || MAX_PRICE}
                 step={1000}
                 accent="emerald"
-                onChange={(e) => setAdvance(Math.min(Math.max(0, Number(e.target.value) || 0), productPrice))}
+                onNumberChange={handleAdvanceNumberChange}
+                onRangeInput={(event) => {
+                  setDraftAdvance(Math.min(Math.max(0, Number(event.target.value) || 0), committedPrice));
+                }}
+                onRangeCommit={() => setCommittedAdvance(draftAdvance)}
               />
 
-              <PaymentBreakdownBar advance={advance} productPrice={productPrice} />
+              <PaymentBreakdownBar advance={committedAdvance} productPrice={committedPrice} />
 
               <div className="space-y-2.5">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -346,9 +412,8 @@ export default function EmiCalculator() {
                 </div>
 
                 <p
-                  className={`relative mt-3 bg-gradient-to-r from-white via-brand-100 to-emerald-200 bg-clip-text text-3xl font-black tabular-nums tracking-tight text-transparent transition-transform duration-300 xs:text-4xl sm:text-5xl md:text-6xl ${
-                    installmentPulse ? 'scale-105' : 'scale-100'
-                  }`}
+                  key={plan.installment}
+                  className="relative mt-3 animate-installment-pop bg-gradient-to-r from-white via-brand-100 to-emerald-200 bg-clip-text text-3xl font-black tabular-nums tracking-tight text-transparent xs:text-4xl sm:text-5xl md:text-6xl"
                 >
                   {formatCurrency(plan.installment)}
                 </p>
@@ -356,12 +421,12 @@ export default function EmiCalculator() {
                 <p className="relative mt-3 text-sm leading-relaxed text-slate-400">
                   Pay just this amount every month for{' '}
                   <span className="font-bold text-white">{months} months</span> after your{' '}
-                  <span className="font-bold text-brand-300">{formatCurrency(advance)}</span> advance.
+                  <span className="font-bold text-brand-300">{formatCurrency(committedAdvance)}</span> advance.
                 </p>
 
                 <div className="relative mt-5 grid grid-cols-3 gap-2 border-t border-white/10 pt-5">
                   {[
-                    { label: 'Upfront', value: formatCurrency(advance) },
+                    { label: 'Upfront', value: formatCurrency(committedAdvance) },
                     { label: 'Monthly', value: formatCurrency(plan.installment) },
                     { label: 'Total', value: formatCurrency(plan.totalAmount) },
                   ].map((item) => (
@@ -394,7 +459,7 @@ export default function EmiCalculator() {
                     ['Financed amount', formatCurrency(plan.principal)],
                     ['Monthly rate', '4.5%'],
                     ['Plan duration', `${months} months`],
-                    ['You pay upfront', formatCurrency(advance)],
+                    ['You pay upfront', formatCurrency(committedAdvance)],
                     ['Then monthly', formatCurrency(plan.installment)],
                   ].map(([label, val], i, arr) => (
                     <div
@@ -421,24 +486,7 @@ export default function EmiCalculator() {
                 </div>
               ) : null}
 
-              <div className="mt-auto grid gap-3 sm:grid-cols-2">
-                {user ? (
-                  <Link to="/account" className="button-secondary gap-2 py-3.5">
-                    <User className="h-4 w-4" />
-                    My Account
-                  </Link>
-                ) : (
-                  <button type="button" onClick={() => openAuthModal('login')} className="button-secondary gap-2 py-3.5">
-                    <User className="h-4 w-4" />
-                    Sign In
-                  </button>
-                )}
-                <Link to="/products" className="button-primary gap-2 py-3.5">
-                  <ShoppingBag className="h-4 w-4" />
-                  Shop Now
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
+              <CalculatorActions />
             </div>
           </div>
 
