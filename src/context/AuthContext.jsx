@@ -3,7 +3,6 @@ import { apiFetch, initApiSecurity } from '../lib/api';
 import {
   isNeonAuthConfigured,
   neonGetSession,
-  neonSignIn,
   neonSignOut,
   neonSignUp,
 } from '../lib/neonAuth';
@@ -142,13 +141,6 @@ export function AuthProvider({ children }) {
   async function login({ email, password }) {
     const normalizedEmail = email.trim().toLowerCase();
 
-    if (isNeonAuthConfigured) {
-      await neonSignIn({ email: normalizedEmail, password });
-      const profile = await fetchAppUser();
-      setUser(profile);
-      return profile;
-    }
-
     const payload = await apiFetch('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({
@@ -162,10 +154,9 @@ export function AuthProvider({ children }) {
   }
 
   async function logout() {
+    await apiFetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
     if (isNeonAuthConfigured) {
       await neonSignOut().catch(() => {});
-    } else {
-      await apiFetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
     }
     setUser(null);
   }

@@ -3,6 +3,7 @@ import { verifySessionToken } from '../utils/session.js';
 import { getUserById } from '../utils/users.js';
 import { normalizeRole } from '../utils/roles.js';
 import { isNeonAuthEnabled, verifyNeonAuthToken } from '../utils/neonJwt.js';
+import { isDatabaseEnabled } from '../db/index.js';
 import { getOrCreateProfileFromNeon, getProfileById } from '../db/userProfiles.js';
 
 function bearerToken(req) {
@@ -57,7 +58,7 @@ async function resolveNeonAuth(req) {
   };
 }
 
-function resolveLegacyAuth(req) {
+async function resolveLegacyAuth(req) {
   const sessionToken = req.cookies?.[SESSION_COOKIE];
 
   if (!sessionToken) {
@@ -65,6 +66,23 @@ function resolveLegacyAuth(req) {
   }
 
   const decoded = verifySessionToken(sessionToken);
+
+  if (isNeonAuthEnabled() && isDatabaseEnabled()) {
+    const profile = await getProfileById(decoded.id);
+    if (!profile) {
+      return null;
+    }
+
+    return {
+      id: profile.id,
+      uid: profile.id,
+      email: profile.email,
+      name: profile.name,
+      role: normalizeRole(profile.role),
+      profile,
+    };
+  }
+
   const user = getUserById(decoded.id);
 
   if (!user) {
@@ -92,7 +110,7 @@ export async function resolveRequestAuth(req) {
   }
 
   try {
-    return resolveLegacyAuth(req);
+    return await resolveLegacyAuth(req);
   } catch {
     return null;
   }
