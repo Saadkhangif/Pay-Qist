@@ -43,6 +43,7 @@ import {
 import { seedProducts } from './src/data/seedProducts.js';
 import { imageUpload } from './server/middleware/upload.js';
 import { uploadFileToBlobAndDb, getStorageStatus, streamBlobToResponse } from './server/storage/blob.js';
+import { isNeonAuthEnabled } from './server/utils/neonJwt.js';
 import { getBlobById, getBlobByPathname } from './server/db/blobs.js';
 import { isDatabaseEnabled } from './server/db/index.js';
 import { createComment, listComments } from './server/db/comments.js';
@@ -119,7 +120,11 @@ app.get('/api/csrf-token', (req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
-  res.json({ ok: true, storage: getStorageStatus() });
+  res.json({
+    ok: true,
+    storage: getStorageStatus(),
+    auth: { neon: isNeonAuthEnabled() },
+  });
 });
 
 app.get('/api/comments', async (req, res) => {
@@ -248,6 +253,12 @@ app.get('/api/auth/me', async (req, res) => {
 });
 
 app.post('/api/auth/signup', authRateLimiter, validateBody(signupSchema), (req, res) => {
+  if (isNeonAuthEnabled()) {
+    return res.status(400).json({
+      error: 'Sign up is handled by Neon Auth. Use the in-app signup flow.',
+    });
+  }
+
   try {
     const user = createUser(req.body);
     setSessionCookie(res, user);
@@ -258,6 +269,12 @@ app.post('/api/auth/signup', authRateLimiter, validateBody(signupSchema), (req, 
 });
 
 app.post('/api/auth/login', authRateLimiter, validateBody(loginSchema), (req, res) => {
+  if (isNeonAuthEnabled()) {
+    return res.status(400).json({
+      error: 'Sign in is handled by Neon Auth. Use the in-app login flow.',
+    });
+  }
+
   const { email, password } = req.body;
   const user = authenticate(email, password);
 

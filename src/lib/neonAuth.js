@@ -10,6 +10,13 @@ export async function getNeonSessionToken() {
     return null;
   }
 
+  if (typeof authClient.getJWTToken === 'function') {
+    const token = await authClient.getJWTToken();
+    if (token) {
+      return token;
+    }
+  }
+
   const { data } = await authClient.getSession();
   return data?.session?.token || null;
 }

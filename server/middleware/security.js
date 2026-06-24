@@ -1,7 +1,7 @@
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import { ALLOWED_ORIGINS, APP_URL, CANONICAL_HOST, IS_PRODUCTION } from '../config.js';
+import { ALLOWED_ORIGINS, APP_URL, CANONICAL_HOST, IS_PRODUCTION, NEON_AUTH_ORIGIN } from '../config.js';
 
 function isAllowedHost(hostHeader) {
   if (!hostHeader) {
@@ -35,7 +35,9 @@ export function applySecurityMiddleware(app) {
               styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
               fontSrc: ["'self'", 'https://fonts.gstatic.com'],
               imgSrc: ["'self'", 'data:', 'https:'],
-              connectSrc: ["'self'"],
+              connectSrc: NEON_AUTH_ORIGIN
+                ? ["'self'", NEON_AUTH_ORIGIN]
+                : ["'self'"],
               frameSrc: ["'none'"],
               objectSrc: ["'none'"],
               baseUri: ["'self'"],
